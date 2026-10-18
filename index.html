@@ -34,6 +34,7 @@
             padding: 0;
             width: 100vw;
             height: 100vh;
+            height: 100dvh;
             overflow: hidden;
             font-family: 'Noto Sans TC', sans-serif;
             background-color: var(--space-bg);
@@ -44,7 +45,8 @@
         .screen {
             display: none;
             width: 100%;
-            height: 100%;
+            height: 100vh;
+            height: 100dvh;
             position: absolute;
             top: 0;
             left: 0;
@@ -158,10 +160,11 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 16px 28px;
+            padding: clamp(8px, 1.5dvh, 16px) clamp(14px, 2vw, 28px);
             background: radial-gradient(circle at center, #1c2541 0%, #0b132b 100%);
             overflow: hidden;
             height: 100vh;
+            height: 100dvh;
         }
 
         .title-banner {
@@ -170,7 +173,7 @@
         }
 
         .title-banner h1 {
-            font-size: clamp(1.8rem, 3vw, 2.6rem);
+            font-size: clamp(1.45rem, 3.2dvh, 2.4rem);
             margin: 0;
             color: #f1c40f;
             text-shadow: 0 4px 15px rgba(241, 196, 15, 0.4);
@@ -181,13 +184,13 @@
         .global-config-bar {
             background: rgba(255, 255, 255, 0.08);
             border: 2px solid rgba(93, 173, 226, 0.45);
-            padding: 10px 20px;
-            border-radius: 16px;
+            padding: clamp(6px, 1dvh, 10px) 16px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
             width: 100%;
             max-width: 1360px;
             flex-shrink: 0;
@@ -196,7 +199,7 @@
         .config-group {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
@@ -204,9 +207,9 @@
             background: #24345a;
             color: #d6eaf8;
             border: 2px solid #5dade2;
-            padding: 8px 16px;
-            border-radius: 12px;
-            font-size: 1.08rem;
+            padding: clamp(4px, 0.8dvh, 8px) 14px;
+            border-radius: 10px;
+            font-size: clamp(0.9rem, 1.8dvh, 1.05rem);
             font-weight: 900;
             cursor: pointer;
             transition: 0.15s;
@@ -222,14 +225,15 @@
 
         /* 首頁主舞台：第一層「三大遊戲入口」與第二層「各遊戲難度選擇」零捲動切換 */
         .home-stage-container {
-            flex-grow: 1;
+            flex: 1 1 0;
+            min-height: 0;
             width: 100%;
             max-width: 1360px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            margin: 10px 0;
+            margin: clamp(4px, 1dvh, 10px) 0;
         }
 
         .lobby-view {
@@ -249,15 +253,15 @@
         .three-games-portal {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
+            gap: clamp(12px, 1.8vw, 24px);
             width: 100%;
-            height: 92%;
-            max-height: 470px;
+            height: 100%;
+            max-height: 460px;
         }
 
         .portal-card {
-            border-radius: 26px;
-            padding: 24px 22px;
+            border-radius: 22px;
+            padding: clamp(12px, 2.2dvh, 24px) clamp(14px, 1.5vw, 22px);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -266,13 +270,14 @@
             transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
             text-align: center;
             position: relative;
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+            min-height: 0;
         }
 
         .portal-card:hover, .portal-card:active {
-            transform: translateY(-6px);
+            transform: translateY(-4px);
             border-color: #f1c40f !important;
-            box-shadow: 0 16px 35px rgba(241, 196, 15, 0.35);
+            box-shadow: 0 14px 30px rgba(241, 196, 15, 0.35);
         }
 
         .portal-meteor {
@@ -291,37 +296,37 @@
         }
 
         .portal-icon-badge {
-            font-size: 3.4rem;
+            font-size: clamp(2.2rem, 5dvh, 3.4rem);
             line-height: 1;
             filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4));
         }
 
         .portal-title {
-            font-size: 2rem;
+            font-size: clamp(1.35rem, 3dvh, 2rem);
             font-weight: 900;
             color: #ffffff;
-            margin: 6px 0 4px 0;
+            margin: 4px 0;
         }
 
         .portal-subtitle {
-            font-size: 1.15rem;
+            font-size: clamp(0.9rem, 1.8dvh, 1.15rem);
             color: #f1c40f;
             font-weight: 900;
             background: rgba(0, 0, 0, 0.3);
-            padding: 4px 16px;
+            padding: 3px 14px;
             border-radius: 20px;
         }
 
         .portal-desc {
-            font-size: 1.08rem;
+            font-size: clamp(0.88rem, 1.7dvh, 1.05rem);
             color: #d6eaf8;
-            line-height: 1.45;
-            max-width: 92%;
+            line-height: 1.35;
+            max-width: 95%;
         }
 
         .portal-preview-box {
-            font-size: 1.55rem;
-            margin: 6px 0;
+            font-size: clamp(1.15rem, 2.5dvh, 1.55rem);
+            margin: 2px 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -329,11 +334,11 @@
 
         .portal-enter-btn {
             width: 100%;
-            padding: 12px;
-            border-radius: 16px;
+            padding: clamp(8px, 1.5dvh, 12px);
+            border-radius: 14px;
             background: rgba(241, 196, 15, 0.92);
             color: #0b132b;
-            font-size: 1.35rem;
+            font-size: clamp(1.1rem, 2.2dvh, 1.35rem);
             font-weight: 900;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
@@ -341,15 +346,16 @@
         .game-section-box {
             background: rgba(28, 37, 65, 0.88);
             border: 4px solid #3a506b;
-            border-radius: 26px;
-            padding: 24px 28px;
+            border-radius: 24px;
+            padding: clamp(14px, 2.2dvh, 24px) clamp(16px, 2vw, 28px);
             box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
             width: 100%;
-            height: 92%;
-            max-height: 460px;
+            height: 100%;
+            max-height: 450px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            min-height: 0;
         }
 
         .game-section-box.pot-theme {
@@ -367,27 +373,28 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 10px;
             border-bottom: 2px dashed rgba(255, 255, 255, 0.25);
-            padding-bottom: 14px;
+            padding-bottom: clamp(8px, 1.2dvh, 14px);
+            flex-shrink: 0;
         }
 
         .section-title {
-            font-size: 1.85rem;
+            font-size: clamp(1.3rem, 2.6dvh, 1.8rem);
             font-weight: 900;
             color: #f1c40f;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .back-lobby-btn {
             background: #e67e22;
             color: #ffffff;
             border: 2px solid #ffffff;
-            padding: 10px 20px;
-            border-radius: 14px;
-            font-size: 1.2rem;
+            padding: clamp(6px, 1dvh, 10px) 18px;
+            border-radius: 12px;
+            font-size: clamp(1rem, 2dvh, 1.18rem);
             font-weight: 900;
             cursor: pointer;
             font-family: 'Noto Sans TC', sans-serif;
@@ -403,32 +410,35 @@
         .difficulty-grid-4 {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 18px;
-            flex-grow: 1;
+            gap: 14px;
+            flex: 1 1 0;
+            min-height: 0;
             align-items: stretch;
-            margin-top: 16px;
+            margin-top: clamp(8px, 1.5dvh, 16px);
         }
 
         .difficulty-grid-3 {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 22px;
-            flex-grow: 1;
+            gap: 18px;
+            flex: 1 1 0;
+            min-height: 0;
             align-items: stretch;
-            margin-top: 16px;
+            margin-top: clamp(8px, 1.5dvh, 16px);
         }
 
         .diff-card {
             background: linear-gradient(145deg, #24345a, #16203a);
             border: 3px solid #5dade2;
-            border-radius: 22px;
-            padding: 20px 22px;
+            border-radius: 20px;
+            padding: clamp(12px, 2dvh, 20px) 18px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             cursor: pointer;
             transition: transform 0.18s, border-color 0.18s;
-            gap: 14px;
+            gap: 12px;
+            min-height: 0;
         }
 
         .pot-theme .diff-card {
@@ -442,25 +452,25 @@
         }
 
         .diff-card:hover, .diff-card:active {
-            transform: translateY(-5px);
+            transform: translateY(-4px);
             border-color: #f1c40f;
-            box-shadow: 0 12px 24px rgba(241, 196, 15, 0.32);
+            box-shadow: 0 10px 22px rgba(241, 196, 15, 0.32);
         }
 
         .diff-info-col {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            gap: 10px;
+            gap: 6px;
         }
 
         .diff-badge {
             background: #f39c12;
             color: #0b132b;
-            font-size: 1.05rem;
+            font-size: clamp(0.88rem, 1.7dvh, 1.05rem);
             font-weight: 900;
-            padding: 4px 14px;
-            border-radius: 14px;
+            padding: 3px 12px;
+            border-radius: 12px;
         }
 
         .pot-theme .diff-badge {
@@ -474,35 +484,35 @@
         }
 
         .diff-title {
-            font-size: 1.75rem;
+            font-size: clamp(1.3rem, 2.6dvh, 1.7rem);
             font-weight: 900;
             color: #ffffff;
         }
 
         .diff-desc {
-            font-size: 1.08rem;
+            font-size: clamp(0.88rem, 1.7dvh, 1.05rem);
             color: #d6eaf8;
-            line-height: 1.45;
+            line-height: 1.35;
         }
 
         .diff-preview {
-            font-size: 1.75rem;
+            font-size: clamp(1.3rem, 2.6dvh, 1.7rem);
             flex-shrink: 0;
         }
 
         .home-footer {
             display: flex;
-            gap: 16px;
+            gap: 14px;
             flex-wrap: wrap;
             justify-content: center;
             flex-shrink: 0;
         }
 
         .big-btn {
-            font-size: 1.2rem;
+            font-size: clamp(0.95rem, 2dvh, 1.18rem);
             font-weight: 900;
-            padding: 10px 24px;
-            border-radius: 14px;
+            padding: clamp(6px, 1.2dvh, 10px) 20px;
+            border-radius: 12px;
             border: none;
             cursor: pointer;
             display: flex;
@@ -519,16 +529,18 @@
         #game-screen, #pot-screen, #elf-screen {
             flex-direction: column;
             background: var(--space-bg);
+            height: 100vh;
+            height: 100dvh;
         }
 
         .game-top-bar {
-            height: 125px;
+            height: clamp(68px, 10.5dvh, 96px);
             background: #16203a;
-            border-bottom: 4px solid #3a506b;
+            border-bottom: 3px solid #3a506b;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 20px;
+            padding: 0 16px;
             z-index: 50;
             flex-shrink: 0;
         }
@@ -536,19 +548,20 @@
         .top-left-controls, .top-right-controls {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .ctrl-btn {
             background: rgba(255, 255, 255, 0.14);
             color: white;
             border: 2px solid rgba(255, 255, 255, 0.3);
-            padding: 10px 18px;
-            border-radius: 12px;
-            font-size: 1.15rem;
+            padding: clamp(6px, 1dvh, 10px) 14px;
+            border-radius: 10px;
+            font-size: clamp(0.95rem, 1.9dvh, 1.12rem);
             font-weight: 900;
             cursor: pointer;
             font-family: 'Noto Sans TC', sans-serif;
+            white-space: nowrap;
         }
 
         .ctrl-btn:active {
@@ -558,17 +571,18 @@
         .target-command-box {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
             background: rgba(11, 19, 43, 0.92);
-            border: 4px solid #f1c40f;
-            padding: 8px 26px;
-            border-radius: 22px;
+            border: 3px solid #f1c40f;
+            padding: 4px 18px;
+            border-radius: 18px;
             cursor: pointer;
-            box-shadow: 0 0 22px rgba(241, 196, 15, 0.35);
+            box-shadow: 0 0 18px rgba(241, 196, 15, 0.35);
+            max-height: 88%;
         }
 
         .speaker-icon {
-            font-size: 2.6rem;
+            font-size: clamp(1.6rem, 3.5dvh, 2.3rem);
             animation: pulseSpeaker 1.5s infinite;
         }
 
@@ -583,41 +597,41 @@
         }
 
         .target-hint-title {
-            font-size: 1.15rem;
+            font-size: clamp(0.92rem, 1.8dvh, 1.1rem);
             color: #f1c40f;
             font-weight: 900;
         }
 
         .target-sub-hint {
-            font-size: 0.92rem;
+            font-size: clamp(0.75rem, 1.4dvh, 0.88rem);
             color: #bdc3c7;
-            margin-top: 2px;
+            margin-top: 1px;
         }
 
-        #target-bpmf-display, #pot-target-display {
-            font-size: 1.35rem;
+        #target-bpmf-display, #pot-target-display, #elf-target-display {
+            font-size: clamp(1rem, 2dvh, 1.25rem);
             display: flex;
             align-items: center;
             justify-content: center;
-            min-width: 130px;
+            min-width: 110px;
         }
 
         #target-bpmf-display .bpmf-word-box, #pot-target-display .bpmf-word-box {
             flex-direction: row;
-            gap: 10px;
+            gap: 8px;
         }
 
         .mystery-target-box {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            border: 3px dashed #f1c40f;
-            border-radius: 14px;
-            padding: 10px 16px;
+            gap: 6px;
+            border: 2px dashed #f1c40f;
+            border-radius: 12px;
+            padding: 6px 12px;
             background: rgba(241, 196, 15, 0.15);
             color: #f1c40f;
-            font-size: 1.2rem;
+            font-size: clamp(0.95rem, 1.8dvh, 1.12rem);
             font-weight: 900;
             white-space: nowrap;
             animation: pulseMystery 1.4s infinite;
@@ -628,13 +642,13 @@
             50% { transform: scale(1.04); opacity: 1; }
         }
 
-        /* 動態支援 1人、2隊、3隊 的網格容器 */
+        /* 動態支援 1人、2隊、3隊 的網格容器（自動填滿剩餘高度） */
         .battlefield {
-            flex-grow: 1;
+            flex: 1 1 0;
+            min-height: 0;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             width: 100%;
-            height: calc(100vh - 125px);
             position: relative;
             overflow: hidden;
         }
@@ -646,6 +660,7 @@
         .team-lane {
             position: relative;
             height: 100%;
+            min-height: 0;
             border-right: 4px dashed rgba(255, 255, 255, 0.2);
             overflow: hidden;
             display: flex;
@@ -661,27 +676,27 @@
         .lane-c { background: var(--team-c-bg); }
 
         .lane-header {
-            padding: 8px 14px;
+            padding: clamp(4px, 0.8dvh, 8px) 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 20;
             background: rgba(0, 0, 0, 0.45);
-            border-bottom: 3px solid rgba(255, 255, 255, 0.15);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.15);
             flex-shrink: 0;
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 4px;
         }
 
         .team-name-badge {
-            font-size: 1.4rem;
+            font-size: clamp(1rem, 2dvh, 1.3rem);
             font-weight: 900;
-            padding: 4px 12px;
-            border-radius: 10px;
+            padding: 3px 10px;
+            border-radius: 8px;
             color: white;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .lane-a .team-name-badge { background: var(--team-a-color); }
@@ -689,9 +704,9 @@
         .lane-c .team-name-badge { background: #d68910; }
 
         .family-tag {
-            font-size: 0.92rem;
+            font-size: clamp(0.78rem, 1.5dvh, 0.9rem);
             background: rgba(0, 0, 0, 0.35);
-            padding: 2px 8px;
+            padding: 2px 6px;
             border-radius: 6px;
         }
 
@@ -700,35 +715,36 @@
             align-items: center;
             gap: 4px;
             background: rgba(255, 255, 255, 0.1);
-            padding: 4px 10px;
-            border-radius: 10px;
-            font-size: 1rem;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: clamp(0.82rem, 1.6dvh, 0.98rem);
             font-weight: 900;
             color: #d0ece7;
         }
 
         .team-score-box {
-            font-size: 1.6rem;
+            font-size: clamp(1.15rem, 2.3dvh, 1.5rem);
             font-weight: 900;
             color: #f1c40f;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
         }
 
         .lane-sky {
             position: relative;
-            flex-grow: 1;
+            flex: 1 1 0;
+            min-height: 0;
             width: 100%;
             overflow: hidden;
         }
 
         .meteor {
             position: absolute;
-            min-width: 135px;
-            min-height: 135px;
-            padding: 14px 18px;
-            border-radius: 28px;
+            min-width: 125px;
+            min-height: 125px;
+            padding: 12px 16px;
+            border-radius: 26px;
             background: radial-gradient(circle at 30% 30%, #2c3e50, #0b132b);
             border: 4px solid #f39c12;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(243, 156, 18, 0.35);
@@ -736,7 +752,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 1.75rem;
+            font-size: clamp(1.45rem, 2.8dvh, 1.75rem);
             z-index: 10;
             transform: translateX(-50%);
         }
@@ -750,27 +766,33 @@
             pointer-events: none;
         }
 
+        /* =========================================================
+           🧪 遊戲二（魔法鍋）：上 2/3 展示大釜、下 1/3 黃金觸控區
+           ========================================================= */
         .pot-lane-body {
-            flex-grow: 1;
+            flex: 1 1 0;
+            min-height: 0;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 10px 14px 14px 14px;
+            padding: clamp(6px, 1dvh, 10px) 10px;
             height: 100%;
             overflow: hidden;
+            gap: clamp(6px, 1dvh, 10px);
         }
 
-        /* 上方：語詞接力進度與魔法大釜預覽區 */
+        /* 上方 2/3：語詞接力進度與魔法大釜預覽區 */
         .cauldron-display-area {
+            flex: 1 1 0;
+            min-height: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             background: radial-gradient(circle at center, rgba(142, 68, 173, 0.32), rgba(11, 19, 43, 0.75));
             border: 3px solid rgba(155, 89, 182, 0.6);
-            border-radius: 22px;
-            padding: 10px;
-            min-height: 36%;
+            border-radius: 20px;
+            padding: clamp(6px, 1.2dvh, 12px);
             position: relative;
             box-shadow: inset 0 0 25px rgba(155, 89, 182, 0.35);
         }
@@ -779,26 +801,34 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            margin-bottom: 6px;
+            gap: 8px;
+            margin-bottom: clamp(4px, 1dvh, 10px);
             flex-wrap: wrap;
         }
 
         .relay-char-badge {
-            padding: 4px 12px;
+            padding: 4px 10px;
             border-radius: 10px;
-            font-size: 1rem;
+            font-size: clamp(0.82rem, 1.6dvh, 0.98rem);
             font-weight: 900;
             background: rgba(255, 255, 255, 0.1);
             border: 2px solid rgba(255, 255, 255, 0.25);
             color: #bdc3c7;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .relay-char-badge .moe-char-vert {
+            font-size: clamp(0.95rem, 1.85dvh, 1.15rem);
+            border-width: 2px;
         }
 
         .relay-char-badge.active-step {
             background: #f39c12;
             color: #0b132b;
             border-color: #ffffff;
-            transform: scale(1.06);
+            transform: scale(1.04);
         }
 
         .relay-char-badge.done-step {
@@ -808,74 +838,81 @@
         }
 
         .cauldron-pot-circle {
-            min-width: 145px;
-            min-height: 145px;
-            padding: 12px 22px;
-            border-radius: 32px;
+            min-width: clamp(110px, 18dvh, 155px);
+            min-height: clamp(110px, 18dvh, 155px);
+            padding: clamp(8px, 1.5dvh, 14px) clamp(14px, 2vw, 22px);
+            border-radius: 28px;
             background: #0b132b;
             border: 4px dashed #f1c40f;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.1rem;
+            font-size: clamp(1.6rem, 3.4dvh, 2.2rem);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
         }
 
         .cauldron-empty-hint {
-            font-size: 1.15rem;
+            font-size: clamp(0.95rem, 1.9dvh, 1.15rem);
             color: #a9cce3;
             font-weight: 700;
             text-align: center;
-            line-height: 1.4;
+            line-height: 1.35;
         }
 
-        /* 下方：符合一年級身高的人體工學魔法材料架（固定於下半部） */
+        /* 下方 1/3：符合一年級身高的人體工學魔法材料架（嚴格控制在畫面最下方約 1/3 高度） */
         .ergonomic-shelf {
+            height: 36dvh;
+            max-height: 320px;
+            min-height: 195px;
+            flex-shrink: 0;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            background: rgba(11, 19, 43, 0.9);
+            justify-content: space-between;
+            gap: clamp(4px, 0.7dvh, 7px);
+            background: rgba(11, 19, 43, 0.94);
             border: 3px solid #5dade2;
-            border-radius: 22px;
-            padding: 12px;
-            margin-top: auto;
+            border-radius: 18px;
+            padding: clamp(6px, 1dvh, 10px);
         }
 
         .shelf-label-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.98rem;
+            font-size: clamp(0.78rem, 1.45dvh, 0.92rem);
             font-weight: 900;
             color: #f1c40f;
             padding: 0 4px;
+            flex-shrink: 0;
         }
 
-        /* 五聲調選擇列（一聲不顯示按鈕，僅提示免點） */
+        /* 聲調選擇列（4個按鈕一列） */
         .tone-shelf-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
+            gap: 6px;
+            flex-shrink: 0;
         }
 
         .tone-ing-btn {
-            height: 58px;
-            border-radius: 14px;
-            border: 3px solid #e67e22;
+            height: clamp(34px, 5.2dvh, 46px);
+            border-radius: 10px;
+            border: 2px solid #e67e22;
             background: #2c3e50;
             color: #f1c40f;
-            font-size: 1.65rem;
+            font-size: clamp(1.15rem, 2.2dvh, 1.45rem);
             font-weight: 900;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 3px;
             font-family: 'Noto Sans TC', sans-serif;
+            padding: 0 4px;
         }
 
         .tone-ing-btn small {
-            font-size: 0.85rem;
+            font-size: clamp(0.7rem, 1.3dvh, 0.82rem);
             color: #ecf0f1;
         }
 
@@ -883,123 +920,135 @@
             background: #f39c12;
             color: #0b132b;
             border-color: #ffffff;
-            transform: scale(1.04);
+            transform: scale(1.03);
         }
 
         .tone-ing-btn.selected small {
             color: #0b132b;
         }
 
-        /* 6~12個單一注音符號按鈕網格 */
+        /* 6~12個單一注音符號按鈕網格（改為橫向多欄，最多2排，壓低高度方便小一孩子點擊） */
         .bpmf-shelf-grid {
+            flex: 1 1 0;
+            min-height: 0;
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+            align-content: stretch;
         }
 
-        .bpmf-shelf-grid.cols-4 {
-            grid-template-columns: repeat(4, 1fr);
+        .bpmf-shelf-grid.cols-6 {
+            grid-template-columns: repeat(6, 1fr);
         }
 
         .bpmf-ing-btn {
-            height: 68px;
-            border-radius: 16px;
-            border: 3px solid #3498db;
+            height: 100%;
+            min-height: 36px;
+            border-radius: 12px;
+            border: 2px solid #3498db;
             background: linear-gradient(145deg, #1f3a60, #152642);
             color: #ffffff;
-            font-size: 2.1rem;
+            font-size: clamp(1.35rem, 2.8dvh, 1.85rem);
             font-weight: 900;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: "Bopomofo", "Noto Sans TC", sans-serif;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
+            padding: 0;
         }
 
         .bpmf-ing-btn.selected {
             background: #2ecc71;
             color: #0b132b;
             border-color: #ffffff;
-            transform: scale(1.04);
+            transform: scale(1.03);
         }
 
         /* 最底部：清除重選 與 確認送出 大按鈕 */
         .pot-action-row {
             display: grid;
             grid-template-columns: 1fr 2fr;
-            gap: 10px;
-            margin-top: 2px;
+            gap: 8px;
+            flex-shrink: 0;
         }
 
         .pot-clear-btn {
-            height: 64px;
-            border-radius: 16px;
+            height: clamp(38px, 5.8dvh, 50px);
+            border-radius: 12px;
             border: 2px solid #95a5a6;
             background: #34495e;
             color: #ecf0f1;
-            font-size: 1.3rem;
+            font-size: clamp(1rem, 2dvh, 1.2rem);
             font-weight: 900;
             cursor: pointer;
             font-family: 'Noto Sans TC', sans-serif;
         }
 
         .pot-submit-btn {
-            height: 64px;
-            border-radius: 16px;
-            border: 3px solid #ffffff;
+            height: clamp(38px, 5.8dvh, 50px);
+            border-radius: 12px;
+            border: 2px solid #ffffff;
             background: linear-gradient(90deg, #27ae60, #2ecc71);
             color: #ffffff;
-            font-size: 1.55rem;
+            font-size: clamp(1.1rem, 2.2dvh, 1.35rem);
             font-weight: 900;
             cursor: pointer;
             font-family: 'Noto Sans TC', sans-serif;
-            box-shadow: 0 6px 16px rgba(46, 204, 113, 0.45);
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.45);
         }
 
         .pot-submit-btn:active, .pot-clear-btn:active {
             transform: scale(0.96);
         }
 
+        /* =========================================================
+           🧝 遊戲三（精靈聽力戰）：上 2/3 展示題目鎖、下 1/3 直立五聲調並排
+           ========================================================= */
         .elf-lane-body {
-            flex-grow: 1;
+            flex: 1 1 0;
+            min-height: 0;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 12px 14px 14px 14px;
+            padding: clamp(6px, 1dvh, 10px) 10px;
             height: 100%;
             overflow: hidden;
+            gap: clamp(6px, 1dvh, 10px);
         }
 
-        /* 上方：各組獨立的精靈音箱與語詞聲調解鎖框 */
+        /* 上方 2/3：各組獨立的精靈音箱與語詞聲調解鎖框 */
         .elf-Lock-stage {
+            flex: 1 1 0;
+            min-height: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             background: radial-gradient(circle at center, rgba(46, 204, 113, 0.25), rgba(11, 19, 43, 0.82));
             border: 3px solid rgba(88, 214, 141, 0.65);
-            border-radius: 22px;
-            padding: 12px;
-            min-height: 40%;
+            border-radius: 20px;
+            padding: clamp(8px, 1.5dvh, 14px);
             box-shadow: inset 0 0 25px rgba(46, 204, 113, 0.25);
-            gap: 10px;
+            gap: clamp(8px, 1.5dvh, 14px);
         }
 
         .elf-stage-hint {
-            font-size: 1.1rem;
+            font-size: clamp(0.9rem, 1.8dvh, 1.1rem);
             font-weight: 900;
             color: #a9dfbf;
             background: rgba(0, 0, 0, 0.35);
-            padding: 4px 14px;
-            border-radius: 12px;
+            padding: 4px 12px;
+            border-radius: 10px;
+            text-align: center;
         }
 
         .elf-word-boxes-row {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 16px;
+            gap: clamp(10px, 1.5vw, 18px);
             flex-wrap: wrap;
         }
 
@@ -1008,11 +1057,11 @@
             flex-direction: column;
             align-items: center;
             gap: 6px;
-            padding: 10px 14px;
+            padding: clamp(8px, 1.2dvh, 12px) clamp(10px, 1.2vw, 16px);
             border-radius: 18px;
             border: 3px dashed rgba(255, 255, 255, 0.25);
             background: rgba(11, 19, 43, 0.6);
-            font-size: 2.1rem;
+            font-size: clamp(1.6rem, 3.4dvh, 2.2rem);
             transition: 0.2s;
         }
 
@@ -1020,7 +1069,7 @@
             border: 4px solid #f1c40f;
             background: rgba(241, 196, 15, 0.14);
             box-shadow: 0 0 20px rgba(241, 196, 15, 0.4);
-            transform: scale(1.06);
+            transform: scale(1.05);
         }
 
         .elf-char-slot.done-slot {
@@ -1029,7 +1078,7 @@
         }
 
         .elf-slot-label {
-            font-size: 0.9rem;
+            font-size: clamp(0.78rem, 1.5dvh, 0.92rem);
             font-weight: 900;
             color: #f1c40f;
         }
@@ -1038,84 +1087,113 @@
             color: #2ecc71;
         }
 
-        /* 下方：精靈傳送門操作台（五扇聲調傳送門 ＆ 順風耳四選一巨型注音卡） */
+        /* 下方 1/3：精靈傳送門操作台（嚴格固定在螢幕最下方 1/3 內，讓小一孩子輕鬆平視點擊） */
         .elf-Controls-shelf {
+            height: 33dvh;
+            max-height: 280px;
+            min-height: 170px;
+            flex-shrink: 0;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            background: rgba(11, 19, 43, 0.92);
+            justify-content: space-between;
+            gap: 6px;
+            background: rgba(11, 19, 43, 0.94);
             border: 3px solid #2ecc71;
-            border-radius: 22px;
-            padding: 14px;
-            margin-top: auto;
+            border-radius: 18px;
+            padding: clamp(6px, 1.2dvh, 12px);
         }
 
-        .elf-doors-grid {
+        .elf-buttons-host {
+            flex: 1 1 0;
+            min-height: 0;
             display: flex;
-            flex-direction: column;
-            gap: 9px;
+            width: 100%;
+        }
+
+        /* 五扇聲調傳送門：改為 5 個直行橫向並排，高度一致且全部集中在最下方 1/3 */
+        .elf-doors-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: clamp(4px, 0.6vw, 8px);
+            width: 100%;
+            height: 100%;
         }
 
         .elf-door-btn {
-            height: 62px;
-            border-radius: 16px;
+            height: 100%;
+            border-radius: 14px;
             border: 3px solid #58d68d;
-            background: linear-gradient(90deg, #1e3c40, #142834);
+            background: linear-gradient(180deg, #1e3c40, #12242f);
             color: #ffffff;
-            font-size: 1.45rem;
-            font-weight: 900;
             cursor: pointer;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
+            justify-content: space-evenly;
+            padding: 6px 2px;
             font-family: 'Noto Sans TC', sans-serif;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
             transition: transform 0.1s, background 0.15s;
         }
 
         .elf-door-btn:active {
-            transform: scale(0.96);
+            transform: scale(0.95);
             background: #2ecc71;
             color: #0b132b;
         }
 
         .door-tone-symbol {
-            font-size: 1.85rem;
+            font-size: clamp(1.6rem, 3.6dvh, 2.3rem);
             color: #f1c40f;
-            min-width: 48px;
-            text-align: center;
+            line-height: 1;
+            min-height: 1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: 900;
+        }
+
+        .door-tone-title {
+            font-size: clamp(0.95rem, 2dvh, 1.25rem);
+            font-weight: 900;
+            white-space: nowrap;
         }
 
         .door-mnemonic-tag {
             background: rgba(241, 196, 15, 0.2);
             border: 2px solid #f1c40f;
             color: #f1c40f;
-            padding: 3px 12px;
-            border-radius: 12px;
-            font-size: 1.15rem;
+            padding: 2px 4px;
+            border-radius: 8px;
+            font-size: clamp(0.75rem, 1.55dvh, 1rem);
+            font-weight: 900;
+            white-space: nowrap;
+            text-align: center;
+            width: 92%;
         }
 
-        /* 第三關：順風耳四選一巨型直式注音卡網格 */
+        /* 第三關：順風耳四選一巨型直式注音卡網格（同樣一列 4 張並排於下方 1/3） */
         .elf-4cards-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: clamp(6px, 0.8vw, 10px);
+            width: 100%;
+            height: 100%;
         }
 
         .elf-card-choice {
-            min-height: 155px;
-            border-radius: 20px;
-            border: 4px solid #5dade2;
+            height: 100%;
+            border-radius: 16px;
+            border: 3px solid #5dade2;
             background: linear-gradient(145deg, #1f3a60, #11223d);
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 1.95rem;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.45);
+            font-size: clamp(1.35rem, 2.8dvh, 1.85rem);
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.45);
             transition: transform 0.12s, border-color 0.12s;
+            padding: 4px;
         }
 
         .elf-card-choice:active {
@@ -1948,7 +2026,7 @@
                         <div class="shelf-label-bar">
                             <span id="elf-shelf-title-A">🚪 請點選下方正確的聲調傳送門：</span>
                         </div>
-                        <div id="elf-buttons-A"></div>
+                        <div class="elf-buttons-host" id="elf-buttons-A"></div>
                     </div>
                 </div>
                 <div class="freeze-overlay" id="elf-freeze-A">
@@ -1978,7 +2056,7 @@
                         <div class="shelf-label-bar">
                             <span id="elf-shelf-title-B">🚪 請點選下方正確的聲調傳送門：</span>
                         </div>
-                        <div id="elf-buttons-B"></div>
+                        <div class="elf-buttons-host" id="elf-buttons-B"></div>
                     </div>
                 </div>
                 <div class="freeze-overlay" id="elf-freeze-B">
@@ -2008,7 +2086,7 @@
                         <div class="shelf-label-bar">
                             <span id="elf-shelf-title-C">🚪 請點選下方正確的聲調傳送門：</span>
                         </div>
-                        <div id="elf-buttons-C"></div>
+                        <div class="elf-buttons-host" id="elf-buttons-C"></div>
                     </div>
                 </div>
                 <div class="freeze-overlay" id="elf-freeze-C">
@@ -2138,6 +2216,22 @@
             "ㄐ","ㄑ","ㄒ","ㄓ","ㄔ","ㄕ","ㄖ","ㄗ","ㄘ","ㄙ",
             "ㄧ","ㄨ","ㄩ","ㄚ","ㄛ","ㄜ","ㄝ","ㄞ","ㄟ","ㄠ","ㄡ","ㄢ","ㄣ","ㄤ","ㄥ","ㄦ"
         ];
+
+        /* 教育部 37 個單一注音符號「標準一聲教學讀音」發音字典：
+           解決瀏覽器語音直接讀單一符號（如 ㄉ、ㄊ、ㄋ、ㄌ、ㄔ、ㄝ、ㄥ）時容易變輕聲、吞音或無聲的問題 */
+        const SINGLE_BPMF_SPEECH_MAP = {
+            "ㄅ": "玻", "ㄆ": "坡", "ㄇ": "摸", "ㄈ": "ㄈ",
+            "ㄉ": "嘚", "ㄊ": "ㄊ", "ㄋ": "ㄋ", "ㄌ": "ㄌ",
+            "ㄍ": "哥", "ㄎ": "科", "ㄏ": "喝",
+            "ㄐ": "基", "ㄑ": "欺", "ㄒ": "希",
+            "ㄓ": "知", "ㄔ": "吃", "ㄕ": "詩", "ㄖ": "ㄖ",
+            "ㄗ": "資", "ㄘ": "疵", "ㄙ": "思",
+            "ㄧ": "衣", "ㄨ": "屋", "ㄩ": "迂",
+            "ㄚ": "阿", "ㄛ": "喔", "ㄜ": "婀", "ㄝ": "ㄝ",
+            "ㄞ": "哀", "ㄟ": "ㄟ", "ㄠ": "凹", "ㄡ": "歐",
+            "ㄢ": "安", "ㄣ": "恩", "ㄤ": "骯", "ㄥ": "鞥",
+            "ㄦ": "ㄦ"
+        };
 
         const LESSON_CONFIG = [
             {
@@ -2595,9 +2689,9 @@
             }
         };
 
-        /* 五扇聲調傳送門固定口訣設定 */
+        /* 五扇聲調傳送門固定口訣設定（一聲不顯示符號，保持空白） */
         const ELF_TONE_DOORS = [
-            { tone: "", markDisplay: "ˉ", title: "一聲", mnemonic: "阿兵哥" },
+            { tone: "", markDisplay: "", title: "一聲", mnemonic: "阿兵哥" },
             { tone: "ˊ", markDisplay: "ˊ", title: "二聲", mnemonic: "新超人" },
             { tone: "ˇ", markDisplay: "ˇ", title: "三聲", mnemonic: "大力士" },
             { tone: "ˋ", markDisplay: "ˋ", title: "四聲", mnemonic: "小飛俠" },
@@ -2735,19 +2829,36 @@
             }
         }
 
-        /* 單次發音（根據目前是流星雨、魔法鍋或精靈聽力戰唸出對應指令） */
+        /* 將單一注音或國字轉換為最清晰、不吞音的發音字串 */
+        function getClearSinglePronunciation(rawSym) {
+            const mapped = SINGLE_BPMF_SPEECH_MAP[rawSym] || rawSym;
+            // 針對單一注音，連讀兩次（中間加頓號）可防止瀏覽器語音引擎將單音節吞音或壓低成輕聲
+            if (ALL_37_BPMF.indexOf(rawSym) !== -1) {
+                return mapped + "，" + mapped;
+            }
+            return mapped;
+        }
+
+        /* 單次發音（採用 onend 接力發音，徹底解決兩段語音緊接時吃字的問題） */
         function speakPromptUnit() {
             if (!currentTarget || !("speechSynthesis" in window)) return;
             window.speechSynthesis.cancel();
 
             if (activeGameType === "meteor") {
-                const intro = createUtterance("請找出", 0.9, 1.0);
-                const t1 = createUtterance(currentTarget.speakText, 0.65, 1.08);
+                const intro = createUtterance("請找出", 0.92, 1.02);
+                const clearTargetText = (currentDifficulty === 1)
+                    ? getClearSinglePronunciation(currentTarget.speakText)
+                    : (currentTarget.speakText + "，" + currentTarget.speakText);
+                const t1 = createUtterance(clearTargetText, 0.68, 1.08);
+
+                intro.onend = function() {
+                    if (!isGameRunning || isTransitioningQuestion) return;
+                    window.speechSynthesis.speak(t1);
+                };
                 window.speechSynthesis.speak(intro);
-                window.speechSynthesis.speak(t1);
             } else {
                 // 魔法鍋接力賽 與 精靈聽力戰 皆使用 currentTarget.promptSpeech
-                const promptUtter = createUtterance(currentTarget.promptSpeech, 0.75, 1.05);
+                const promptUtter = createUtterance(currentTarget.promptSpeech, 0.74, 1.06);
                 window.speechSynthesis.speak(promptUtter);
             }
         }
@@ -2760,12 +2871,12 @@
             const tId2 = setTimeout(function() {
                 if (!isGameRunning || isTransitioningQuestion) return;
                 speakPromptUnit();
-            }, 3600);
+            }, 4200);
 
             const tId3 = setTimeout(function() {
                 if (!isGameRunning || isTransitioningQuestion) return;
                 speakPromptUnit();
-            }, 7200);
+            }, 8400);
 
             repeatTimerIds.push(tId2, tId3);
         }
@@ -2843,7 +2954,10 @@
 
             // 清晰朗讀一次正確答案讓全班加深印象
             if ("speechSynthesis" in window && currentTarget) {
-                const ansUtter = createUtterance(currentTarget.speakText, 0.68, 1.08);
+                const ansText = (activeGameType === "meteor" && currentDifficulty === 1)
+                    ? getClearSinglePronunciation(currentTarget.speakText)
+                    : currentTarget.speakText;
+                const ansUtter = createUtterance(ansText, 0.68, 1.08);
                 window.speechSynthesis.speak(ansUtter);
             }
 
@@ -3486,7 +3600,7 @@
             const teamObj = teams[teamKey];
             if (!currentTarget) return;
 
-            // 1. 渲染語詞接力進度條
+            // 1. 渲染語詞接力進度條（已完成的字採用標準直式注音框呈現）
             const slotsEl = document.getElementById("relay-slots-" + teamKey);
             slotsEl.innerHTML = "";
             const totalChars = currentTarget.rubyData.length;
@@ -3494,7 +3608,9 @@
                 const badge = document.createElement("div");
                 if (i < teamObj.potCharIdx) {
                     badge.className = "relay-char-badge done-step";
-                    badge.textContent = "✓ 第 " + (i + 1) + " 字完成（" + currentTarget.rubyData[i].bpmf + "）";
+                    badge.innerHTML =
+                        '<span>✓ 第 ' + (i + 1) + ' 字完成</span>' +
+                        buildSingleBpmfBoxHTML(currentTarget.rubyData[i].bpmf);
                 } else if (i === teamObj.potCharIdx) {
                     badge.className = "relay-char-badge active-step";
                     badge.textContent = (totalChars > 1) ? ("🔥 正在拼：第 " + (i + 1) + " 個字") : "🔥 請挑選下方材料拼音";
@@ -3538,10 +3654,10 @@
                 toneRowEl.appendChild(btn);
             }
 
-            // 4. 渲染 6~12 個單一注音符號按鈕
+            // 4. 渲染 6~12 個單一注音符號按鈕（6或12個使用6欄，9個使用5欄，最多僅2排，確保落在螢幕下方1/3）
             const gridEl = document.getElementById("bpmf-grid-" + teamKey);
             const shelfCount = SHELF_SIZES[shelfSizeIdx];
-            gridEl.className = "bpmf-shelf-grid" + (shelfCount === 12 ? " cols-4" : "");
+            gridEl.className = "bpmf-shelf-grid" + ((shelfCount === 6 || shelfCount === 12) ? " cols-6" : "");
             gridEl.innerHTML = "";
 
             for (let i = 0; i < teamObj.shelfOptions.length; i++) {
@@ -3845,7 +3961,7 @@
                     boxesEl.appendChild(slot);
                 }
 
-                // 渲染下方 5 扇聲調傳送門大按鈕
+                // 渲染下方 5 扇聲調傳送門大按鈕（5個直立式卡片橫向並排，全部位於下方1/3高度）
                 const doorsGrid = document.createElement("div");
                 doorsGrid.className = "elf-doors-grid";
 
@@ -3854,10 +3970,8 @@
                     const btn = document.createElement("button");
                     btn.className = "elf-door-btn";
                     btn.innerHTML =
-                        '<div style="display:flex; align-items:center; gap:12px;">' +
-                            '<span class="door-tone-symbol">' + door.markDisplay + '</span>' +
-                            '<span>' + door.title + '</span>' +
-                        '</div>' +
+                        '<span class="door-tone-symbol">' + door.markDisplay + '</span>' +
+                        '<span class="door-tone-title">' + door.title + '</span>' +
                         '<span class="door-mnemonic-tag">' + door.mnemonic + '</span>';
 
                     const handleDoorTap = function(evt) {
