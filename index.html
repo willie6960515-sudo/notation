@@ -1,0 +1,2309 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>一年級注音流星雨保衛戰</title>
+    <!-- 載入中文轉拼音工具，供老師新增自訂語詞時自動產生注音 -->
+    <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.24.2/dist/index.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+
+        :root {
+            --space-bg: #0b132b;
+            --space-panel: #1c2541;
+            --team-a-color: #e74c3c;
+            --team-a-bg: rgba(231, 76, 60, 0.14);
+            --team-b-color: #3498db;
+            --team-b-bg: rgba(52, 152, 219, 0.14);
+            --team-c-color: #f1c40f;
+            --team-c-bg: rgba(241, 196, 15, 0.14);
+            --chalk-white: #f0f0f0;
+            --bpmf-border: #5dade2;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            /* 繼承聯絡簿字型設定，確保聲調符號與注音高度精準對齊 */
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--space-bg);
+            color: var(--chalk-white);
+            touch-action: manipulation;
+        }
+
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .screen.active {
+            display: flex;
+        }
+
+        /* =========================================================
+           👑 核心注音直式排版引擎 (100% 還原聯絡簿 v11.0 純注音模式)
+           ========================================================= */
+        .bpmf-word-box {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        /* 三字語詞在隕石上自動微調比例，避免高度過長 */
+        .meteor .bpmf-word-box.long-word {
+            font-size: 0.82em;
+            gap: 4px;
+        }
+
+        /* 外框與內距完全對齊聯絡簿 mode-bpmf-only 的設定 */
+        .moe-char-vert {
+            display: inline-block;
+            position: relative;
+            vertical-align: middle;
+            border: 2px solid var(--bpmf-border);
+            border-radius: 8px;
+            padding: 0.2em 0.9em 0.25em 0.2em;
+            box-sizing: border-box;
+            background-color: rgba(11, 19, 43, 0.85);
+            height: auto;
+            line-height: 1;
+        }
+
+        /* 若有輕聲，上方額外加高確保輕聲點不超框 */
+        .moe-char-vert.has-light-tone {
+            padding-top: 0.9em;
+        }
+
+        /* 無聲調之單音或一聲，左右均衡置中 */
+        .moe-char-vert.no-tone-box {
+            padding: 0.2em 0.45em 0.25em 0.45em;
+        }
+
+        .moe-rt {
+            position: static;
+            width: auto;
+            height: auto;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            writing-mode: horizontal-tb;
+        }
+
+        /* 注音鎖定艙：將聲符與聲調綁在一起，永不分離 */
+        .bopo-wrapper {
+            position: relative;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .bopo-wrapper .sym {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 1em;
+            line-height: 1.05;
+            font-family: "Bopomofo", "Noto Sans TC", sans-serif;
+            font-weight: 700;
+            color: var(--chalk-white);
+        }
+
+        .bopo-wrapper .sym span {
+            display: block;
+        }
+
+        /* 二、三、四聲精準定位 (完全採用聯絡簿參數：right: -0.7em; bottom: 0;) */
+        .bopo-wrapper .tone {
+            position: absolute;
+            right: -0.7em;
+            bottom: 0;
+            font-size: 1em;
+            font-family: 'Noto Sans TC', sans-serif;
+            font-weight: bold;
+            color: var(--chalk-white);
+            line-height: 1;
+        }
+
+        /* 輕聲精準定位於正上方 */
+        .bopo-wrapper .tone-light {
+            position: absolute;
+            top: -0.85em;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1em;
+            font-family: 'Noto Sans TC', sans-serif;
+            font-weight: bold;
+            color: var(--chalk-white);
+            line-height: 1;
+        }
+
+        /* =========================================================
+           🏠 首頁與難度選擇介面
+           ========================================================= */
+        #home-screen {
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 25px 40px;
+            background: radial-gradient(circle at center, #1c2541 0%, #0b132b 100%);
+            overflow-y: auto;
+        }
+
+        .title-banner {
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .title-banner h1 {
+            font-size: clamp(2.2rem, 4vw, 3.4rem);
+            margin: 0;
+            color: #f1c40f;
+            text-shadow: 0 4px 15px rgba(241, 196, 15, 0.4);
+            letter-spacing: 3px;
+        }
+
+        .title-banner p {
+            font-size: 1.3rem;
+            color: #a9cce3;
+            margin: 8px 0 0 0;
+            font-weight: 700;
+        }
+
+        .scope-summary-bar {
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(93, 173, 226, 0.4);
+            padding: 12px 24px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        .scope-summary-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #5dade2;
+        }
+
+        .difficulty-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+            width: 100%;
+            max-width: 1280px;
+            margin: 15px 0;
+        }
+
+        .diff-card {
+            background: linear-gradient(145deg, #24345a, #16203a);
+            border: 4px solid #3a506b;
+            border-radius: 24px;
+            padding: 24px 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+            min-height: 290px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .diff-card:hover, .diff-card:active {
+            transform: translateY(-6px);
+            border-color: #f1c40f;
+            box-shadow: 0 15px 30px rgba(241, 196, 15, 0.25);
+        }
+
+        .diff-badge {
+            background: #f39c12;
+            color: #0b132b;
+            font-size: 1.2rem;
+            font-weight: 900;
+            padding: 6px 18px;
+            border-radius: 20px;
+        }
+
+        .diff-title {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #ffffff;
+            margin: 12px 0 6px 0;
+            text-align: center;
+        }
+
+        .diff-desc {
+            font-size: 1.1rem;
+            color: #bdc3c7;
+            text-align: center;
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+
+        .diff-preview {
+            font-size: 1.85rem;
+            margin-top: auto;
+        }
+
+        .home-footer {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .big-btn {
+            font-size: 1.4rem;
+            font-weight: 900;
+            padding: 16px 32px;
+            border-radius: 16px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            transition: 0.2s;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        .big-btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-settings { background: #8e44ad; color: white; }
+        .btn-speed { background: #16a085; color: white; }
+        .btn-fullscreen { background: #34495e; color: white; border: 2px solid #5dade2; }
+
+        /* =========================================================
+           🎮 遊戲對抗主畫面
+           ========================================================= */
+        #game-screen {
+            flex-direction: column;
+            background: var(--space-bg);
+        }
+
+        .game-top-bar {
+            height: 150px;
+            background: #16203a;
+            border-bottom: 4px solid #3a506b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 25px;
+            z-index: 50;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .top-left-controls, .top-right-controls {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .ctrl-btn {
+            background: rgba(255, 255, 255, 0.12);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 20px;
+            border-radius: 14px;
+            font-size: 1.25rem;
+            font-weight: 900;
+            cursor: pointer;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        .ctrl-btn:active {
+            transform: scale(0.95);
+        }
+
+        .target-command-box {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: rgba(11, 19, 43, 0.9);
+            border: 4px solid #f1c40f;
+            padding: 10px 30px;
+            border-radius: 24px;
+            cursor: pointer;
+            box-shadow: 0 0 25px rgba(241, 196, 15, 0.35);
+        }
+
+        .target-command-box:active {
+            transform: scale(0.97);
+        }
+
+        .speaker-icon {
+            font-size: 3rem;
+            animation: pulseSpeaker 1.5s infinite;
+        }
+
+        @keyframes pulseSpeaker {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .target-label-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .target-hint-title {
+            font-size: 1.15rem;
+            color: #f1c40f;
+            font-weight: 900;
+        }
+
+        .target-sub-hint {
+            font-size: 0.95rem;
+            color: #bdc3c7;
+            margin-top: 2px;
+        }
+
+        #target-bpmf-display {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 140px;
+        }
+
+        #target-bpmf-display .bpmf-word-box {
+            flex-direction: row;
+            gap: 10px;
+        }
+
+        /* 初始隱藏注音時的「仔細聽音」提示框 */
+        .mystery-target-box {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 3px dashed #f1c40f;
+            border-radius: 14px;
+            padding: 12px 18px;
+            background: rgba(241, 196, 15, 0.15);
+            color: #f1c40f;
+            font-size: 1.25rem;
+            font-weight: 900;
+            white-space: nowrap;
+            animation: pulseMystery 1.4s infinite;
+        }
+
+        @keyframes pulseMystery {
+            0%, 100% { transform: scale(1); opacity: 0.85; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+
+        /* 有人答對後顯現注音的彈跳動畫 */
+        .reveal-pop {
+            display: inline-flex;
+            animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* 集滿三個自動換題的慶祝橫幅 */
+        #auto-next-banner {
+            display: none;
+            position: fixed;
+            top: 165px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(90deg, #f39c12, #e74c3c);
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 900;
+            padding: 14px 36px;
+            border-radius: 40px;
+            border: 4px solid #fff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            z-index: 100;
+            white-space: nowrap;
+        }
+
+        .battlefield {
+            flex-grow: 1;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            width: 100%;
+            height: calc(100vh - 150px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .team-lane {
+            position: relative;
+            height: 100%;
+            border-right: 4px dashed rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .team-lane:last-child {
+            border-right: none;
+        }
+
+        .lane-a { background: var(--team-a-bg); }
+        .lane-b { background: var(--team-b-bg); }
+        .lane-c { background: var(--team-c-bg); }
+
+        .lane-header {
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 20;
+            background: rgba(0, 0, 0, 0.45);
+            border-bottom: 3px solid rgba(255, 255, 255, 0.15);
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .team-name-badge {
+            font-size: 1.5rem;
+            font-weight: 900;
+            padding: 5px 14px;
+            border-radius: 12px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lane-a .team-name-badge { background: var(--team-a-color); }
+        .lane-b .team-name-badge { background: var(--team-b-color); }
+        .lane-c .team-name-badge { background: #d68910; }
+
+        .family-tag {
+            font-size: 0.95rem;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 3px 8px;
+            border-radius: 8px;
+        }
+
+        /* 本題集滿 3 個的進度球 */
+        .hit-progress-box {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 900;
+            color: #d0ece7;
+        }
+
+        .team-score-box {
+            font-size: 1.7rem;
+            font-weight: 900;
+            color: #f1c40f;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+        }
+
+        .lane-sky {
+            position: relative;
+            flex-grow: 1;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .meteor {
+            position: absolute;
+            min-width: 135px;
+            min-height: 135px;
+            padding: 14px 18px;
+            border-radius: 28px;
+            background: radial-gradient(circle at 30% 30%, #2c3e50, #0b132b);
+            border: 4px solid #f39c12;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(243, 156, 18, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.75rem;
+            z-index: 10;
+            transform: translateX(-50%);
+            transition: transform 0.1s;
+        }
+
+        .meteor.hit-correct {
+            background: #2ecc71 !important;
+            border-color: #ffffff !important;
+            transform: translateX(-50%) scale(1.35) !important;
+            opacity: 0;
+            transition: all 0.25s ease-out;
+            pointer-events: none;
+        }
+
+        .freeze-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(44, 62, 80, 0.88);
+            z-index: 30;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #ff7675;
+            font-size: 2.4rem;
+            font-weight: 900;
+            text-align: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .freeze-overlay.active {
+            display: flex;
+            animation: shakeLane 0.35s ease;
+        }
+
+        @keyframes shakeLane {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-12px); }
+            75% { transform: translateX(12px); }
+        }
+
+        .floating-star {
+            position: absolute;
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #f1c40f;
+            pointer-events: none;
+            z-index: 25;
+            animation: floatUp 0.8s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translate(-50%, 0) scale(0.8); }
+            100% { opacity: 0; transform: translate(-50%, -90px) scale(1.4); }
+        }
+
+        /* =========================================================
+           ⚙️ 老師專屬後台設定頁面
+           ========================================================= */
+        #settings-screen {
+            background: #f4f6f7;
+            color: #2c3e50;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .settings-container {
+            max-width: 1050px;
+            width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #e0e0e0;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .settings-header h2 {
+            margin: 0;
+            font-size: 2rem;
+            color: #2c3e50;
+        }
+
+        .setting-section {
+            background: #f8f9fa;
+            border: 2px solid #d6eaf8;
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 25px;
+        }
+
+        .setting-section h3 {
+            margin-top: 0;
+            color: #2980b9;
+            font-size: 1.4rem;
+            border-left: 6px solid #2980b9;
+            padding-left: 12px;
+        }
+
+        .lesson-check-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .lesson-check-item {
+            background: white;
+            border: 2px solid #bdc3c7;
+            border-radius: 12px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .lesson-check-item input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .word-filter-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        .tab-btn {
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 2px solid #2980b9;
+            background: white;
+            color: #2980b9;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            background: #2980b9;
+            color: white;
+        }
+
+        .add-word-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .add-word-row input {
+            flex-grow: 1;
+            padding: 12px 16px;
+            font-size: 1.2rem;
+            border: 2px solid #bdc3c7;
+            border-radius: 10px;
+        }
+
+        .word-list-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 12px;
+            max-height: 420px;
+            overflow-y: auto;
+            padding: 6px;
+        }
+
+        .word-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .word-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .word-raw {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: #2c3e50;
+        }
+
+        .word-bpmf-str {
+            font-size: 1rem;
+            color: #e67e22;
+            font-weight: 700;
+        }
+
+        .word-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .small-btn {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .btn-bpmf-edit { background: #9b59b6; color: white; }
+        .btn-word-del { background: #fadbd8; color: #c0392b; border: 1px solid #e74c3c; }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: white;
+            color: #2c3e50;
+            padding: 35px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 750px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.35);
+        }
+
+        .ruby-edit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .ruby-edit-card {
+            padding: 20px;
+            border-radius: 16px;
+            border: 2px solid #bdc3c7;
+            background: #f8f9fa;
+            text-align: center;
+        }
+
+        .ruby-edit-char {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #2c3e50;
+            margin-bottom: 12px;
+        }
+
+        .ruby-edit-input {
+            width: 100%;
+            text-align: center;
+            padding: 10px;
+            border: 3px solid #2980b9;
+            border-radius: 10px;
+            color: #e74c3c;
+            font-weight: 900;
+            font-size: 1.6rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- =========================================================
+         🏠 畫面一：遊戲主選單與四大難度選擇
+         ========================================================= -->
+    <div id="home-screen" class="screen active">
+        <div class="title-banner">
+            <h1>🌠 一年級注音流星雨保衛戰 🌠</h1>
+            <p>南一首冊一至九課 ‧ 班級三隊多點觸控爭霸賽</p>
+        </div>
+
+        <div class="scope-summary-bar">
+            <span class="scope-summary-text" id="home-scope-text">📚 目前出題範圍：第一課 至 第九課（全範圍）</span>
+            <button class="small-btn" style="background:#2980b9; color:white; font-size:1.05rem; padding:8px 16px;" onclick="openSettingsScreen()">✏️ 修改課別與語詞題庫</button>
+        </div>
+
+        <div class="difficulty-grid">
+            <!-- 難度一 -->
+            <div class="diff-card" onclick="startGame(1)">
+                <span class="diff-badge">第一關</span>
+                <div class="diff-title">單一注音</div>
+                <div class="diff-desc">認讀單一聲母、介音與韻母，建立直覺字形印象</div>
+                <div class="diff-preview" id="preview-1"></div>
+            </div>
+
+            <!-- 難度二 -->
+            <div class="diff-card" onclick="startGame(2)">
+                <span class="diff-badge">第二關</span>
+                <div class="diff-title">雙拼練習</div>
+                <div class="diff-desc">挑戰「聲母加韻母」或「結合韻」與聲調組合</div>
+                <div class="diff-preview" id="preview-2"></div>
+            </div>
+
+            <!-- 難度三 -->
+            <div class="diff-card" onclick="startGame(3)">
+                <span class="diff-badge">第三關</span>
+                <div class="diff-title">三拼與聲調</div>
+                <div class="diff-desc">完整「聲母＋介音＋韻母＋聲調」拼讀大挑戰</div>
+                <div class="diff-preview" id="preview-3"></div>
+            </div>
+
+            <!-- 難度四 -->
+            <div class="diff-card" onclick="startGame(4)">
+                <span class="diff-badge">第四關</span>
+                <div class="diff-title">首冊語詞</div>
+                <div class="diff-desc">南一首冊一至九課精選語詞與老師自訂純注音語詞</div>
+                <div class="diff-preview" id="preview-4"></div>
+            </div>
+        </div>
+
+        <div class="home-footer">
+            <button class="big-btn btn-settings" onclick="openSettingsScreen()">⚙️ 題庫與課別設定</button>
+            <button class="big-btn btn-speed" id="speed-toggle-btn" onclick="cycleSpeed()">🐢 隕石速度：慢速（適合初學）</button>
+            <button class="big-btn btn-fullscreen" onclick="toggleFullScreen()">⛶ 切換全螢幕</button>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         🎮 畫面二：三隊多點觸控對抗戰場
+         ========================================================= -->
+    <div id="game-screen" class="screen">
+        <!-- 頂部指揮艙 -->
+        <div class="game-top-bar">
+            <div class="top-left-controls">
+                <button class="ctrl-btn" onclick="stopGameAndReturn()">🏠 返回選單</button>
+                <button class="ctrl-btn" id="family-round-btn" onclick="toggleFamilyRound()">🚩 目前上場：1、3、5家</button>
+            </div>
+
+            <!-- 中央語音題目提示框（初始隱藏注音，第一組答對後顯現注音；點擊可重聽） -->
+            <div class="target-command-box" onclick="speakCurrentTarget()">
+                <div class="speaker-icon">🔊</div>
+                <div class="target-label-group">
+                    <span class="target-hint-title" id="game-mode-label">請找出這個讀音：</span>
+                    <span class="target-sub-hint" id="target-sub-hint">（先聽聲音找！第一組答對後顯現注音 ‧ 點喇叭重聽）</span>
+                </div>
+                <div id="target-bpmf-display"></div>
+            </div>
+
+            <div class="top-right-controls">
+                <button class="ctrl-btn" style="background:#d35400;" onclick="nextTargetQuestion()">⏭️ 換下一題</button>
+                <button class="ctrl-btn" style="background:#27ae60;" onclick="showVictoryModal()">🏆 結算成績</button>
+            </div>
+        </div>
+
+        <!-- 單隊集滿3個時的自動換題提示橫幅 -->
+        <div id="auto-next-banner">🎉 集滿 3 個！自動換下一題！</div>
+
+        <!-- A、B、C 三隊專屬獨立軌道 -->
+        <div class="battlefield">
+            <!-- A隊軌道 -->
+            <div class="team-lane lane-a" id="lane-A">
+                <div class="lane-header">
+                    <div class="team-name-badge">
+                        <span>A隊</span>
+                        <span class="family-tag" id="family-label-A">1家、2家</span>
+                    </div>
+                    <div class="hit-progress-box">
+                        <span>本題：</span>
+                        <span id="progress-A">⚪⚪⚪</span>
+                    </div>
+                    <div class="team-score-box">
+                        <span>⭐</span>
+                        <span id="score-A">0</span>
+                    </div>
+                </div>
+                <div class="lane-sky" id="sky-A"></div>
+                <div class="freeze-overlay" id="freeze-A">
+                    <div>❄️ 點錯囉！</div>
+                    <div style="font-size:1.4rem; margin-top:10px; color:#ecf0f1;">請看清楚再拍擊</div>
+                </div>
+            </div>
+
+            <!-- B隊軌道 -->
+            <div class="team-lane lane-b" id="lane-B">
+                <div class="lane-header">
+                    <div class="team-name-badge">
+                        <span>B隊</span>
+                        <span class="family-tag" id="family-label-B">3家、4家</span>
+                    </div>
+                    <div class="hit-progress-box">
+                        <span>本題：</span>
+                        <span id="progress-B">⚪⚪⚪</span>
+                    </div>
+                    <div class="team-score-box">
+                        <span>⭐</span>
+                        <span id="score-B">0</span>
+                    </div>
+                </div>
+                <div class="lane-sky" id="sky-B"></div>
+                <div class="freeze-overlay" id="freeze-B">
+                    <div>❄️ 點錯囉！</div>
+                    <div style="font-size:1.4rem; margin-top:10px; color:#ecf0f1;">請看清楚再拍擊</div>
+                </div>
+            </div>
+
+            <!-- C隊軌道 -->
+            <div class="team-lane lane-c" id="lane-C">
+                <div class="lane-header">
+                    <div class="team-name-badge">
+                        <span>C隊</span>
+                        <span class="family-tag" id="family-label-C">5家、6家</span>
+                    </div>
+                    <div class="hit-progress-box">
+                        <span>本題：</span>
+                        <span id="progress-C">⚪⚪⚪</span>
+                    </div>
+                    <div class="team-score-box">
+                        <span>⭐</span>
+                        <span id="score-C">0</span>
+                    </div>
+                </div>
+                <div class="lane-sky" id="sky-C"></div>
+                <div class="freeze-overlay" id="freeze-C">
+                    <div>❄️ 點錯囉！</div>
+                    <div style="font-size:1.4rem; margin-top:10px; color:#ecf0f1;">請看清楚再拍擊</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         ⚙️ 畫面三：老師題庫與課別設定台
+         ========================================================= -->
+    <div id="settings-screen" class="screen">
+        <div class="settings-container">
+            <div class="settings-header">
+                <h2>⚙️ 南一首冊課別範圍與自訂語詞設定</h2>
+                <button class="big-btn" style="background:#27ae60; color:white; padding:12px 24px; font-size:1.2rem;" onclick="closeSettingsScreen()">✓ 完成並返回首頁</button>
+            </div>
+
+            <!-- 區塊一：1~9課範圍勾選 -->
+            <div class="setting-section">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <h3>📖 勾選本次遊戲出題課別（影響所有難度的注音與語詞範圍）</h3>
+                    <div style="display:flex; gap:10px;">
+                        <button class="small-btn" style="background:#2980b9; color:white;" onclick="selectAllLessons(true)">全選一至九課</button>
+                        <button class="small-btn" style="background:#7f8c8d; color:white;" onclick="selectAllLessons(false)">只選第一課</button>
+                    </div>
+                </div>
+                <div class="lesson-check-grid" id="lesson-checkbox-container"></div>
+            </div>
+
+            <!-- 區塊二：難度四語詞管理與自訂注音 -->
+            <div class="setting-section">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
+                    <h3>📝 難度四語詞庫管理（點擊「ㄅㄆㄇ 注音」可手動修正破音字或輕聲）</h3>
+                    <button class="small-btn btn-word-del" onclick="resetDefaultVocab()">🔄 還原南一首冊預設語詞庫</button>
+                </div>
+
+                <!-- 課別篩選頁籤 -->
+                <div class="word-filter-tabs" id="word-filter-tabs"></div>
+
+                <!-- 新增語詞輸入框 -->
+                <div class="add-word-row">
+                    <input type="text" id="new-word-input" placeholder="請輸入要新增至目前分類的語詞（例如：溜滑梯）" onkeypress="handleAddWordEnter(event)">
+                    <button class="small-btn" style="background:#27ae60; color:white; font-size:1.15rem; padding:0 24px;" onclick="addNewCustomWord()">＋ 新增語詞</button>
+                </div>
+
+                <!-- 語詞卡片列表 -->
+                <div class="word-list-grid" id="vocab-manager-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         🎯 彈出視窗一：聯絡簿同款「進階中文注音自訂」編輯器
+         ========================================================= -->
+    <div id="bpmf-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="margin-top:0; font-size:1.8rem; border-bottom:2px solid #eee; padding-bottom:12px;">🎯 進階中文注音自訂（輕聲請在最前面輸入 ˙）</h3>
+            <div id="ruby-edit-grid" class="ruby-edit-grid"></div>
+            <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:20px;">
+                <button class="small-btn" style="background:#bdc3c7; color:#2c3e50; font-size:1.2rem; padding:10px 22px;" onclick="closeBpmfModal()">取消</button>
+                <button class="small-btn" style="background:#2980b9; color:white; font-size:1.2rem; padding:10px 22px;" onclick="saveBpmfModal()">儲存注音設定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         🏆 彈出視窗二：三隊成績結算頒獎台
+         ========================================================= -->
+    <div id="victory-modal" class="modal-overlay">
+        <div class="modal-content" style="text-align:center; background:#1c2541; color:white; border:4px solid #f1c40f;">
+            <h2 style="font-size:2.4rem; color:#f1c40f; margin-top:0;">🏆 班級對抗戰績排行榜 🏆</h2>
+            <div id="victory-board" style="display:flex; flex-direction:column; gap:16px; margin:25px 0; font-size:1.8rem; font-weight:900;"></div>
+            <div style="display:flex; justify-content:center; gap:15px; margin-top:25px;">
+                <button class="big-btn" style="background:#e67e22; color:white; font-size:1.2rem; padding:12px 24px;" onclick="resetScores()">🔄 分數歸零重賽</button>
+                <button class="big-btn" style="background:#27ae60; color:white; font-size:1.2rem; padding:12px 24px;" onclick="closeVictoryModal()">▶ 繼續挑戰</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* =========================================================
+           1. 拼音轉注音對照表 (與聯絡簿完全一致)
+           ========================================================= */
+        const py2bpmf = {"a":"ㄚ","ai":"ㄞ","an":"ㄢ","ang":"ㄤ","ao":"ㄠ","ba":"ㄅㄚ","bai":"ㄅㄞ","ban":"ㄅㄢ","bang":"ㄅㄤ","bao":"ㄅㄠ","bei":"ㄅㄟ","ben":"ㄅㄣ","beng":"ㄅㄥ","bi":"ㄅㄧ","bian":"ㄅㄧㄢ","biao":"ㄅㄧㄠ","bie":"ㄅㄧㄝ","bin":"ㄅㄧㄣ","bing":"ㄅㄧㄥ","bo":"ㄅㄛ","bu":"ㄅㄨ","ca":"ㄘㄚ","cai":"ㄘㄞ","can":"ㄘㄢ","cang":"ㄘㄤ","cao":"ㄘㄠ","ce":"ㄘㄜ","cen":"ㄘㄣ","ceng":"ㄘㄥ","cha":"ㄔㄚ","chai":"ㄔㄞ","chan":"ㄔㄢ","chang":"ㄔㄤ","chao":"ㄔㄠ","che":"ㄔㄜ","chen":"ㄔㄣ","cheng":"ㄔㄥ","chi":"ㄔ","chong":"ㄔㄨㄥ","chou":"ㄔㄡ","chu":"ㄔㄨ","chua":"ㄔㄨㄚ","chuai":"ㄔㄨㄞ","chuan":"ㄔㄨㄢ","chuang":"ㄔㄨㄤ","chui":"ㄔㄨㄟ","chun":"ㄔㄨㄣ","chuo":"ㄔㄨㄛ","ci":"ㄘ","cong":"ㄘㄨㄥ","cou":"ㄘㄡ","cu":"ㄘㄨ","cuan":"ㄘㄨㄢ","cui":"ㄘㄨㄟ","cun":"ㄘㄨㄣ","cuo":"ㄘㄨㄛ","da":"ㄉㄚ","dai":"ㄉㄞ","dan":"ㄉㄢ","dang":"ㄉㄤ","dao":"ㄉㄠ","de":"ㄉㄜ","dei":"ㄉㄟ","den":"ㄉㄣ","deng":"ㄉㄥ","di":"ㄉㄧ","dian":"ㄉㄧㄢ","diao":"ㄉㄧㄠ","die":"ㄉㄧㄝ","ding":"ㄉㄧㄥ","diu":"ㄉㄧㄡ","dong":"ㄉㄨㄥ","dou":"ㄉㄡ","du":"ㄉㄨ","duan":"ㄉㄨㄢ","dui":"ㄉㄨㄟ","dun":"ㄉㄨㄣ","duo":"ㄉㄨㄛ","e":"ㄜ","ei":"ㄟ","en":"ㄣ","eng":"ㄥ","er":"ㄦ","fa":"ㄈㄚ","fan":"ㄈㄢ","fang":"ㄈㄤ","fei":"ㄈㄟ","fen":"ㄈㄣ","feng":"ㄈㄥ","fo":"ㄈㄛ","fou":"ㄈㄡ","fu":"ㄈㄨ","ga":"ㄍㄚ","gai":"ㄍㄞ","gan":"ㄍㄢ","gang":"ㄍㄤ","gao":"ㄍㄠ","ge":"ㄍㄜ","gei":"ㄍㄟ","gen":"ㄍㄣ","geng":"ㄍㄥ","gong":"ㄍㄨㄥ","gou":"ㄍㄡ","gu":"ㄍㄨ","gua":"ㄍㄨㄚ","guai":"ㄍㄨㄞ","guan":"ㄍㄨㄢ","guang":"ㄍㄨㄤ","gui":"ㄍㄨㄟ","gun":"ㄍㄨㄣ","guo":"ㄍㄨㄛ","ha":"ㄏㄚ","hai":"ㄏㄞ","han":"ㄏㄢ","hang":"ㄏㄤ","hao":"ㄏㄠ","he":"ㄏㄜ","hei":"ㄏㄟ","hen":"ㄏㄣ","heng":"ㄏㄥ","hong":"ㄏㄨㄥ","hou":"ㄏㄡ","hu":"ㄏㄨ","hua":"ㄏㄨㄚ","huai":"ㄏㄨㄞ","huan":"ㄏㄨㄢ","huang":"ㄏㄨㄤ","hui":"ㄏㄨㄟ","hun":"ㄏㄨㄣ","huo":"ㄏㄨㄛ","ji":"ㄐㄧ","jia":"ㄐㄧㄚ","jian":"ㄐㄧㄢ","jiang":"ㄐㄧㄤ","jiao":"ㄐㄧㄠ","jie":"ㄐㄧㄝ","jin":"ㄐㄧㄣ","jing":"ㄐㄧㄥ","jiong":"ㄐㄩㄥ","jiu":"ㄐㄧㄡ","ju":"ㄐㄩ","juan":"ㄐㄩㄢ","jue":"ㄐㄩㄝ","jun":"ㄐㄩㄣ","ka":"ㄎㄚ","kai":"ㄎㄞ","kan":"ㄎㄢ","kang":"ㄎㄤ","kao":"ㄎㄠ","ke":"ㄎㄜ","kei":"ㄎㄟ","ken":"ㄎㄣ","keng":"ㄎㄥ","kong":"ㄎㄨㄥ","kou":"ㄎㄡ","ku":"ㄎㄨ","kua":"ㄎㄨㄚ","kuai":"ㄎㄨㄞ","kuan":"ㄎㄨㄢ","kuang":"ㄎㄨㄤ","kui":"ㄎㄨㄟ","kun":"ㄎㄨㄣ","kuo":"ㄎㄨㄛ","la":"ㄌㄚ","lai":"ㄌㄞ","lan":"ㄌㄢ","lang":"ㄌㄤ","lao":"ㄌㄠ","le":"ㄌㄜ","lei":"ㄌㄟ","leng":"ㄌㄥ","li":"ㄌㄧ","lia":"ㄌㄧㄚ","lian":"ㄌㄧㄢ","liang":"ㄌㄧㄤ","liao":"ㄌㄧㄠ","lie":"ㄌㄧㄝ","lin":"ㄌㄧㄣ","ling":"ㄌㄧㄥ","liu":"ㄌㄧㄡ","lo":"ㄌㄛ","long":"ㄌㄨㄥ","lou":"ㄌㄡ","lu":"ㄌㄨ","luan":"ㄌㄨㄢ","lun":"ㄌㄨㄣ","luo":"ㄌㄨㄛ","lv":"ㄌㄩ","lve":"ㄌㄩㄝ","ma":"ㄇㄚ","mai":"ㄇㄞ","man":"ㄇㄢ","mang":"ㄇㄤ","mao":"ㄇㄠ","me":"ㄇㄜ","mei":"ㄇㄟ","men":"ㄇㄣ","meng":"ㄇㄥ","mi":"ㄇㄧ","mian":"ㄇㄧㄢ","miao":"ㄇㄧㄠ","mie":"ㄇㄧㄝ","min":"ㄇㄧㄣ","ming":"ㄇㄧㄥ","miu":"ㄇㄧㄡ","mo":"ㄇㄛ","mou":"ㄇㄡ","mu":"ㄇㄨ","na":"ㄋㄚ","nai":"ㄋㄞ","nan":"ㄋㄢ","nang":"ㄋㄤ","nao":"ㄋㄠ","ne":"ㄋㄜ","nei":"ㄋㄟ","nen":"ㄋㄣ","neng":"ㄋㄥ","ni":"ㄋㄧ","nian":"ㄋㄧㄢ","niang":"ㄋㄧㄤ","niao":"ㄋㄧㄠ","nie":"ㄋㄧㄝ","nin":"ㄋㄧㄣ","ning":"ㄋㄧㄥ","niu":"ㄋㄧㄡ","nong":"ㄋㄨㄥ","nou":"ㄋㄡ","nu":"ㄋㄨ","nuan":"ㄋㄨㄢ","nun":"ㄋㄨㄣ","nuo":"ㄋㄨㄛ","nv":"ㄋㄩ","nve":"ㄋㄩㄝ","o":"ㄛ","ou":"ㄡ","pa":"ㄆㄚ","pai":"ㄆㄞ","pan":"ㄆㄢ","pang":"ㄆㄤ","pao":"ㄆㄠ","pei":"ㄆㄟ","pen":"ㄆㄣ","peng":"ㄆㄥ","pi":"ㄆㄧ","pian":"ㄆㄧㄢ","piao":"ㄆㄧㄠ","pie":"ㄆㄧㄝ","pin":"ㄆㄧㄣ","ping":"ㄆㄧㄥ","po":"ㄆㄛ","pou":"ㄆㄡ","pu":"ㄆㄨ","qi":"ㄑㄧ","qia":"ㄑㄧㄚ","qian":"ㄑㄧㄢ","qiang":"ㄑㄧㄤ","qiao":"ㄑㄧㄠ","qie":"ㄑㄧㄝ","qin":"ㄑㄧㄣ","qing":"ㄑㄧㄥ","qiong":"ㄑㄩㄥ","qiu":"ㄑㄧㄡ","qu":"ㄑㄩ","quan":"ㄑㄩㄢ","que":"ㄑㄩㄝ","qun":"ㄑㄩㄣ","ran":"ㄖㄢ","rang":"ㄖㄤ","rao":"ㄖㄠ","re":"ㄖㄜ","ren":"ㄖㄣ","reng":"ㄖㄥ","ri":"ㄖ","rong":"ㄖㄨㄥ","rou":"ㄖㄡ","ru":"ㄖㄨ","ruan":"ㄖㄨㄢ","rui":"ㄖㄨㄟ","run":"ㄖㄨㄣ","ruo":"ㄖㄨㄛ","sa":"ㄙㄚ","sai":"ㄙㄞ","san":"ㄙㄢ","sang":"ㄙㄤ","sao":"ㄙㄠ","se":"ㄙㄜ","sen":"ㄙㄣ","seng":"ㄙㄥ","sha":"ㄕㄚ","shai":"ㄕㄞ","shan":"ㄕㄢ","shang":"ㄕㄤ","shao":"ㄕㄠ","she":"ㄕㄜ","shei":"ㄕㄟ","shen":"ㄕㄣ","sheng":"ㄕㄥ","shi":"ㄕ","shou":"ㄕㄡ","shu":"ㄕㄨ","shua":"ㄕㄨㄚ","shuai":"ㄕㄨㄞ","shuan":"ㄕㄨㄢ","shuang":"ㄕㄨㄤ","shui":"ㄕㄨㄟ","shun":"ㄕㄨㄣ","shuo":"ㄕㄨㄛ","si":"ㄙ","song":"ㄙㄨㄥ","sou":"ㄙㄡ","su":"ㄙㄨ","suan":"ㄙㄨㄢ","sui":"ㄙㄨㄟ","sun":"ㄙㄨㄣ","suo":"ㄙㄨㄛ","ta":"ㄊㄚ","tai":"ㄊㄞ","tan":"ㄊㄢ","tang":"ㄊㄤ","tao":"ㄊㄠ","te":"ㄊㄜ","teng":"ㄊㄥ","ti":"ㄊㄧ","tian":"ㄊㄧㄢ","tiao":"ㄊㄧㄠ","tie":"ㄊㄧㄝ","ting":"ㄊㄧㄥ","tong":"ㄊㄨㄥ","tou":"ㄊㄡ","tu":"ㄊㄨ","tuan":"ㄊㄨㄢ","tui":"ㄊㄨㄟ","tun":"ㄊㄨㄣ","tuo":"ㄊㄨㄛ","wa":"ㄨㄚ","wai":"ㄨㄞ","wan":"ㄨㄢ","wang":"ㄨㄤ","wei":"ㄨㄟ","wen":"ㄨㄣ","weng":"ㄨㄥ","wo":"ㄨㄛ","wu":"ㄨ","xi":"ㄒㄧ","xia":"ㄒㄧㄚ","xian":"ㄒㄧㄢ","xiang":"ㄒㄧㄤ","xiao":"ㄒㄧㄠ","xie":"ㄒㄧㄝ","xin":"ㄒㄧㄣ","xing":"ㄒㄧㄥ","xiong":"ㄒㄩㄥ","xiu":"ㄒㄧㄡ","xu":"ㄒㄩ","xuan":"ㄒㄩㄢ","xue":"ㄒㄩㄝ","xun":"ㄒㄩㄣ","ya":"ㄧㄚ","yan":"ㄧㄢ","yang":"ㄧㄤ","yao":"ㄧㄠ","ye":"ㄧㄝ","yi":"ㄧ","yin":"ㄧㄣ","ying":"ㄧㄥ","yo":"ㄧㄛ","yong":"ㄩㄥ","you":"ㄧㄡ","yu":"ㄩ","yuan":"ㄩㄢ","yue":"ㄩㄝ","yun":"ㄩㄣ","za":"ㄗㄚ","zai":"ㄗㄞ","zan":"ㄗㄢ","zang":"ㄗㄤ","zao":"ㄗㄠ","ze":"ㄗㄜ","zei":"ㄗㄟ","zen":"ㄗㄣ","zeng":"ㄗㄥ","zha":"ㄓㄚ","zhai":"ㄓㄞ","zhan":"ㄓㄢ","zhang":"ㄓㄤ","zhao":"ㄓㄠ","zhe":"ㄓㄜ","zhei":"ㄓㄟ","zhen":"ㄓㄣ","zheng":"ㄓㄥ","zhi":"ㄓ","zhong":"ㄓㄨㄥ","zhou":"ㄓㄡ","zhu":"ㄓㄨ","zhua":"ㄓㄨㄚ","zhuai":"ㄓㄨㄞ","zhuan":"ㄓㄨㄢ","zhuang":"ㄓㄨㄤ","zhui":"ㄓㄨㄟ","zhun":"ㄓㄨㄣ","zhuo":"ㄓㄨㄛ","zi":"ㄗ","zong":"ㄗㄨㄥ","zou":"ㄗㄡ","zu":"ㄗㄨ","zuan":"ㄗㄨㄢ","zui":"ㄗㄨㄟ","zun":"ㄗㄨㄣ","zuo":"ㄗㄨㄛ"};
+
+        /* =========================================================
+           2. 115學年度南一首冊一至九課：結構化課程題庫
+           - 第一關（level1）：直接讀出注音符號原本聲音
+           - 第二、三關（level2, level3）：配對無破音字之標準國字，確保聲調清晰
+           ========================================================= */
+        const LESSON_CONFIG = [
+            {
+                id: 1,
+                title: "第一課：踢踏踢",
+                level1: [
+                    { bpmf: "ㄅ", speak: "ㄅ" }, { bpmf: "ㄇ", speak: "ㄇ" }, { bpmf: "ㄊ", speak: "ㄊ" },
+                    { bpmf: "ㄧ", speak: "ㄧ" }, { bpmf: "ㄚ", speak: "ㄚ" }
+                ],
+                level2: [
+                    { bpmf: "ㄧㄚ", speak: "鴨" }, { bpmf: "ㄅㄚˋ", speak: "爸" }, { bpmf: "ㄇㄚ", speak: "媽" },
+                    { bpmf: "ㄊㄚˇ", speak: "塔" }, { bpmf: "ㄊㄧ", speak: "踢" }, { bpmf: "ㄇㄧˇ", speak: "米" }, { bpmf: "ㄅㄧˊ", speak: "鼻" }
+                ],
+                level3: [
+                    { bpmf: "ㄊㄧㄝˇ", speak: "鐵" }, { bpmf: "ㄒㄧㄚ", speak: "蝦" }, { bpmf: "ㄐㄧㄚ", speak: "家" }, { bpmf: "ㄒㄧㄚˋ", speak: "下" }
+                ]
+            },
+            {
+                id: 2,
+                title: "第二課：木馬",
+                level1: [
+                    { bpmf: "ㄉ", speak: "ㄉ" }, { bpmf: "ㄋ", speak: "ㄋ" }, { bpmf: "ㄌ", speak: "ㄌ" },
+                    { bpmf: "ㄨ", speak: "ㄨ" }, { bpmf: "ㄠ", speak: "ㄠ" }
+                ],
+                level2: [
+                    { bpmf: "ㄇㄨˋ", speak: "木" }, { bpmf: "ㄇㄚˇ", speak: "馬" }, { bpmf: "ㄉㄠ", speak: "刀" },
+                    { bpmf: "ㄋㄧˊ", speak: "泥" }, { bpmf: "ㄊㄨˇ", speak: "土" }, { bpmf: "ㄌㄧˇ", speak: "禮" },
+                    { bpmf: "ㄇㄠˋ", speak: "帽" }, { bpmf: "ㄌㄨˋ", speak: "路" }
+                ],
+                level3: [
+                    { bpmf: "ㄋㄧㄠˇ", speak: "鳥" }, { bpmf: "ㄊㄧㄠˋ", speak: "跳" }, { bpmf: "ㄇㄧㄠˊ", speak: "苗" }, { bpmf: "ㄉㄧㄠ", speak: "雕" }
+                ]
+            },
+            {
+                id: 3,
+                title: "第三課：晚安",
+                level1: [
+                    { bpmf: "ㄍ", speak: "ㄍ" }, { bpmf: "ㄎ", speak: "ㄎ" }, { bpmf: "ㄏ", speak: "ㄏ" },
+                    { bpmf: "ㄢ", speak: "ㄢ" }, { bpmf: "ㄩ", speak: "ㄩ" }
+                ],
+                level2: [
+                    { bpmf: "ㄨㄢˇ", speak: "晚" }, { bpmf: "ㄩㄝˋ", speak: "月" }, { bpmf: "ㄎㄢˋ", speak: "看" },
+                    { bpmf: "ㄎㄨˇ", speak: "苦" }, { bpmf: "ㄏㄢˋ", speak: "汗" }, { bpmf: "ㄍㄢ", speak: "甘" }
+                ],
+                level3: [
+                    { bpmf: "ㄍㄨㄢ", speak: "關" }, { bpmf: "ㄎㄨㄢ", speak: "寬" }, { bpmf: "ㄏㄨㄢ", speak: "歡" },
+                    { bpmf: "ㄍㄨㄚ", speak: "瓜" }, { bpmf: "ㄏㄨㄚ", speak: "花" }, { bpmf: "ㄒㄩㄝˇ", speak: "雪" }
+                ]
+            },
+            {
+                id: 4,
+                title: "第四課：紙飛機",
+                level1: [
+                    { bpmf: "ㄆ", speak: "ㄆ" }, { bpmf: "ㄈ", speak: "ㄈ" }, { bpmf: "ㄐ", speak: "ㄐ" },
+                    { bpmf: "ㄑ", speak: "ㄑ" }, { bpmf: "ㄓ", speak: "ㄓ" }, { bpmf: "ㄟ", speak: "ㄟ" }
+                ],
+                level2: [
+                    { bpmf: "ㄧㄝˋ", speak: "葉" }, { bpmf: "ㄨㄟˊ", speak: "圍" }, { bpmf: "ㄈㄟ", speak: "飛" },
+                    { bpmf: "ㄐㄧ", speak: "機" }, { bpmf: "ㄑㄧˇ", speak: "起" }, { bpmf: "ㄓˇ", speak: "紙" }
+                ],
+                level3: [
+                    { bpmf: "ㄐㄧㄝˇ", speak: "姐" }, { bpmf: "ㄉㄧㄝˊ", speak: "蝶" }, { bpmf: "ㄍㄨㄟ", speak: "龜" },
+                    { bpmf: "ㄕㄨㄟˇ", speak: "水" }, { bpmf: "ㄒㄧㄝˊ", speak: "鞋" }
+                ]
+            },
+            {
+                id: 5,
+                title: "第五課：好漂亮",
+                level1: [
+                    { bpmf: "ㄒ", speak: "ㄒ" }, { bpmf: "ㄔ", speak: "ㄔ" }, { bpmf: "ㄕ", speak: "ㄕ" },
+                    { bpmf: "ㄖ", speak: "ㄖ" }, { bpmf: "ㄤ", speak: "ㄤ" }
+                ],
+                level2: [
+                    { bpmf: "ㄧㄠ", speak: "腰" }, { bpmf: "ㄧㄤˊ", speak: "羊" }, { bpmf: "ㄨㄤˊ", speak: "王" },
+                    { bpmf: "ㄕㄤˋ", speak: "上" }, { bpmf: "ㄔㄤˋ", speak: "唱" }, { bpmf: "ㄒㄧ", speak: "西" }
+                ],
+                level3: [
+                    { bpmf: "ㄆㄧㄠˋ", speak: "票" }, { bpmf: "ㄌㄧㄤˋ", speak: "亮" }, { bpmf: "ㄒㄧㄠˋ", speak: "笑" },
+                    { bpmf: "ㄒㄧㄤˋ", speak: "象" }, { bpmf: "ㄒㄩㄝˊ", speak: "學" }
+                ]
+            },
+            {
+                id: 6,
+                title: "第六課：剪刀石頭布",
+                level1: [
+                    { bpmf: "ㄗ", speak: "ㄗ" }, { bpmf: "ㄘ", speak: "ㄘ" }, { bpmf: "ㄙ", speak: "ㄙ" },
+                    { bpmf: "ㄛ", speak: "ㄛ" }, { bpmf: "ㄜ", speak: "ㄜ" }, { bpmf: "ㄡ", speak: "ㄡ" }
+                ],
+                level2: [
+                    { bpmf: "ㄧㄢˇ", speak: "眼" }, { bpmf: "ㄧㄡˊ", speak: "游" }, { bpmf: "ㄇㄛˊ", speak: "魔" },
+                    { bpmf: "ㄗㄡˇ", speak: "走" }, { bpmf: "ㄘㄠˇ", speak: "草" }, { bpmf: "ㄕㄡˇ", speak: "手" }
+                ],
+                level3: [
+                    { bpmf: "ㄐㄧㄢˇ", speak: "剪" }, { bpmf: "ㄑㄩㄢˊ", speak: "拳" }, { bpmf: "ㄋㄧㄠˇ", speak: "鳥" },
+                    { bpmf: "ㄊㄧㄢ", speak: "天" }, { bpmf: "ㄐㄧㄡˇ", speak: "九" }
+                ]
+            },
+            {
+                id: 7,
+                title: "第七課：布萊梅樂隊",
+                level1: [
+                    { bpmf: "ㄞ", speak: "ㄞ" }, { bpmf: "ㄣ", speak: "ㄣ" }
+                ],
+                level2: [
+                    { bpmf: "ㄨㄞˋ", speak: "外" }, { bpmf: "ㄨㄣ", speak: "溫" }, { bpmf: "ㄩㄢˊ", speak: "圓" },
+                    { bpmf: "ㄩㄣˊ", speak: "雲" }, { bpmf: "ㄅㄞˊ", speak: "白" }, { bpmf: "ㄙㄣ", speak: "森" }, { bpmf: "ㄇㄣˊ", speak: "門" }
+                ],
+                level3: [
+                    { bpmf: "ㄉㄨㄟˋ", speak: "隊" }, { bpmf: "ㄊㄨㄣˊ", speak: "豚" }, { bpmf: "ㄔㄨㄣ", speak: "春" },
+                    { bpmf: "ㄎㄨㄞˋ", speak: "快" }, { bpmf: "ㄍㄨㄞ", speak: "乖" }
+                ]
+            },
+            {
+                id: 8,
+                title: "第八課：小蝌蚪找媽媽",
+                level1: [
+                    { bpmf: "ㄥ", speak: "ㄥ" }, { bpmf: "ㄦ", speak: "ㄦ" }
+                ],
+                level2: [
+                    { bpmf: "ㄧㄣ", speak: "音" }, { bpmf: "ㄧㄥ", speak: "英" }, { bpmf: "ㄨㄛ", speak: "窩" },
+                    { bpmf: "ㄑㄧㄥ", speak: "青" }, { bpmf: "ㄌㄧㄣˊ", speak: "林" }, { bpmf: "ㄐㄧㄥ", speak: "晶" }
+                ],
+                level3: [
+                    { bpmf: "ㄉㄨㄛˇ", speak: "朵" }, { bpmf: "ㄏㄨㄛˇ", speak: "火" }, { bpmf: "ㄍㄨㄛˇ", speak: "果" },
+                    { bpmf: "ㄕㄨㄛ", speak: "說" }, { bpmf: "ㄗㄨㄛˋ", speak: "坐" }
+                ]
+            },
+            {
+                id: 9,
+                title: "第九課：動物狂歡節",
+                level1: [
+                    { bpmf: "ㄝ", speak: "ㄝ" }
+                ],
+                level2: [
+                    { bpmf: "ㄨㄚ", speak: "蛙" }, { bpmf: "ㄨㄥ", speak: "翁" }, { bpmf: "ㄩㄥˇ", speak: "泳" },
+                    { bpmf: "ㄉㄨㄥˋ", speak: "動" }, { bpmf: "ㄙㄨㄥ", speak: "松" }, { bpmf: "ㄍㄨㄥ", speak: "公" }
+                ],
+                level3: [
+                    { bpmf: "ㄎㄨㄤˊ", speak: "狂" }, { bpmf: "ㄒㄩㄥˊ", speak: "雄" }, { bpmf: "ㄐㄧㄝˊ", speak: "節" },
+                    { bpmf: "ㄏㄨㄤˊ", speak: "黃" }, { bpmf: "ㄊㄧㄠˋ", speak: "跳" }
+                ]
+            }
+        ];
+
+        /* =========================================================
+           老師最新指定的南一首冊一至九課預設語詞庫 (共 239 個語詞)
+           ========================================================= */
+        const DEFAULT_VOCAB_LIST = [
+            // 第一課（12個）
+            { lesson: 1, rawText: "背包", rubyData: [{char:"背",bpmf:"ㄅㄟ"},{char:"包",bpmf:"ㄅㄠ"}] },
+            { lesson: 1, rawText: "大門", rubyData: [{char:"大",bpmf:"ㄉㄚˋ"},{char:"門",bpmf:"ㄇㄣˊ"}] },
+            { lesson: 1, rawText: "太陽", rubyData: [{char:"太",bpmf:"ㄊㄞˋ"},{char:"陽",bpmf:"ㄧㄤˊ"}] },
+            { lesson: 1, rawText: "椅子", rubyData: [{char:"椅",bpmf:"ㄧˇ"},{char:"子",bpmf:"˙ㄗ"}] },
+            { lesson: 1, rawText: "螞蟻", rubyData: [{char:"螞",bpmf:"ㄇㄚˇ"},{char:"蟻",bpmf:"ㄧˇ"}] },
+            { lesson: 1, rawText: "鴨子", rubyData: [{char:"鴨",bpmf:"ㄧㄚ"},{char:"子",bpmf:"˙ㄗ"}] },
+            { lesson: 1, rawText: "媽媽", rubyData: [{char:"媽",bpmf:"ㄇㄚ"},{char:"媽",bpmf:"˙ㄇㄚ"}] },
+            { lesson: 1, rawText: "爸爸", rubyData: [{char:"爸",bpmf:"ㄅㄚˋ"},{char:"爸",bpmf:"˙ㄅㄚ"}] },
+            { lesson: 1, rawText: "踢踏", rubyData: [{char:"踢",bpmf:"ㄊㄧ"},{char:"踏",bpmf:"ㄊㄚˋ"}] },
+            { lesson: 1, rawText: "鼻涕", rubyData: [{char:"鼻",bpmf:"ㄅㄧˊ"},{char:"涕",bpmf:"ㄊㄧˋ"}] },
+            { lesson: 1, rawText: "牙醫", rubyData: [{char:"牙",bpmf:"ㄧㄚˊ"},{char:"醫",bpmf:"ㄧ"}] },
+            { lesson: 1, rawText: "鐵塔", rubyData: [{char:"鐵",bpmf:"ㄊㄧㄝˇ"},{char:"塔",bpmf:"ㄊㄚˇ"}] },
+
+            // 第二課（21個）
+            { lesson: 2, rawText: "豆子", rubyData: [{char:"豆",bpmf:"ㄉㄡˋ"},{char:"子",bpmf:"˙ㄗ"}] },
+            { lesson: 2, rawText: "木屋", rubyData: [{char:"木",bpmf:"ㄇㄨˋ"},{char:"屋",bpmf:"ㄨ"}] },
+            { lesson: 2, rawText: "椰子", rubyData: [{char:"椰",bpmf:"ㄧㄝˊ"},{char:"子",bpmf:"˙ㄗ"}] },
+            { lesson: 2, rawText: "泡泡", rubyData: [{char:"泡",bpmf:"ㄆㄠˋ"},{char:"泡",bpmf:"ㄆㄠˋ"}] },
+            { lesson: 2, rawText: "葉子", rubyData: [{char:"葉",bpmf:"ㄧㄝˋ"},{char:"子",bpmf:"˙ㄗ"}] },
+            { lesson: 2, rawText: "搖籃", rubyData: [{char:"搖",bpmf:"ㄧㄠˊ"},{char:"籃",bpmf:"ㄌㄢˊ"}] },
+            { lesson: 2, rawText: "挖土", rubyData: [{char:"挖",bpmf:"ㄨㄚ"},{char:"土",bpmf:"ㄊㄨˇ"}] },
+            { lesson: 2, rawText: "爺爺", rubyData: [{char:"爺",bpmf:"ㄧㄝˊ"},{char:"爺",bpmf:"˙ㄧㄝ"}] },
+            { lesson: 2, rawText: "弟弟", rubyData: [{char:"弟",bpmf:"ㄉㄧˋ"},{char:"弟",bpmf:"˙ㄉㄧ"}] },
+            { lesson: 2, rawText: "阿姨", rubyData: [{char:"阿",bpmf:"ㄚ"},{char:"姨",bpmf:"ㄧˊ"}] },
+            { lesson: 2, rawText: "寶刀", rubyData: [{char:"寶",bpmf:"ㄅㄠˇ"},{char:"刀",bpmf:"ㄉㄠ"}] },
+            { lesson: 2, rawText: "野兔", rubyData: [{char:"野",bpmf:"ㄧㄝˇ"},{char:"兔",bpmf:"ㄊㄨˋ"}] },
+            { lesson: 2, rawText: "木馬", rubyData: [{char:"木",bpmf:"ㄇㄨˋ"},{char:"馬",bpmf:"ㄇㄚˇ"}] },
+            { lesson: 2, rawText: "寶物", rubyData: [{char:"寶",bpmf:"ㄅㄠˇ"},{char:"物",bpmf:"ㄨˋ"}] },
+            { lesson: 2, rawText: "笛子", rubyData: [{char:"笛",bpmf:"ㄉㄧˊ"},{char:"子",bpmf:"˙ㄗ"}] },
+            { lesson: 2, rawText: "腰包", rubyData: [{char:"腰",bpmf:"ㄧㄠ"},{char:"包",bpmf:"ㄅㄠ"}] },
+            { lesson: 2, rawText: "稻子", rubyData: [{char:"稻",bpmf:"ㄉㄠˋ"},{char:"子",bpmf:"˙ㄗ"}] },
+            { lesson: 2, rawText: "肚子", rubyData: [{char:"肚",bpmf:"ㄉㄨˋ"},{char:"子",bpmf:"˙ㄗ"}] },
+            { lesson: 2, rawText: "襪子", rubyData: [{char:"襪",bpmf:"ㄨㄚˋ"},{char:"子",bpmf:"˙ㄗ"}] },
+            { lesson: 2, rawText: "刀子", rubyData: [{char:"刀",bpmf:"ㄉㄠ"},{char:"子",bpmf:"˙ㄗ"}] },
+            { lesson: 2, rawText: "包子", rubyData: [{char:"包",bpmf:"ㄅㄠ"},{char:"子",bpmf:"˙ㄗ"}] },
+
+            // 第三課（29個）
+            { lesson: 3, rawText: "晚安", rubyData: [{char:"晚",bpmf:"ㄨㄢˇ"},{char:"安",bpmf:"ㄢ"}] },
+            { lesson: 3, rawText: "月牙", rubyData: [{char:"月",bpmf:"ㄩㄝˋ"},{char:"牙",bpmf:"ㄧㄚˊ"}] },
+            { lesson: 3, rawText: "寶寶", rubyData: [{char:"寶",bpmf:"ㄅㄠˇ"},{char:"寶",bpmf:"˙ㄅㄠ"}] },
+            { lesson: 3, rawText: "頑皮", rubyData: [{char:"頑",bpmf:"ㄨㄢˊ"},{char:"皮",bpmf:"ㄆㄧˊ"}] },
+            { lesson: 3, rawText: "不要", rubyData: [{char:"不",bpmf:"ㄅㄨˊ"},{char:"要",bpmf:"ㄧㄠˋ"}] },
+            { lesson: 3, rawText: "瀑布", rubyData: [{char:"瀑",bpmf:"ㄆㄨˋ"},{char:"布",bpmf:"ㄅㄨˋ"}] },
+            { lesson: 3, rawText: "蠟燭", rubyData: [{char:"蠟",bpmf:"ㄌㄚˋ"},{char:"燭",bpmf:"ㄓㄨˊ"}] },
+            { lesson: 3, rawText: "盒子", rubyData: [{char:"盒",bpmf:"ㄏㄜˊ"},{char:"子",bpmf:"˙ㄗ"}] },
+            { lesson: 3, rawText: "雨衣", rubyData: [{char:"雨",bpmf:"ㄩˇ"},{char:"衣",bpmf:"ㄧ"}] },
+            { lesson: 3, rawText: "蛋糕", rubyData: [{char:"蛋",bpmf:"ㄉㄢˋ"},{char:"糕",bpmf:"ㄍㄠ"}] },
+            { lesson: 3, rawText: "丸子", rubyData: [{char:"丸",bpmf:"ㄨㄢˊ"},{char:"子",bpmf:"˙ㄗ"}] },
+            { lesson: 3, rawText: "賞月", rubyData: [{char:"賞",bpmf:"ㄕㄤˇ"},{char:"月",bpmf:"ㄩㄝˋ"}] },
+            { lesson: 3, rawText: "滷蛋", rubyData: [{char:"滷",bpmf:"ㄌㄨˇ"},{char:"蛋",bpmf:"ㄉㄢˋ"}] },
+            { lesson: 3, rawText: "蛋塔", rubyData: [{char:"蛋",bpmf:"ㄉㄢˋ"},{char:"塔",bpmf:"ㄊㄚˇ"}] },
+            { lesson: 3, rawText: "玩伴", rubyData: [{char:"玩",bpmf:"ㄨㄢˊ"},{char:"伴",bpmf:"ㄅㄢˋ"}] },
+            { lesson: 3, rawText: "藥丸", rubyData: [{char:"藥",bpmf:"ㄧㄠˋ"},{char:"丸",bpmf:"ㄨㄢˊ"}] },
+            { lesson: 3, rawText: "玉米", rubyData: [{char:"玉",bpmf:"ㄩˋ"},{char:"米",bpmf:"ㄇㄧˇ"}] },
+            { lesson: 3, rawText: "月曆", rubyData: [{char:"月",bpmf:"ㄩㄝˋ"},{char:"曆",bpmf:"ㄌㄧˋ"}] },
+            { lesson: 3, rawText: "樂譜", rubyData: [{char:"樂",bpmf:"ㄩㄝˋ"},{char:"譜",bpmf:"ㄆㄨˇ"}] },
+            { lesson: 3, rawText: "喇叭", rubyData: [{char:"喇",bpmf:"ㄌㄚˇ"},{char:"叭",bpmf:"˙ㄅㄚ"}] },
+            { lesson: 3, rawText: "皮包", rubyData: [{char:"皮",bpmf:"ㄆㄧˊ"},{char:"包",bpmf:"ㄅㄠ"}] },
+            { lesson: 3, rawText: "狐狸", rubyData: [{char:"狐",bpmf:"ㄏㄨˊ"},{char:"狸",bpmf:"ㄌㄧˊ"}] },
+            { lesson: 3, rawText: "葫蘆", rubyData: [{char:"葫",bpmf:"ㄏㄨˊ"},{char:"蘆",bpmf:"˙ㄌㄨ"}] },
+            { lesson: 3, rawText: "號碼", rubyData: [{char:"號",bpmf:"ㄏㄠˋ"},{char:"碼",bpmf:"ㄇㄚˇ"}] },
+            { lesson: 3, rawText: "漢堡", rubyData: [{char:"漢",bpmf:"ㄏㄢˋ"},{char:"堡",bpmf:"ㄅㄠˇ"}] },
+            { lesson: 3, rawText: "撲滿", rubyData: [{char:"撲",bpmf:"ㄆㄨ"},{char:"滿",bpmf:"ㄇㄢˇ"}] },
+            { lesson: 3, rawText: "跑步", rubyData: [{char:"跑",bpmf:"ㄆㄠˇ"},{char:"步",bpmf:"ㄅㄨˋ"}] },
+            { lesson: 3, rawText: "碗盤", rubyData: [{char:"碗",bpmf:"ㄨㄢˇ"},{char:"盤",bpmf:"ㄆㄢˊ"}] },
+            { lesson: 3, rawText: "馬路", rubyData: [{char:"馬",bpmf:"ㄇㄚˇ"},{char:"路",bpmf:"ㄌㄨˋ"}] },
+
+            // 第四課（24個）
+            { lesson: 4, rawText: "摺紙", rubyData: [{char:"摺",bpmf:"ㄓㄜˊ"},{char:"紙",bpmf:"ㄓˇ"}] },
+            { lesson: 4, rawText: "哪裡", rubyData: [{char:"哪",bpmf:"ㄋㄚˇ"},{char:"裡",bpmf:"ㄌㄧˇ"}] },
+            { lesson: 4, rawText: "草地", rubyData: [{char:"草",bpmf:"ㄘㄠˇ"},{char:"地",bpmf:"ㄉㄧˋ"}] },
+            { lesson: 4, rawText: "妹妹", rubyData: [{char:"妹",bpmf:"ㄇㄟˋ"},{char:"妹",bpmf:"˙ㄇㄟ"}] },
+            { lesson: 4, rawText: "風車", rubyData: [{char:"風",bpmf:"ㄈㄥ"},{char:"車",bpmf:"ㄔㄜ"}] },
+            { lesson: 4, rawText: "奶粉", rubyData: [{char:"奶",bpmf:"ㄋㄞˇ"},{char:"粉",bpmf:"ㄈㄣˇ"}] },
+            { lesson: 4, rawText: "機器人", rubyData: [{char:"機",bpmf:"ㄐㄧ"},{char:"器",bpmf:"ㄑㄧˋ"},{char:"人",bpmf:"ㄖㄣˊ"}] },
+            { lesson: 4, rawText: "竹子", rubyData: [{char:"竹",bpmf:"ㄓㄨˊ"},{char:"子",bpmf:"˙ㄗ"}] },
+            { lesson: 4, rawText: "彩色筆", rubyData: [{char:"彩",bpmf:"ㄘㄞˇ"},{char:"色",bpmf:"ㄙㄜˋ"},{char:"筆",bpmf:"ㄅㄧˇ"}] },
+            { lesson: 4, rawText: "鱷魚", rubyData: [{char:"鱷",bpmf:"ㄜˋ"},{char:"魚",bpmf:"ㄩˊ"}] },
+            { lesson: 4, rawText: "肥皂", rubyData: [{char:"肥",bpmf:"ㄈㄟˊ"},{char:"皂",bpmf:"ㄗㄠˋ"}] },
+            { lesson: 4, rawText: "積木", rubyData: [{char:"積",bpmf:"ㄐㄧ"},{char:"木",bpmf:"ㄇㄨˋ"}] },
+            { lesson: 4, rawText: "草莓", rubyData: [{char:"草",bpmf:"ㄘㄠˇ"},{char:"莓",bpmf:"ㄇㄟˊ"}] },
+            { lesson: 4, rawText: "河馬", rubyData: [{char:"河",bpmf:"ㄏㄜˊ"},{char:"馬",bpmf:"ㄇㄚˇ"}] },
+            { lesson: 4, rawText: "飛機", rubyData: [{char:"飛",bpmf:"ㄈㄟ"},{char:"機",bpmf:"ㄐㄧ"}] },
+            { lesson: 4, rawText: "黑板", rubyData: [{char:"黑",bpmf:"ㄏㄟ"},{char:"板",bpmf:"ㄅㄢˇ"}] },
+            { lesson: 4, rawText: "泥巴", rubyData: [{char:"泥",bpmf:"ㄋㄧˊ"},{char:"巴",bpmf:"ㄅㄚ"}] },
+            { lesson: 4, rawText: "籬笆", rubyData: [{char:"籬",bpmf:"ㄌㄧˊ"},{char:"笆",bpmf:"ㄅㄚ"}] },
+            { lesson: 4, rawText: "攤販", rubyData: [{char:"攤",bpmf:"ㄊㄢ"},{char:"販",bpmf:"ㄈㄢˋ"}] },
+            { lesson: 4, rawText: "女巫", rubyData: [{char:"女",bpmf:"ㄋㄩˇ"},{char:"巫",bpmf:"ㄨ"}] },
+            { lesson: 4, rawText: "珠寶", rubyData: [{char:"珠",bpmf:"ㄓㄨ"},{char:"寶",bpmf:"ㄅㄠˇ"}] },
+            { lesson: 4, rawText: "衣服", rubyData: [{char:"衣",bpmf:"ㄧ"},{char:"服",bpmf:"ㄈㄨˊ"}] },
+            { lesson: 4, rawText: "大腦", rubyData: [{char:"大",bpmf:"ㄉㄚˋ"},{char:"腦",bpmf:"ㄋㄠˇ"}] },
+            { lesson: 4, rawText: "餐具", rubyData: [{char:"餐",bpmf:"ㄘㄢ"},{char:"具",bpmf:"ㄐㄩˋ"}] },
+
+            // 第五課（33個）
+            { lesson: 5, rawText: "大象", rubyData: [{char:"大",bpmf:"ㄉㄚˋ"},{char:"象",bpmf:"ㄒㄧㄤˋ"}] },
+            { lesson: 5, rawText: "老虎", rubyData: [{char:"老",bpmf:"ㄌㄠˇ"},{char:"虎",bpmf:"ㄏㄨˇ"}] },
+            { lesson: 5, rawText: "蝴蝶", rubyData: [{char:"蝴",bpmf:"ㄏㄨˊ"},{char:"蝶",bpmf:"ㄉㄧㄝˊ"}] },
+            { lesson: 5, rawText: "香菇", rubyData: [{char:"香",bpmf:"ㄒㄧㄤ"},{char:"菇",bpmf:"ㄍㄨ"}] },
+            { lesson: 5, rawText: "槌子", rubyData: [{char:"槌",bpmf:"ㄔㄨㄟˊ"},{char:"子",bpmf:"˙ㄗ"}] },
+            { lesson: 5, rawText: "梳子", rubyData: [{char:"梳",bpmf:"ㄕㄨ"},{char:"子",bpmf:"˙ㄗ"}] },
+            { lesson: 5, rawText: "足球", rubyData: [{char:"足",bpmf:"ㄗㄨˊ"},{char:"球",bpmf:"ㄑㄧㄡˊ"}] },
+            { lesson: 5, rawText: "糖果", rubyData: [{char:"糖",bpmf:"ㄊㄤˊ"},{char:"果",bpmf:"ㄍㄨㄛˇ"}] },
+            { lesson: 5, rawText: "洋娃娃", rubyData: [{char:"洋",bpmf:"ㄧㄤˊ"},{char:"娃",bpmf:"ㄨㄚˊ"},{char:"娃",bpmf:"˙ㄨㄚ"}] },
+            { lesson: 5, rawText: "王冠", rubyData: [{char:"王",bpmf:"ㄨㄤˊ"},{char:"冠",bpmf:"ㄍㄨㄢ"}] },
+            { lesson: 5, rawText: "漂亮", rubyData: [{char:"漂",bpmf:"ㄆㄧㄠˋ"},{char:"亮",bpmf:"ㄌㄧㄤˋ"}] },
+            { lesson: 5, rawText: "黃色", rubyData: [{char:"黃",bpmf:"ㄏㄨㄤˊ"},{char:"色",bpmf:"ㄙㄜˋ"}] },
+            { lesson: 5, rawText: "衣裳", rubyData: [{char:"衣",bpmf:"ㄧ"},{char:"裳",bpmf:"˙ㄕㄤ"}] },
+            { lesson: 5, rawText: "拇指", rubyData: [{char:"拇",bpmf:"ㄇㄨˇ"},{char:"指",bpmf:"ㄓˇ"}] },
+            { lesson: 5, rawText: "王子", rubyData: [{char:"王",bpmf:"ㄨㄤˊ"},{char:"子",bpmf:"ㄗˇ"}] },
+            { lesson: 5, rawText: "蟬", rubyData: [{char:"蟬",bpmf:"ㄔㄢˊ"}] },
+            { lesson: 5, rawText: "蠶寶寶", rubyData: [{char:"蠶",bpmf:"ㄘㄢˊ"},{char:"寶",bpmf:"ㄅㄠˇ"},{char:"寶",bpmf:"˙ㄅㄠ"}] },
+            { lesson: 5, rawText: "野狼", rubyData: [{char:"野",bpmf:"ㄧㄝˇ"},{char:"狼",bpmf:"ㄌㄤˊ"}] },
+            { lesson: 5, rawText: "喜歡", rubyData: [{char:"喜",bpmf:"ㄒㄧˇ"},{char:"歡",bpmf:"ㄏㄨㄢ"}] },
+            { lesson: 5, rawText: "想像", rubyData: [{char:"想",bpmf:"ㄒㄧㄤˇ"},{char:"像",bpmf:"ㄒㄧㄤˋ"}] },
+            { lesson: 5, rawText: "西裝", rubyData: [{char:"西",bpmf:"ㄒㄧ"},{char:"裝",bpmf:"ㄓㄨㄤ"}] },
+            { lesson: 5, rawText: "鏟子", rubyData: [{char:"鏟",bpmf:"ㄔㄢˇ"},{char:"子",bpmf:"˙ㄗ"}] },
+            { lesson: 5, rawText: "刷牙", rubyData: [{char:"刷",bpmf:"ㄕㄨㄚ"},{char:"牙",bpmf:"ㄧㄚˊ"}] },
+            { lesson: 5, rawText: "茶杯", rubyData: [{char:"茶",bpmf:"ㄔㄚˊ"},{char:"杯",bpmf:"ㄅㄟ"}] },
+            { lesson: 5, rawText: "章魚", rubyData: [{char:"章",bpmf:"ㄓㄤ"},{char:"魚",bpmf:"ㄩˊ"}] },
+            { lesson: 5, rawText: "高山", rubyData: [{char:"高",bpmf:"ㄍㄠ"},{char:"山",bpmf:"ㄕㄢ"}] },
+            { lesson: 5, rawText: "樹屋", rubyData: [{char:"樹",bpmf:"ㄕㄨˋ"},{char:"屋",bpmf:"ㄨ"}] },
+            { lesson: 5, rawText: "操場", rubyData: [{char:"操",bpmf:"ㄘㄠ"},{char:"場",bpmf:"ㄔㄤˇ"}] },
+            { lesson: 5, rawText: "蟒蛇", rubyData: [{char:"蟒",bpmf:"ㄇㄤˇ"},{char:"蛇",bpmf:"ㄕㄜˊ"}] },
+            { lesson: 5, rawText: "窗戶", rubyData: [{char:"窗",bpmf:"ㄔㄨㄤ"},{char:"戶",bpmf:"ㄏㄨˋ"}] },
+            { lesson: 5, rawText: "螃蟹", rubyData: [{char:"螃",bpmf:"ㄆㄤˊ"},{char:"蟹",bpmf:"ㄒㄧㄝˋ"}] },
+            { lesson: 5, rawText: "香腸", rubyData: [{char:"香",bpmf:"ㄒㄧㄤ"},{char:"腸",bpmf:"ㄔㄤˊ"}] },
+            { lesson: 5, rawText: "鈔票", rubyData: [{char:"鈔",bpmf:"ㄔㄠ"},{char:"票",bpmf:"ㄆㄧㄠˋ"}] },
+
+            // 第六課（24個）
+            { lesson: 6, rawText: "左手", rubyData: [{char:"左",bpmf:"ㄗㄨㄛˇ"},{char:"手",bpmf:"ㄕㄡˇ"}] },
+            { lesson: 6, rawText: "右手", rubyData: [{char:"右",bpmf:"ㄧㄡˋ"},{char:"手",bpmf:"ㄕㄡˇ"}] },
+            { lesson: 6, rawText: "剪刀", rubyData: [{char:"剪",bpmf:"ㄐㄧㄢˇ"},{char:"刀",bpmf:"ㄉㄠ"}] },
+            { lesson: 6, rawText: "石頭", rubyData: [{char:"石",bpmf:"ㄕˊ"},{char:"頭",bpmf:"˙ㄊㄡ"}] },
+            { lesson: 6, rawText: "白兔", rubyData: [{char:"白",bpmf:"ㄅㄞˊ"},{char:"兔",bpmf:"ㄊㄨˋ"}] },
+            { lesson: 6, rawText: "魔術", rubyData: [{char:"魔",bpmf:"ㄇㄛˊ"},{char:"術",bpmf:"ㄕㄨˋ"}] },
+            { lesson: 6, rawText: "鈴鼓", rubyData: [{char:"鈴",bpmf:"ㄌㄧㄥˊ"},{char:"鼓",bpmf:"ㄍㄨˇ"}] },
+            { lesson: 6, rawText: "抹布", rubyData: [{char:"抹",bpmf:"ㄇㄛˇ"},{char:"布",bpmf:"ㄅㄨˋ"}] },
+            { lesson: 6, rawText: "愛心", rubyData: [{char:"愛",bpmf:"ㄞˋ"},{char:"心",bpmf:"ㄒㄧㄣ"}] },
+            { lesson: 6, rawText: "木偶", rubyData: [{char:"木",bpmf:"ㄇㄨˋ"},{char:"偶",bpmf:"ㄡˇ"}] },
+            { lesson: 6, rawText: "郵筒", rubyData: [{char:"郵",bpmf:"ㄧㄡˊ"},{char:"筒",bpmf:"ㄊㄨㄥˇ"}] },
+            { lesson: 6, rawText: "眼鏡", rubyData: [{char:"眼",bpmf:"ㄧㄢˇ"},{char:"鏡",bpmf:"ㄐㄧㄥˋ"}] },
+            { lesson: 6, rawText: "鳥窩", rubyData: [{char:"鳥",bpmf:"ㄋㄧㄠˇ"},{char:"窩",bpmf:"ㄨㄛ"}] },
+            { lesson: 6, rawText: "白鵝", rubyData: [{char:"白",bpmf:"ㄅㄞˊ"},{char:"鵝",bpmf:"ㄜˊ"}] },
+            { lesson: 6, rawText: "玻璃", rubyData: [{char:"玻",bpmf:"ㄅㄛ"},{char:"璃",bpmf:"˙ㄌㄧ"}] },
+            { lesson: 6, rawText: "臥室", rubyData: [{char:"臥",bpmf:"ㄨㄛˋ"},{char:"室",bpmf:"ㄕˋ"}] },
+            { lesson: 6, rawText: "白馬", rubyData: [{char:"白",bpmf:"ㄅㄞˊ"},{char:"馬",bpmf:"ㄇㄚˇ"}] },
+            { lesson: 6, rawText: "斑馬", rubyData: [{char:"斑",bpmf:"ㄅㄢ"},{char:"馬",bpmf:"ㄇㄚˇ"}] },
+            { lesson: 6, rawText: "駱駝", rubyData: [{char:"駱",bpmf:"ㄌㄨㄛˋ"},{char:"駝",bpmf:"ㄊㄨㄛˊ"}] },
+            { lesson: 6, rawText: "小丑", rubyData: [{char:"小",bpmf:"ㄒㄧㄠˇ"},{char:"丑",bpmf:"ㄔㄡˇ"}] },
+            { lesson: 6, rawText: "猴子", rubyData: [{char:"猴",bpmf:"ㄏㄡˊ"},{char:"子",bpmf:"˙ㄗ"}] },
+            { lesson: 6, rawText: "電腦", rubyData: [{char:"電",bpmf:"ㄉㄧㄢˋ"},{char:"腦",bpmf:"ㄋㄠˇ"}] },
+            { lesson: 6, rawText: "蝸牛", rubyData: [{char:"蝸",bpmf:"ㄍㄨㄚ"},{char:"牛",bpmf:"ㄋㄧㄡˊ"}] },
+            { lesson: 6, rawText: "果汁", rubyData: [{char:"果",bpmf:"ㄍㄨㄛˇ"},{char:"汁",bpmf:"ㄓ"}] },
+
+            // 第七課（29個）
+            { lesson: 7, rawText: "驢子", rubyData: [{char:"驢",bpmf:"ㄌㄩˊ"},{char:"子",bpmf:"˙ㄗ"}] },
+            { lesson: 7, rawText: "公雞", rubyData: [{char:"公",bpmf:"ㄍㄨㄥ"},{char:"雞",bpmf:"ㄐㄧ"}] },
+            { lesson: 7, rawText: "敲鑼", rubyData: [{char:"敲",bpmf:"ㄑㄧㄠ"},{char:"鑼",bpmf:"ㄌㄨㄛˊ"}] },
+            { lesson: 7, rawText: "打鼓", rubyData: [{char:"打",bpmf:"ㄉㄚˇ"},{char:"鼓",bpmf:"ㄍㄨˇ"}] },
+            { lesson: 7, rawText: "樂隊", rubyData: [{char:"樂",bpmf:"ㄩㄝˋ"},{char:"隊",bpmf:"ㄉㄨㄟˋ"}] },
+            { lesson: 7, rawText: "熱鬧", rubyData: [{char:"熱",bpmf:"ㄖㄜˋ"},{char:"鬧",bpmf:"ㄋㄠˋ"}] },
+            { lesson: 7, rawText: "裙子", rubyData: [{char:"裙",bpmf:"ㄑㄩㄣˊ"},{char:"子",bpmf:"˙ㄗ"}] },
+            { lesson: 7, rawText: "日曆", rubyData: [{char:"日",bpmf:"ㄖˋ"},{char:"曆",bpmf:"ㄌㄧˋ"}] },
+            { lesson: 7, rawText: "燈泡", rubyData: [{char:"燈",bpmf:"ㄉㄥ"},{char:"泡",bpmf:"ㄆㄠˋ"}] },
+            { lesson: 7, rawText: "唉唷", rubyData: [{char:"唉",bpmf:"ㄞ"},{char:"唷",bpmf:"ㄧㄛ"}] },
+            { lesson: 7, rawText: "衛生", rubyData: [{char:"衛",bpmf:"ㄨㄟˋ"},{char:"生",bpmf:"ㄕㄥ"}] },
+            { lesson: 7, rawText: "龍舟", rubyData: [{char:"龍",bpmf:"ㄌㄨㄥˊ"},{char:"舟",bpmf:"ㄓㄡ"}] },
+            { lesson: 7, rawText: "氣球", rubyData: [{char:"氣",bpmf:"ㄑㄧˋ"},{char:"球",bpmf:"ㄑㄧㄡˊ"}] },
+            { lesson: 7, rawText: "烏龜", rubyData: [{char:"烏",bpmf:"ㄨ"},{char:"龜",bpmf:"ㄍㄨㄟ"}] },
+            { lesson: 7, rawText: "鞦韆", rubyData: [{char:"鞦",bpmf:"ㄑㄧㄡ"},{char:"韆",bpmf:"ㄑㄧㄢ"}] },
+            { lesson: 7, rawText: "鍋蓋", rubyData: [{char:"鍋",bpmf:"ㄍㄨㄛ"},{char:"蓋",bpmf:"ㄍㄞˋ"}] },
+            { lesson: 7, rawText: "滷肉", rubyData: [{char:"滷",bpmf:"ㄌㄨˇ"},{char:"肉",bpmf:"ㄖㄡˋ"}] },
+            { lesson: 7, rawText: "乳酪", rubyData: [{char:"乳",bpmf:"ㄖㄨˇ"},{char:"酪",bpmf:"ㄌㄨㄛˋ"}] },
+            { lesson: 7, rawText: "漏斗", rubyData: [{char:"漏",bpmf:"ㄌㄡˋ"},{char:"斗",bpmf:"ㄉㄡˇ"}] },
+            { lesson: 7, rawText: "肉包", rubyData: [{char:"肉",bpmf:"ㄖㄡˋ"},{char:"包",bpmf:"ㄅㄠ"}] },
+            { lesson: 7, rawText: "蜜蜂", rubyData: [{char:"蜜",bpmf:"ㄇㄧˋ"},{char:"蜂",bpmf:"ㄈㄥ"}] },
+            { lesson: 7, rawText: "農場", rubyData: [{char:"農",bpmf:"ㄋㄨㄥˊ"},{char:"場",bpmf:"ㄔㄤˇ"}] },
+            { lesson: 7, rawText: "乳牛", rubyData: [{char:"乳",bpmf:"ㄖㄨˇ"},{char:"牛",bpmf:"ㄋㄧㄡˊ"}] },
+            { lesson: 7, rawText: "綿羊", rubyData: [{char:"綿",bpmf:"ㄇㄧㄢˊ"},{char:"羊",bpmf:"ㄧㄤˊ"}] },
+            { lesson: 7, rawText: "汽車", rubyData: [{char:"汽",bpmf:"ㄑㄧˋ"},{char:"車",bpmf:"ㄔㄜ"}] },
+            { lesson: 7, rawText: "香水", rubyData: [{char:"香",bpmf:"ㄒㄧㄤ"},{char:"水",bpmf:"ㄕㄨㄟˇ"}] },
+            { lesson: 7, rawText: "山洞", rubyData: [{char:"山",bpmf:"ㄕㄢ"},{char:"洞",bpmf:"ㄉㄨㄥˋ"}] },
+            { lesson: 7, rawText: "毛毛蟲", rubyData: [{char:"毛",bpmf:"ㄇㄠˊ"},{char:"毛",bpmf:"ㄇㄠˊ"},{char:"蟲",bpmf:"ㄔㄨㄥˊ"}] },
+            { lesson: 7, rawText: "風箏", rubyData: [{char:"風",bpmf:"ㄈㄥ"},{char:"箏",bpmf:"ㄓㄥ"}] },
+
+            // 第八課（34個）
+            { lesson: 8, rawText: "源頭", rubyData: [{char:"源",bpmf:"ㄩㄢˊ"},{char:"頭",bpmf:"ㄊㄡˊ"}] },
+            { lesson: 8, rawText: "尾巴", rubyData: [{char:"尾",bpmf:"ㄨㄟˇ"},{char:"巴",bpmf:"˙ㄅㄚ"}] },
+            { lesson: 8, rawText: "蝌蚪", rubyData: [{char:"蝌",bpmf:"ㄎㄜ"},{char:"蚪",bpmf:"ㄉㄡˇ"}] },
+            { lesson: 8, rawText: "肚皮", rubyData: [{char:"肚",bpmf:"ㄉㄨˋ"},{char:"皮",bpmf:"ㄆㄧˊ"}] },
+            { lesson: 8, rawText: "眼睛", rubyData: [{char:"眼",bpmf:"ㄧㄢˇ"},{char:"睛",bpmf:"ㄐㄧㄥ"}] },
+            { lesson: 8, rawText: "嘴巴", rubyData: [{char:"嘴",bpmf:"ㄗㄨㄟˇ"},{char:"巴",bpmf:"ㄅㄚ"}] },
+            { lesson: 8, rawText: "唱歌", rubyData: [{char:"唱",bpmf:"ㄔㄤˋ"},{char:"歌",bpmf:"ㄍㄜ"}] },
+            { lesson: 8, rawText: "請問", rubyData: [{char:"請",bpmf:"ㄑㄧㄥˇ"},{char:"問",bpmf:"ㄨㄣˋ"}] },
+            { lesson: 8, rawText: "褲子", rubyData: [{char:"褲",bpmf:"ㄎㄨˋ"},{char:"子",bpmf:"˙ㄗ"}] },
+            { lesson: 8, rawText: "掃帚", rubyData: [{char:"掃",bpmf:"ㄙㄠˋ"},{char:"帚",bpmf:"˙ㄓㄡ"}] },
+            { lesson: 8, rawText: "噴水池", rubyData: [{char:"噴",bpmf:"ㄆㄣ"},{char:"水",bpmf:"ㄕㄨㄟˇ"},{char:"池",bpmf:"ㄔˊ"}] },
+            { lesson: 8, rawText: "鸚鵡", rubyData: [{char:"鸚",bpmf:"ㄧㄥ"},{char:"鵡",bpmf:"ㄨˇ"}] },
+            { lesson: 8, rawText: "溫泉", rubyData: [{char:"溫",bpmf:"ㄨㄣ"},{char:"泉",bpmf:"ㄑㄩㄢˊ"}] },
+            { lesson: 8, rawText: "元寶", rubyData: [{char:"元",bpmf:"ㄩㄢˊ"},{char:"寶",bpmf:"ㄅㄠˇ"}] },
+            { lesson: 8, rawText: "村莊", rubyData: [{char:"村",bpmf:"ㄘㄨㄣ"},{char:"莊",bpmf:"ㄓㄨㄤ"}] },
+            { lesson: 8, rawText: "輪胎", rubyData: [{char:"輪",bpmf:"ㄌㄨㄣˊ"},{char:"胎",bpmf:"ㄊㄞ"}] },
+            { lesson: 8, rawText: "竹筍", rubyData: [{char:"竹",bpmf:"ㄓㄨˊ"},{char:"筍",bpmf:"ㄙㄨㄣˇ"}] },
+            { lesson: 8, rawText: "棍棒", rubyData: [{char:"棍",bpmf:"ㄍㄨㄣˋ"},{char:"棒",bpmf:"ㄅㄤˋ"}] },
+            { lesson: 8, rawText: "打針", rubyData: [{char:"打",bpmf:"ㄉㄚˇ"},{char:"針",bpmf:"ㄓㄣ"}] },
+            { lesson: 8, rawText: "樹根", rubyData: [{char:"樹",bpmf:"ㄕㄨˋ"},{char:"根",bpmf:"ㄍㄣ"}] },
+            { lesson: 8, rawText: "伸手", rubyData: [{char:"伸",bpmf:"ㄕㄣ"},{char:"手",bpmf:"ㄕㄡˇ"}] },
+            { lesson: 8, rawText: "耕田", rubyData: [{char:"耕",bpmf:"ㄍㄥ"},{char:"田",bpmf:"ㄊㄧㄢˊ"}] },
+            { lesson: 8, rawText: "升旗", rubyData: [{char:"升",bpmf:"ㄕㄥ"},{char:"旗",bpmf:"ㄑㄧˊ"}] },
+            { lesson: 8, rawText: "貝殼", rubyData: [{char:"貝",bpmf:"ㄅㄟˋ"},{char:"殼",bpmf:"ㄎㄜˊ"}] },
+            { lesson: 8, rawText: "老師", rubyData: [{char:"老",bpmf:"ㄌㄠˇ"},{char:"師",bpmf:"ㄕ"}] },
+            { lesson: 8, rawText: "鷺鷥", rubyData: [{char:"鷺",bpmf:"ㄌㄨˋ"},{char:"鷥",bpmf:"ㄙ"}] },
+            { lesson: 8, rawText: "星星", rubyData: [{char:"星",bpmf:"ㄒㄧㄥ"},{char:"星",bpmf:"ㄒㄧㄥ"}] },
+            { lesson: 8, rawText: "神仙", rubyData: [{char:"神",bpmf:"ㄕㄣˊ"},{char:"仙",bpmf:"ㄒㄧㄢ"}] },
+            { lesson: 8, rawText: "春聯", rubyData: [{char:"春",bpmf:"ㄔㄨㄣ"},{char:"聯",bpmf:"ㄌㄧㄢˊ"}] },
+            { lesson: 8, rawText: "遊樂園", rubyData: [{char:"遊",bpmf:"ㄧㄡˊ"},{char:"樂",bpmf:"ㄌㄜˋ"},{char:"園",bpmf:"ㄩㄢˊ"}] },
+            { lesson: 8, rawText: "考卷", rubyData: [{char:"考",bpmf:"ㄎㄠˇ"},{char:"卷",bpmf:"ㄐㄩㄢˋ"}] },
+            { lesson: 8, rawText: "蚊子", rubyData: [{char:"蚊",bpmf:"ㄨㄣˊ"},{char:"子",bpmf:"˙ㄗ"}] },
+            { lesson: 8, rawText: "課本", rubyData: [{char:"課",bpmf:"ㄎㄜˋ"},{char:"本",bpmf:"ㄅㄣˇ"}] },
+            { lesson: 8, rawText: "色紙", rubyData: [{char:"色",bpmf:"ㄙㄜˋ"},{char:"紙",bpmf:"ㄓˇ"}] },
+
+            // 第九課（33個，已去除重複的「雲朵」與「印章」）
+            { lesson: 9, rawText: "雄赳赳", rubyData: [{char:"雄",bpmf:"ㄒㄩㄥˊ"},{char:"赳",bpmf:"ㄐㄧㄡ"},{char:"赳",bpmf:"ㄐㄧㄡ"}] },
+            { lesson: 9, rawText: "山崖", rubyData: [{char:"山",bpmf:"ㄕㄢ"},{char:"崖",bpmf:"ㄧㄚˊ"}] },
+            { lesson: 9, rawText: "聲音", rubyData: [{char:"聲",bpmf:"ㄕㄥ"},{char:"音",bpmf:"ㄧㄣ"}] },
+            { lesson: 9, rawText: "登場", rubyData: [{char:"登",bpmf:"ㄉㄥ"},{char:"場",bpmf:"ㄔㄤˇ"}] },
+            { lesson: 9, rawText: "袋鼠", rubyData: [{char:"袋",bpmf:"ㄉㄞˋ"},{char:"鼠",bpmf:"ㄕㄨˇ"}] },
+            { lesson: 9, rawText: "布穀", rubyData: [{char:"布",bpmf:"ㄅㄨˋ"},{char:"穀",bpmf:"ㄍㄨˇ"}] },
+            { lesson: 9, rawText: "天鵝", rubyData: [{char:"天",bpmf:"ㄊㄧㄢ"},{char:"鵝",bpmf:"ㄜˊ"}] },
+            { lesson: 9, rawText: "一二三", rubyData: [{char:"一",bpmf:"ㄧ"},{char:"二",bpmf:"ㄦˋ"},{char:"三",bpmf:"ㄙㄢ"}] },
+            { lesson: 9, rawText: "狂歡", rubyData: [{char:"狂",bpmf:"ㄎㄨㄤˊ"},{char:"歡",bpmf:"ㄏㄨㄢ"}] },
+            { lesson: 9, rawText: "耳機", rubyData: [{char:"耳",bpmf:"ㄦˇ"},{char:"機",bpmf:"ㄐㄧ"}] },
+            { lesson: 9, rawText: "印章", rubyData: [{char:"印",bpmf:"ㄧㄣˋ"},{char:"章",bpmf:"ㄓㄤ"}] },
+            { lesson: 9, rawText: "外星人", rubyData: [{char:"外",bpmf:"ㄨㄞˋ"},{char:"星",bpmf:"ㄒㄧㄥ"},{char:"人",bpmf:"ㄖㄣˊ"}] },
+            { lesson: 9, rawText: "雲朵", rubyData: [{char:"雲",bpmf:"ㄩㄣˊ"},{char:"朵",bpmf:"ㄉㄨㄛˇ"}] },
+            { lesson: 9, rawText: "泳圈", rubyData: [{char:"泳",bpmf:"ㄩㄥˇ"},{char:"圈",bpmf:"ㄑㄩㄢ"}] },
+            { lesson: 9, rawText: "暈車", rubyData: [{char:"暈",bpmf:"ㄩㄣ"},{char:"車",bpmf:"ㄔㄜ"}] },
+            { lesson: 9, rawText: "銀行", rubyData: [{char:"銀",bpmf:"ㄧㄣˊ"},{char:"行",bpmf:"ㄏㄤˊ"}] },
+            { lesson: 9, rawText: "飲料", rubyData: [{char:"飲",bpmf:"ㄧㄣˇ"},{char:"料",bpmf:"ㄌㄧㄠˋ"}] },
+            { lesson: 9, rawText: "隕石", rubyData: [{char:"隕",bpmf:"ㄩㄣˇ"},{char:"石",bpmf:"ㄕˊ"}] },
+            { lesson: 9, rawText: "熨斗", rubyData: [{char:"熨",bpmf:"ㄩㄣˋ"},{char:"斗",bpmf:"ㄉㄡˇ"}] },
+            { lesson: 9, rawText: "飛蛾", rubyData: [{char:"飛",bpmf:"ㄈㄟ"},{char:"蛾",bpmf:"ㄜˊ"}] },
+            { lesson: 9, rawText: "兒童", rubyData: [{char:"兒",bpmf:"ㄦˊ"},{char:"童",bpmf:"ㄊㄨㄥˊ"}] },
+            { lesson: 9, rawText: "魚餌", rubyData: [{char:"魚",bpmf:"ㄩˊ"},{char:"餌",bpmf:"ㄦˇ"}] },
+            { lesson: 9, rawText: "金魚", rubyData: [{char:"金",bpmf:"ㄐㄧㄣ"},{char:"魚",bpmf:"ㄩˊ"}] },
+            { lesson: 9, rawText: "鯨魚", rubyData: [{char:"鯨",bpmf:"ㄐㄧㄥ"},{char:"魚",bpmf:"ㄩˊ"}] },
+            { lesson: 9, rawText: "老鷹", rubyData: [{char:"老",bpmf:"ㄌㄠˇ"},{char:"鷹",bpmf:"ㄧㄥ"}] },
+            { lesson: 9, rawText: "音符", rubyData: [{char:"音",bpmf:"ㄧㄣ"},{char:"符",bpmf:"ㄈㄨˊ"}] },
+            { lesson: 9, rawText: "英雄", rubyData: [{char:"英",bpmf:"ㄧㄥ"},{char:"雄",bpmf:"ㄒㄩㄥˊ"}] },
+            { lesson: 9, rawText: "孕婦", rubyData: [{char:"孕",bpmf:"ㄩㄣˋ"},{char:"婦",bpmf:"ㄈㄨˋ"}] },
+            { lesson: 9, rawText: "細菌", rubyData: [{char:"細",bpmf:"ㄒㄧˋ"},{char:"菌",bpmf:"ㄐㄩㄣˋ"}] },
+            { lesson: 9, rawText: "拐杖", rubyData: [{char:"拐",bpmf:"ㄍㄨㄞˇ"},{char:"杖",bpmf:"ㄓㄤˋ"}] },
+            { lesson: 9, rawText: "蚯蚓", rubyData: [{char:"蚯",bpmf:"ㄑㄧㄡ"},{char:"蚓",bpmf:"ㄧㄣˇ"}] },
+            { lesson: 9, rawText: "雄獅", rubyData: [{char:"雄",bpmf:"ㄒㄩㄥˊ"},{char:"獅",bpmf:"ㄕ"}] },
+            { lesson: 9, rawText: "軍人", rubyData: [{char:"軍",bpmf:"ㄐㄩㄣ"},{char:"人",bpmf:"ㄖㄣˊ"}] }
+        ];
+
+        /* =========================================================
+           3. 全域狀態與本機儲存管理 (升級為 v5 確保載入最新 239 語詞庫)
+           ========================================================= */
+        const STORAGE_VOCAB_KEY = "nanyi_bopomofo_vocab_115_v5";
+        const STORAGE_LESSONS_KEY = "nanyi_bopomofo_lessons_115_v5";
+
+        let vocabList = [];
+        let selectedLessons = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let currentFilterLesson = 1;
+        let editingVocabIndex = -1;
+
+        let isGameRunning = false;
+        let isTransitioningQuestion = false;
+        let isTargetRevealed = false;
+        let currentDifficulty = 1;
+        let currentQuestionPool = [];
+        let currentTarget = null;
+        let familyRound = 1;
+
+        const SPEED_MODES = [
+            { label: "🐢 隕石速度：慢速（適合初學）", minSpeed: 1.1, maxSpeed: 1.7, spawnInterval: 2000 },
+            { label: "🚀 隕石速度：標準（一般對抗）", minSpeed: 1.8, maxSpeed: 2.6, spawnInterval: 1600 },
+            { label: "⚡ 隕石速度：極速（高手挑戰）", minSpeed: 2.7, maxSpeed: 3.7, spawnInterval: 1200 }
+        ];
+        let speedIndex = 0;
+
+        // 三隊獨立狀態（包含 targetHits 單題命中計數器）
+        const teams = {
+            A: { score: 0, targetHits: 0, frozen: false, meteors: [], lastSpawn: 0, sinceLastTarget: 0 },
+            B: { score: 0, targetHits: 0, frozen: false, meteors: [], lastSpawn: 0, sinceLastTarget: 0 },
+            C: { score: 0, targetHits: 0, frozen: false, meteors: [], lastSpawn: 0, sinceLastTarget: 0 }
+        };
+
+        let animFrameId = null;
+        let audioCtx = null;
+        let preferredVoice = null;
+
+        /* =========================================================
+           4. 核心直式注音渲染函式 (100% 採用聯絡簿結構)
+           ========================================================= */
+        function buildSingleBpmfBoxHTML(bpmfStr) {
+            let sym = bpmfStr.trim();
+            let tone = "";
+            let isLight = false;
+
+            if (sym.indexOf("˙") === 0) {
+                isLight = true;
+                sym = sym.substring(1);
+                tone = "˙";
+            } else {
+                const lastChar = sym.slice(-1);
+                if (lastChar === "ˊ" || lastChar === "ˇ" || lastChar === "ˋ") {
+                    tone = lastChar;
+                    sym = sym.slice(0, -1);
+                }
+            }
+
+            let symSpans = "";
+            for (let i = 0; i < sym.length; i++) {
+                symSpans += "<span>" + sym.charAt(i) + "</span>";
+            }
+
+            let boxClass = "moe-char-vert";
+            if (isLight) {
+                boxClass += " has-light-tone";
+            } else if (!tone) {
+                boxClass += " no-tone-box";
+            }
+
+            let html = '<span class="' + boxClass + '">';
+            html += '<span class="moe-rt">';
+            html += '<span class="bopo-wrapper">';
+            if (isLight) {
+                html += '<span class="tone-light">˙</span>';
+            }
+            html += '<span class="sym">' + symSpans + '</span>';
+            if (tone && !isLight) {
+                html += '<span class="tone">' + tone + '</span>';
+            }
+            html += '</span></span></span>';
+            return html;
+        }
+
+        function renderQuestionBpmfHTML(questionItem) {
+            const isLong = questionItem.rubyData && questionItem.rubyData.length >= 3;
+            let html = '<div class="bpmf-word-box' + (isLong ? ' long-word' : '') + '">';
+            for (let i = 0; i < questionItem.rubyData.length; i++) {
+                html += buildSingleBpmfBoxHTML(questionItem.rubyData[i].bpmf);
+            }
+            html += '</div>';
+            return html;
+        }
+
+        function generateRubyDataForWord(text) {
+            let result = [];
+            for (let i = 0; i < text.length; i++) {
+                const ch = text.charAt(i);
+                if (!ch.trim()) continue;
+                let bpmf = "";
+                try {
+                    if (window.pinyinPro) {
+                        let pyArr = window.pinyinPro.pinyin(ch, { type: "array", toneType: "num" });
+                        if (pyArr && pyArr.length > 0) {
+                            let m = pyArr[0].toLowerCase().match(/([a-zü]+)(\d)?/);
+                            if (m) {
+                                let pyKey = m[1].replace("ü", "v");
+                                let toneNum = m[2] || "1";
+                                bpmf = py2bpmf[pyKey] || "";
+                                if (bpmf) {
+                                    if (toneNum === "2") bpmf += "ˊ";
+                                    else if (toneNum === "3") bpmf += "ˇ";
+                                    else if (toneNum === "4") bpmf += "ˋ";
+                                    else if (toneNum === "0") bpmf = "˙" + bpmf;
+                                }
+                            }
+                        }
+                    }
+                } catch (e) {
+                    bpmf = ch;
+                }
+                result.push({ char: ch, bpmf: bpmf || ch });
+            }
+            return result;
+        }
+
+        /* =========================================================
+           5. 高清晰台灣國語語音引擎 (僅在出題與點擊喇叭時朗讀)
+           ========================================================= */
+        function initSpeechVoices() {
+            if (!("speechSynthesis" in window)) return;
+            const pickVoice = function() {
+                const voices = window.speechSynthesis.getVoices();
+                if (!voices || voices.length === 0) return;
+                const twVoices = voices.filter(function(v) {
+                    return v.lang && (v.lang.indexOf("zh-TW") !== -1 || v.lang.indexOf("zh_TW") !== -1);
+                });
+                if (twVoices.length > 0) {
+                    preferredVoice =
+                        twVoices.find(function(v) { return v.name.indexOf("HsiaoChen") !== -1 || v.name.indexOf("HsiaoYu") !== -1; }) ||
+                        twVoices.find(function(v) { return v.name.indexOf("Google") !== -1; }) ||
+                        twVoices.find(function(v) { return v.name.indexOf("Yating") !== -1 || v.name.indexOf("Mei-Jia") !== -1; }) ||
+                        twVoices[0];
+                }
+            };
+            pickVoice();
+            window.speechSynthesis.onvoiceschanged = pickVoice;
+        }
+
+        function createUtterance(text, rate, pitch) {
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = "zh-TW";
+            if (preferredVoice) u.voice = preferredVoice;
+            u.rate = rate || 0.7;
+            u.pitch = pitch || 1.05;
+            u.volume = 1.0;
+            return u;
+        }
+
+        /* 出題或點擊大喇叭時：分段獨立發音，慢速重複兩次目標音讓聲調清晰 */
+        function speakCurrentTarget() {
+            if (!currentTarget || !("speechSynthesis" in window)) return;
+            window.speechSynthesis.cancel();
+
+            // 第一段：提示語
+            const introUtter = createUtterance("請找出", 0.9, 1.0);
+            // 第二段：目標音第一次慢速飽滿發音
+            const targetUtter1 = createUtterance(currentTarget.speakText, 0.65, 1.08);
+            // 第三段：目標音第二次慢速強化發音
+            const targetUtter2 = createUtterance(currentTarget.speakText, 0.62, 1.08);
+
+            window.speechSynthesis.speak(introUtter);
+            window.speechSynthesis.speak(targetUtter1);
+            window.speechSynthesis.speak(targetUtter2);
+        }
+
+        function initAudioContext() {
+            if (!audioCtx) {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (AudioCtx) audioCtx = new AudioCtx();
+            }
+            if (audioCtx && audioCtx.state === "suspended") {
+                audioCtx.resume();
+            }
+        }
+
+        /* 拍中正確隕石時的清脆合成音效（支援多點同時觸發，不干擾語音） */
+        function playHitSound() {
+            initAudioContext();
+            if (!audioCtx) return;
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(523.25, now);
+            osc.frequency.exponentialRampToValueAtTime(1046.5, now + 0.18);
+            gain.gain.setValueAtTime(0.25, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.22);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.22);
+        }
+
+        /* 點錯時的低沉凍結音效 */
+        function playWrongSound() {
+            initAudioContext();
+            if (!audioCtx) return;
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(160, now);
+            osc.frequency.linearRampToValueAtTime(110, now + 0.3);
+            gain.gain.setValueAtTime(0.2, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.32);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.32);
+        }
+
+        /* =========================================================
+           6. 遊戲初始化與首頁預覽渲染
+           ========================================================= */
+        window.onload = function() {
+            initSpeechVoices();
+            loadSavedData();
+            renderHomePreviews();
+            updateHomeScopeSummary();
+        };
+
+        function loadSavedData() {
+            try {
+                const savedVocab = localStorage.getItem(STORAGE_VOCAB_KEY);
+                if (savedVocab) {
+                    vocabList = JSON.parse(savedVocab);
+                } else {
+                    vocabList = JSON.parse(JSON.stringify(DEFAULT_VOCAB_LIST));
+                }
+
+                const savedLessons = localStorage.getItem(STORAGE_LESSONS_KEY);
+                if (savedLessons) {
+                    selectedLessons = JSON.parse(savedLessons);
+                    if (!selectedLessons || selectedLessons.length === 0) {
+                        selectedLessons = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+                    }
+                }
+            } catch (e) {
+                vocabList = JSON.parse(JSON.stringify(DEFAULT_VOCAB_LIST));
+                selectedLessons = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+            }
+        }
+
+        function saveVocabToStorage() {
+            localStorage.setItem(STORAGE_VOCAB_KEY, JSON.stringify(vocabList));
+        }
+
+        function saveLessonsToStorage() {
+            localStorage.setItem(STORAGE_LESSONS_KEY, JSON.stringify(selectedLessons));
+            updateHomeScopeSummary();
+        }
+
+        function renderHomePreviews() {
+            document.getElementById("preview-1").innerHTML = buildSingleBpmfBoxHTML("ㄅ");
+            document.getElementById("preview-2").innerHTML = buildSingleBpmfBoxHTML("ㄇㄚˇ");
+            document.getElementById("preview-3").innerHTML = buildSingleBpmfBoxHTML("ㄆㄧㄠˋ");
+            document.getElementById("preview-4").innerHTML =
+                '<div style="display:flex; gap:8px;">' +
+                buildSingleBpmfBoxHTML("ㄊㄞˋ") +
+                buildSingleBpmfBoxHTML("ㄧㄤˊ") +
+                '</div>';
+        }
+
+        function updateHomeScopeSummary() {
+            const el = document.getElementById("home-scope-text");
+            if (selectedLessons.length === 9) {
+                el.textContent = "📚 目前出題範圍：南一首冊 第一課 至 第九課（全範圍）";
+            } else {
+                const sorted = selectedLessons.slice().sort(function(a, b) { return a - b; });
+                el.textContent = "📚 目前出題範圍：第 " + sorted.join("、") + " 課";
+            }
+        }
+
+        function cycleSpeed() {
+            speedIndex = (speedIndex + 1) % SPEED_MODES.length;
+            document.getElementById("speed-toggle-btn").textContent = SPEED_MODES[speedIndex].label;
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(function(){});
+            } else if (document.exitFullscreen) {
+                document.exitFullscreen().catch(function(){});
+            }
+        }
+
+        /* =========================================================
+           7. 依難度與勾選課別建立題庫池
+           ========================================================= */
+        function buildQuestionPool(difficulty) {
+            let pool = [];
+            if (difficulty === 1 || difficulty === 2 || difficulty === 3) {
+                const key = "level" + difficulty;
+                for (let i = 0; i < LESSON_CONFIG.length; i++) {
+                    const lessonObj = LESSON_CONFIG[i];
+                    if (selectedLessons.indexOf(lessonObj.id) !== -1) {
+                        const arr = lessonObj[key] || [];
+                        for (let j = 0; j < arr.length; j++) {
+                            pool.push({
+                                id: arr[j].bpmf,
+                                speakText: arr[j].speak,
+                                rubyData: [{ char: arr[j].speak, bpmf: arr[j].bpmf }]
+                            });
+                        }
+                    }
+                }
+            } else if (difficulty === 4) {
+                for (let i = 0; i < vocabList.length; i++) {
+                    const item = vocabList[i];
+                    if (selectedLessons.indexOf(item.lesson) !== -1) {
+                        let idStr = "";
+                        for (let k = 0; k < item.rubyData.length; k++) {
+                            idStr += item.rubyData[k].bpmf + "_";
+                        }
+                        pool.push({
+                            id: idStr,
+                            speakText: item.rawText,
+                            rubyData: item.rubyData
+                        });
+                    }
+                }
+            }
+
+            if (pool.length < 4) {
+                selectedLessons = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+                saveLessonsToStorage();
+                return buildQuestionPool(difficulty);
+            }
+            return pool;
+        }
+
+        /* =========================================================
+           8. 啟動對抗遊戲與多點觸控隕石引擎
+           ========================================================= */
+        function startGame(difficulty) {
+            initAudioContext();
+            currentDifficulty = difficulty;
+            currentQuestionPool = buildQuestionPool(difficulty);
+
+            const modeTitles = ["", "第一關：單一注音", "第二關：雙拼練習", "第三關：三拼與聲調", "第四關：首冊語詞"];
+            document.getElementById("game-mode-label").textContent = modeTitles[difficulty] + " ‧ 請聽音找出：";
+
+            document.getElementById("home-screen").classList.remove("active");
+            document.getElementById("game-screen").classList.add("active");
+
+            clearAllMeteors();
+            isGameRunning = true;
+            isTransitioningQuestion = false;
+            pickRandomTarget(true);
+
+            const now = performance.now();
+            teams.A.lastSpawn = now;
+            teams.B.lastSpawn = now;
+            teams.C.lastSpawn = now;
+
+            if (animFrameId) cancelAnimationFrame(animFrameId);
+            animFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        function stopGameAndReturn() {
+            isGameRunning = false;
+            isTransitioningQuestion = false;
+            if (animFrameId) cancelAnimationFrame(animFrameId);
+            if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+            clearAllMeteors();
+            document.getElementById("auto-next-banner").style.display = "none";
+            document.getElementById("game-screen").classList.remove("active");
+            document.getElementById("home-screen").classList.add("active");
+        }
+
+        function clearAllMeteors() {
+            const keys = ["A", "B", "C"];
+            for (let i = 0; i < keys.length; i++) {
+                const k = keys[i];
+                teams[k].meteors = [];
+                teams[k].frozen = false;
+                document.getElementById("sky-" + k).innerHTML = "";
+                document.getElementById("freeze-" + k).classList.remove("active");
+            }
+        }
+
+        /* 更新各隊「本題集滿 3 個」的燈號顯示 */
+        function updateTeamProgressUI() {
+            const keys = ["A", "B", "C"];
+            for (let i = 0; i < keys.length; i++) {
+                const k = keys[i];
+                const hits = teams[k].targetHits;
+                let dots = "";
+                for (let d = 0; d < 3; d++) {
+                    dots += (d < hits) ? "🟢" : "⚪";
+                }
+                document.getElementById("progress-" + k).textContent = dots;
+            }
+        }
+
+        /* 抽選新題目：一開始先隱藏題目注音，只用念的 */
+        function pickRandomTarget(shouldSpeak) {
+            if (currentQuestionPool.length === 0) return;
+            isTransitioningQuestion = false;
+            isTargetRevealed = false;
+            document.getElementById("auto-next-banner").style.display = "none";
+
+            // 重置三隊針對本題的命中計數器
+            teams.A.targetHits = 0;
+            teams.B.targetHits = 0;
+            teams.C.targetHits = 0;
+            updateTeamProgressUI();
+
+            let nextItem = currentQuestionPool[Math.floor(Math.random() * currentQuestionPool.length)];
+            if (currentQuestionPool.length > 1 && currentTarget && nextItem.id === currentTarget.id) {
+                nextItem = currentQuestionPool[(currentQuestionPool.indexOf(nextItem) + 1) % currentQuestionPool.length];
+            }
+            currentTarget = nextItem;
+
+            // 初始狀態：不顯示注音，顯示「👂 仔細聽音」提示框
+            document.getElementById("target-bpmf-display").innerHTML = '<div class="mystery-target-box">👂 仔細聽音</div>';
+            document.getElementById("target-sub-hint").textContent = "（先聽聲音找！第一組答對後顯現注音 ‧ 點喇叭重聽）";
+
+            if (shouldSpeak) {
+                speakCurrentTarget();
+            }
+        }
+
+        /* 當有任一組答對第一顆時，揭曉題目注音，讓其他組沒聽懂的孩子也能看注音找答案 */
+        function revealTargetBpmf() {
+            if (isTargetRevealed || !currentTarget) return;
+            isTargetRevealed = true;
+            const displayEl = document.getElementById("target-bpmf-display");
+            displayEl.innerHTML = '<div class="reveal-pop">' + renderQuestionBpmfHTML(currentTarget) + '</div>';
+            document.getElementById("target-sub-hint").textContent = "（已顯現注音提示！任一隊找滿 3 個自動換題）";
+        }
+
+        /* 老師手動點擊「換下一題」按鈕 */
+        function nextTargetQuestion() {
+            clearAllMeteors();
+            pickRandomTarget(true);
+        }
+
+        function toggleFamilyRound() {
+            familyRound = (familyRound === 1) ? 2 : 1;
+            const btn = document.getElementById("family-round-btn");
+            if (familyRound === 1) {
+                btn.textContent = "🚩 目前上場：1、3、5家";
+                document.getElementById("family-label-A").textContent = "第 1 家上場";
+                document.getElementById("family-label-B").textContent = "第 3 家上場";
+                document.getElementById("family-label-C").textContent = "第 5 家上場";
+            } else {
+                btn.textContent = "🚩 目前上場：2、4、6家";
+                document.getElementById("family-label-A").textContent = "第 2 家上場";
+                document.getElementById("family-label-B").textContent = "第 4 家上場";
+                document.getElementById("family-label-C").textContent = "第 6 家上場";
+            }
+        }
+
+        function spawnMeteorForTeam(teamKey) {
+            const teamObj = teams[teamKey];
+            const skyEl = document.getElementById("sky-" + teamKey);
+            if (!skyEl || !currentTarget || isTransitioningQuestion) return;
+
+            let chosenQuestion = null;
+            if (teamObj.sinceLastTarget >= 2 || Math.random() < 0.45) {
+                chosenQuestion = currentTarget;
+                teamObj.sinceLastTarget = 0;
+            } else {
+                chosenQuestion = currentQuestionPool[Math.floor(Math.random() * currentQuestionPool.length)];
+                if (chosenQuestion.id === currentTarget.id) {
+                    teamObj.sinceLastTarget = 0;
+                } else {
+                    teamObj.sinceLastTarget++;
+                }
+            }
+
+            const meteorEl = document.createElement("div");
+            meteorEl.className = "meteor";
+            meteorEl.innerHTML = renderQuestionBpmfHTML(chosenQuestion);
+
+            const skyWidth = skyEl.clientWidth || 360;
+            const paddingX = 85;
+            const minX = paddingX;
+            const maxX = Math.max(paddingX + 20, skyWidth - paddingX);
+            const randomX = Math.floor(minX + Math.random() * (maxX - minX));
+
+            const speedCfg = SPEED_MODES[speedIndex];
+            const fallSpeed = speedCfg.minSpeed + Math.random() * (speedCfg.maxSpeed - speedCfg.minSpeed);
+
+            const meteorData = {
+                el: meteorEl,
+                y: -150,
+                x: randomX,
+                speed: fallSpeed,
+                question: chosenQuestion,
+                hit: false
+            };
+
+            meteorEl.style.left = randomX + "px";
+            meteorEl.style.top = meteorData.y + "px";
+
+            const handleTap = function(evt) {
+                evt.preventDefault();
+                evt.stopPropagation();
+                onMeteorTapped(teamKey, meteorData);
+            };
+            meteorEl.addEventListener("touchstart", handleTap, { passive: false });
+            meteorEl.addEventListener("mousedown", handleTap);
+
+            skyEl.appendChild(meteorEl);
+            teamObj.meteors.push(meteorData);
+        }
+
+        /* 學生拍擊隕石判定：
+           1. 第一組答對時立刻顯現頂部題目注音（revealTargetBpmf）
+           2. 拍對僅播放清脆得分音效（不重複唸語音避免吵雜）
+           3. 單一隊伍找滿 3 個自動換下一題 */
+        function onMeteorTapped(teamKey, meteorData) {
+            if (!isGameRunning || isTransitioningQuestion || meteorData.hit) return;
+            const teamObj = teams[teamKey];
+            if (teamObj.frozen) return;
+
+            if (meteorData.question.id === currentTarget.id) {
+                meteorData.hit = true;
+                meteorData.el.classList.add("hit-correct");
+                playHitSound();
+
+                // 只要有一組答對，立刻顯現題目注音，讓其他組也能看注音找答案
+                revealTargetBpmf();
+
+                teamObj.score += 1;
+                teamObj.targetHits += 1;
+                document.getElementById("score-" + teamKey).textContent = teamObj.score;
+                updateTeamProgressUI();
+
+                showFloatingStar(teamKey, meteorData.x, meteorData.y);
+
+                setTimeout(function() {
+                    if (meteorData.el && meteorData.el.parentNode) {
+                        meteorData.el.parentNode.removeChild(meteorData.el);
+                    }
+                }, 250);
+
+                // 檢查該隊是否已找滿同一題的 3 個目標
+                if (teamObj.targetHits >= 3) {
+                    isTransitioningQuestion = true;
+                    const banner = document.getElementById("auto-next-banner");
+                    banner.textContent = "🎉 " + teamKey + "隊找滿 3 個！自動換下一題！";
+                    banner.style.display = "block";
+
+                    setTimeout(function() {
+                        if (!isGameRunning) return;
+                        clearAllMeteors();
+                        pickRandomTarget(true);
+                    }, 900);
+                }
+            } else {
+                playWrongSound();
+                teamObj.frozen = true;
+                const freezeEl = document.getElementById("freeze-" + teamKey);
+                freezeEl.classList.add("active");
+                setTimeout(function() {
+                    teamObj.frozen = false;
+                    freezeEl.classList.remove("active");
+                }, 1500);
+            }
+        }
+
+        function showFloatingStar(teamKey, x, y) {
+            const skyEl = document.getElementById("sky-" + teamKey);
+            const starEl = document.createElement("div");
+            starEl.className = "floating-star";
+            starEl.textContent = "⭐+1";
+            starEl.style.left = x + "px";
+            starEl.style.top = Math.max(40, y) + "px";
+            skyEl.appendChild(starEl);
+            setTimeout(function() {
+                if (starEl.parentNode) starEl.parentNode.removeChild(starEl);
+            }, 800);
+        }
+
+        function gameLoop(timestamp) {
+            if (!isGameRunning) return;
+
+            const speedCfg = SPEED_MODES[speedIndex];
+            const keys = ["A", "B", "C"];
+
+            for (let i = 0; i < keys.length; i++) {
+                const k = keys[i];
+                const teamObj = teams[k];
+                const skyEl = document.getElementById("sky-" + k);
+                const skyHeight = skyEl ? skyEl.clientHeight : 700;
+
+                if (!isTransitioningQuestion && timestamp - teamObj.lastSpawn > speedCfg.spawnInterval) {
+                    spawnMeteorForTeam(k);
+                    teamObj.lastSpawn = timestamp - Math.random() * 350;
+                }
+
+                for (let m = teamObj.meteors.length - 1; m >= 0; m--) {
+                    const mObj = teamObj.meteors[m];
+                    if (!mObj.hit) {
+                        mObj.y += mObj.speed;
+                        mObj.el.style.top = mObj.y + "px";
+                    }
+
+                    if (mObj.y > skyHeight + 160) {
+                        if (mObj.el && mObj.el.parentNode) {
+                            mObj.el.parentNode.removeChild(mObj.el);
+                        }
+                        teamObj.meteors.splice(m, 1);
+                    }
+                }
+            }
+
+            animFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        /* =========================================================
+           9. 戰績結算視窗
+           ========================================================= */
+        function showVictoryModal() {
+            const board = document.getElementById("victory-board");
+            board.innerHTML =
+                '<div style="background:rgba(231,76,60,0.25); padding:15px; border-radius:14px; border:2px solid #e74c3c;">A隊（1、2家）：⭐ ' + teams.A.score + ' 顆星</div>' +
+                '<div style="background:rgba(52,152,219,0.25); padding:15px; border-radius:14px; border:2px solid #3498db;">B隊（3、4家）：⭐ ' + teams.B.score + ' 顆星</div>' +
+                '<div style="background:rgba(241,196,15,0.25); padding:15px; border-radius:14px; border:2px solid #f1c40f;">C隊（5、6家）：⭐ ' + teams.C.score + ' 顆星</div>';
+            document.getElementById("victory-modal").style.display = "flex";
+        }
+
+        function closeVictoryModal() {
+            document.getElementById("victory-modal").style.display = "none";
+        }
+
+        function resetScores() {
+            teams.A.score = 0;
+            teams.B.score = 0;
+            teams.C.score = 0;
+            teams.A.targetHits = 0;
+            teams.B.targetHits = 0;
+            teams.C.targetHits = 0;
+            document.getElementById("score-A").textContent = "0";
+            document.getElementById("score-B").textContent = "0";
+            document.getElementById("score-C").textContent = "0";
+            updateTeamProgressUI();
+            closeVictoryModal();
+        }
+
+        /* =========================================================
+           10. 老師後台設定：課別範圍勾選與自訂注音編輯器
+           ========================================================= */
+        function openSettingsScreen() {
+            renderLessonCheckboxes();
+            renderFilterTabs();
+            renderVocabManagerList();
+            document.getElementById("home-screen").classList.remove("active");
+            document.getElementById("settings-screen").classList.add("active");
+        }
+
+        function closeSettingsScreen() {
+            if (selectedLessons.length === 0) {
+                selectedLessons = [1];
+            }
+            saveLessonsToStorage();
+            document.getElementById("settings-screen").classList.remove("active");
+            document.getElementById("home-screen").classList.add("active");
+        }
+
+        function renderLessonCheckboxes() {
+            const container = document.getElementById("lesson-checkbox-container");
+            container.innerHTML = "";
+            for (let i = 0; i < LESSON_CONFIG.length; i++) {
+                const les = LESSON_CONFIG[i];
+                const isChecked = selectedLessons.indexOf(les.id) !== -1;
+                const label = document.createElement("label");
+                label.className = "lesson-check-item";
+                label.innerHTML =
+                    '<input type="checkbox" ' + (isChecked ? "checked" : "") + ' onchange="toggleLessonCheck(' + les.id + ', this.checked)">' +
+                    '<span>' + les.title + '</span>';
+                container.appendChild(label);
+            }
+        }
+
+        function toggleLessonCheck(lessonId, checked) {
+            const idx = selectedLessons.indexOf(lessonId);
+            if (checked && idx === -1) {
+                selectedLessons.push(lessonId);
+            } else if (!checked && idx !== -1) {
+                selectedLessons.splice(idx, 1);
+            }
+            saveLessonsToStorage();
+        }
+
+        function selectAllLessons(flag) {
+            selectedLessons = flag ? [1, 2, 3, 4, 5, 6, 7, 8, 9] : [1];
+            renderLessonCheckboxes();
+            saveLessonsToStorage();
+        }
+
+        function renderFilterTabs() {
+            const tabContainer = document.getElementById("word-filter-tabs");
+            tabContainer.innerHTML = "";
+            for (let i = 0; i < LESSON_CONFIG.length; i++) {
+                const les = LESSON_CONFIG[i];
+                const btn = document.createElement("button");
+                btn.className = "tab-btn" + (currentFilterLesson === les.id ? " active" : "");
+                btn.textContent = les.title;
+                btn.onclick = function() {
+                    currentFilterLesson = les.id;
+                    renderFilterTabs();
+                    renderVocabManagerList();
+                };
+                tabContainer.appendChild(btn);
+            }
+        }
+
+        function renderVocabManagerList() {
+            const listEl = document.getElementById("vocab-manager-list");
+            listEl.innerHTML = "";
+
+            for (let i = 0; i < vocabList.length; i++) {
+                const item = vocabList[i];
+                if (item.lesson !== currentFilterLesson) continue;
+
+                let bpmfDisplay = [];
+                for (let j = 0; j < item.rubyData.length; j++) {
+                    bpmfDisplay.push(item.rubyData[j].bpmf);
+                }
+
+                const card = document.createElement("div");
+                card.className = "word-card";
+                card.innerHTML =
+                    '<div class="word-info">' +
+                        '<span class="word-raw">' + item.rawText + '</span>' +
+                        '<span class="word-bpmf-str">注音：' + bpmfDisplay.join(" ‧ ") + '</span>' +
+                    '</div>' +
+                    '<div class="word-actions">' +
+                        '<button class="small-btn btn-bpmf-edit" onclick="openBpmfEditor(' + i + ')">ㄅㄆㄇ 注音</button>' +
+                        '<button class="small-btn btn-word-del" onclick="deleteVocabItem(' + i + ')">刪除</button>' +
+                    '</div>';
+                listEl.appendChild(card);
+            }
+        }
+
+        function handleAddWordEnter(e) {
+            if (e.key === "Enter") addNewCustomWord();
+        }
+
+        function addNewCustomWord() {
+            const input = document.getElementById("new-word-input");
+            const val = input.value.trim();
+            if (!val) return;
+
+            const newEntry = {
+                lesson: currentFilterLesson,
+                rawText: val,
+                rubyData: generateRubyDataForWord(val)
+            };
+            vocabList.push(newEntry);
+            saveVocabToStorage();
+            input.value = "";
+            renderVocabManagerList();
+        }
+
+        function deleteVocabItem(index) {
+            vocabList.splice(index, 1);
+            saveVocabToStorage();
+            renderVocabManagerList();
+        }
+
+        function resetDefaultVocab() {
+            vocabList = JSON.parse(JSON.stringify(DEFAULT_VOCAB_LIST));
+            saveVocabToStorage();
+            renderVocabManagerList();
+        }
+
+        function openBpmfEditor(vocabIndex) {
+            editingVocabIndex = vocabIndex;
+            const item = vocabList[vocabIndex];
+            const grid = document.getElementById("ruby-edit-grid");
+            grid.innerHTML = "";
+
+            for (let i = 0; i < item.rubyData.length; i++) {
+                const rObj = item.rubyData[i];
+                const card = document.createElement("div");
+                card.className = "ruby-edit-card";
+                card.innerHTML =
+                    '<div class="ruby-edit-char">' + rObj.char + '</div>' +
+                    '<input type="text" class="ruby-edit-input" id="edit-bpmf-input-' + i + '" value="' + rObj.bpmf + '">';
+                grid.appendChild(card);
+            }
+            document.getElementById("bpmf-modal").style.display = "flex";
+        }
+
+        function closeBpmfModal() {
+            document.getElementById("bpmf-modal").style.display = "none";
+            editingVocabIndex = -1;
+        }
+
+        function saveBpmfModal() {
+            if (editingVocabIndex < 0) return;
+            const item = vocabList[editingVocabIndex];
+            for (let i = 0; i < item.rubyData.length; i++) {
+                const inp = document.getElementById("edit-bpmf-input-" + i);
+                if (inp && inp.value.trim()) {
+                    item.rubyData[i].bpmf = inp.value.trim();
+                }
+            }
+            saveVocabToStorage();
+            closeBpmfModal();
+            renderVocabManagerList();
+        }
+    </script>
+</body>
+</html>
