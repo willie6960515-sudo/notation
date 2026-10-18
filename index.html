@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>一年級注音流星雨保衛戰</title>
+    <title>一年級注音雙遊戲爭霸戰（流星雨 ＆ 魔法鍋）</title>
     <!-- 載入中文轉拼音工具，供老師新增自訂語詞時自動產生注音 -->
     <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.24.2/dist/index.js"></script>
     <style>
@@ -35,7 +35,6 @@
             width: 100vw;
             height: 100vh;
             overflow: hidden;
-            /* 繼承聯絡簿字型設定，確保聲調符號與注音高度精準對齊 */
             font-family: 'Noto Sans TC', sans-serif;
             background-color: var(--space-bg);
             color: var(--chalk-white);
@@ -54,9 +53,6 @@
             display: flex;
         }
 
-        /* =========================================================
-           👑 核心注音直式排版引擎 (100% 還原聯絡簿 v11.0 純注音模式)
-           ========================================================= */
         .bpmf-word-box {
             display: inline-flex;
             flex-direction: column;
@@ -65,13 +61,11 @@
             gap: 6px;
         }
 
-        /* 三字語詞在隕石上自動微調比例，避免高度過長 */
         .meteor .bpmf-word-box.long-word {
             font-size: 0.82em;
             gap: 4px;
         }
 
-        /* 外框與內距完全對齊聯絡簿 mode-bpmf-only 的設定 */
         .moe-char-vert {
             display: inline-block;
             position: relative;
@@ -80,17 +74,15 @@
             border-radius: 8px;
             padding: 0.2em 0.9em 0.25em 0.2em;
             box-sizing: border-box;
-            background-color: rgba(11, 19, 43, 0.85);
+            background-color: rgba(11, 19, 43, 0.88);
             height: auto;
             line-height: 1;
         }
 
-        /* 若有輕聲，上方額外加高確保輕聲點不超框 */
         .moe-char-vert.has-light-tone {
             padding-top: 0.9em;
         }
 
-        /* 無聲調之單音或一聲，左右均衡置中 */
         .moe-char-vert.no-tone-box {
             padding: 0.2em 0.45em 0.25em 0.45em;
         }
@@ -105,7 +97,6 @@
             writing-mode: horizontal-tb;
         }
 
-        /* 注音鎖定艙：將聲符與聲調綁在一起，永不分離 */
         .bopo-wrapper {
             position: relative;
             display: inline-flex;
@@ -128,7 +119,6 @@
             display: block;
         }
 
-        /* 二、三、四聲精準定位 (完全採用聯絡簿參數：right: -0.7em; bottom: 0;) */
         .bopo-wrapper .tone {
             position: absolute;
             right: -0.7em;
@@ -140,7 +130,6 @@
             line-height: 1;
         }
 
-        /* 輕聲精準定位於正上方 */
         .bopo-wrapper .tone-light {
             position: absolute;
             top: -0.85em;
@@ -153,138 +142,206 @@
             line-height: 1;
         }
 
-        /* =========================================================
-           🏠 首頁與難度選擇介面
-           ========================================================= */
         #home-screen {
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            padding: 25px 40px;
+            justify-content: flex-start;
+            padding: 18px 30px;
             background: radial-gradient(circle at center, #1c2541 0%, #0b132b 100%);
             overflow-y: auto;
+            gap: 14px;
         }
 
         .title-banner {
             text-align: center;
-            margin-top: 5px;
         }
 
         .title-banner h1 {
-            font-size: clamp(2.2rem, 4vw, 3.4rem);
+            font-size: clamp(1.9rem, 3.2vw, 2.8rem);
             margin: 0;
             color: #f1c40f;
             text-shadow: 0 4px 15px rgba(241, 196, 15, 0.4);
-            letter-spacing: 3px;
+            letter-spacing: 2px;
         }
 
-        .title-banner p {
-            font-size: 1.3rem;
-            color: #a9cce3;
-            margin: 8px 0 0 0;
-            font-weight: 700;
-        }
-
-        .scope-summary-bar {
+        /* 頂部全域設定列（人數、換位倒數、課別範圍） */
+        .global-config-bar {
             background: rgba(255, 255, 255, 0.08);
-            border: 2px solid rgba(93, 173, 226, 0.4);
-            padding: 12px 24px;
+            border: 2px solid rgba(93, 173, 226, 0.45);
+            padding: 10px 20px;
             border-radius: 16px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            justify-content: space-between;
             flex-wrap: wrap;
-            justify-content: center;
-            max-width: 1100px;
+            gap: 12px;
             width: 100%;
+            max-width: 1320px;
         }
 
-        .scope-summary-text {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #5dade2;
+        .config-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
-        .difficulty-grid {
+        .mode-pill-btn {
+            background: #24345a;
+            color: #d6eaf8;
+            border: 2px solid #5dade2;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 900;
+            cursor: pointer;
+            transition: 0.15s;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        .mode-pill-btn.active {
+            background: #f1c40f;
+            color: #0b132b;
+            border-color: #ffffff;
+            box-shadow: 0 0 12px rgba(241, 196, 15, 0.6);
+        }
+
+        /* 雙遊戲大區塊容器 */
+        .games-showcase-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+            max-width: 1320px;
+        }
+
+        .game-section-box {
+            background: rgba(28, 37, 65, 0.75);
+            border: 3px solid #3a506b;
+            border-radius: 22px;
+            padding: 16px 22px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        }
+
+        .game-section-box.pot-theme {
+            border-color: #8e44ad;
+            background: linear-gradient(145deg, rgba(44, 26, 77, 0.8), rgba(22, 32, 58, 0.85));
+        }
+
+        .section-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+            border-bottom: 2px dashed rgba(255, 255, 255, 0.2);
+            padding-bottom: 8px;
+        }
+
+        .section-title {
+            font-size: 1.55rem;
+            font-weight: 900;
+            color: #f1c40f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .difficulty-grid-4 {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 22px;
-            width: 100%;
-            max-width: 1280px;
-            margin: 15px 0;
+            gap: 16px;
+        }
+
+        .difficulty-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
         }
 
         .diff-card {
             background: linear-gradient(145deg, #24345a, #16203a);
-            border: 4px solid #3a506b;
-            border-radius: 24px;
-            padding: 24px 18px;
+            border: 3px solid #4a6984;
+            border-radius: 18px;
+            padding: 14px 16px;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: space-between;
             cursor: pointer;
-            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-            min-height: 290px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            transition: transform 0.18s, border-color 0.18s;
+            min-height: 135px;
+            gap: 12px;
+        }
+
+        .pot-theme .diff-card {
+            background: linear-gradient(145deg, #3b2063, #1f1638);
+            border-color: #9b59b6;
         }
 
         .diff-card:hover, .diff-card:active {
-            transform: translateY(-6px);
+            transform: translateY(-4px);
             border-color: #f1c40f;
-            box-shadow: 0 15px 30px rgba(241, 196, 15, 0.25);
+            box-shadow: 0 10px 22px rgba(241, 196, 15, 0.28);
+        }
+
+        .diff-info-col {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 6px;
         }
 
         .diff-badge {
             background: #f39c12;
             color: #0b132b;
-            font-size: 1.2rem;
+            font-size: 0.95rem;
             font-weight: 900;
-            padding: 6px 18px;
-            border-radius: 20px;
+            padding: 3px 12px;
+            border-radius: 14px;
+        }
+
+        .pot-theme .diff-badge {
+            background: #e056fd;
+            color: #ffffff;
         }
 
         .diff-title {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 900;
             color: #ffffff;
-            margin: 12px 0 6px 0;
-            text-align: center;
         }
 
         .diff-desc {
-            font-size: 1.1rem;
+            font-size: 0.98rem;
             color: #bdc3c7;
-            text-align: center;
-            line-height: 1.4;
-            margin-bottom: 12px;
+            line-height: 1.35;
         }
 
         .diff-preview {
-            font-size: 1.85rem;
-            margin-top: auto;
+            font-size: 1.45rem;
+            flex-shrink: 0;
         }
 
         .home-footer {
             display: flex;
-            gap: 20px;
+            gap: 16px;
             flex-wrap: wrap;
             justify-content: center;
-            margin-bottom: 10px;
+            margin-top: 4px;
         }
 
         .big-btn {
-            font-size: 1.4rem;
+            font-size: 1.25rem;
             font-weight: 900;
-            padding: 16px 32px;
-            border-radius: 16px;
+            padding: 12px 24px;
+            border-radius: 14px;
             border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 10px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-            transition: 0.2s;
+            gap: 8px;
+            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.3);
             font-family: 'Noto Sans TC', sans-serif;
         }
 
@@ -292,44 +349,36 @@
             transform: scale(0.96);
         }
 
-        .btn-settings { background: #8e44ad; color: white; }
-        .btn-speed { background: #16a085; color: white; }
-        .btn-fullscreen { background: #34495e; color: white; border: 2px solid #5dade2; }
-
-        /* =========================================================
-           🎮 遊戲對抗主畫面
-           ========================================================= */
-        #game-screen {
+        #game-screen, #pot-screen {
             flex-direction: column;
             background: var(--space-bg);
         }
 
         .game-top-bar {
-            height: 150px;
+            height: 125px;
             background: #16203a;
             border-bottom: 4px solid #3a506b;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 25px;
+            padding: 0 20px;
             z-index: 50;
             flex-shrink: 0;
-            position: relative;
         }
 
         .top-left-controls, .top-right-controls {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
         }
 
         .ctrl-btn {
-            background: rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.14);
             color: white;
             border: 2px solid rgba(255, 255, 255, 0.3);
-            padding: 12px 20px;
-            border-radius: 14px;
-            font-size: 1.25rem;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 1.15rem;
             font-weight: 900;
             cursor: pointer;
             font-family: 'Noto Sans TC', sans-serif;
@@ -342,21 +391,17 @@
         .target-command-box {
             display: flex;
             align-items: center;
-            gap: 20px;
-            background: rgba(11, 19, 43, 0.9);
+            gap: 16px;
+            background: rgba(11, 19, 43, 0.92);
             border: 4px solid #f1c40f;
-            padding: 10px 30px;
-            border-radius: 24px;
+            padding: 8px 26px;
+            border-radius: 22px;
             cursor: pointer;
-            box-shadow: 0 0 25px rgba(241, 196, 15, 0.35);
-        }
-
-        .target-command-box:active {
-            transform: scale(0.97);
+            box-shadow: 0 0 22px rgba(241, 196, 15, 0.35);
         }
 
         .speaker-icon {
-            font-size: 3rem;
+            font-size: 2.6rem;
             animation: pulseSpeaker 1.5s infinite;
         }
 
@@ -377,25 +422,24 @@
         }
 
         .target-sub-hint {
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             color: #bdc3c7;
             margin-top: 2px;
         }
 
-        #target-bpmf-display {
-            font-size: 1.5rem;
+        #target-bpmf-display, #pot-target-display {
+            font-size: 1.35rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-width: 140px;
+            min-width: 130px;
         }
 
-        #target-bpmf-display .bpmf-word-box {
+        #target-bpmf-display .bpmf-word-box, #pot-target-display .bpmf-word-box {
             flex-direction: row;
             gap: 10px;
         }
 
-        /* 初始隱藏注音時的「仔細聽音」提示框 */
         .mystery-target-box {
             display: inline-flex;
             align-items: center;
@@ -403,10 +447,10 @@
             gap: 8px;
             border: 3px dashed #f1c40f;
             border-radius: 14px;
-            padding: 12px 18px;
+            padding: 10px 16px;
             background: rgba(241, 196, 15, 0.15);
             color: #f1c40f;
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 900;
             white-space: nowrap;
             animation: pulseMystery 1.4s infinite;
@@ -414,48 +458,23 @@
 
         @keyframes pulseMystery {
             0%, 100% { transform: scale(1); opacity: 0.85; }
-            50% { transform: scale(1.05); opacity: 1; }
+            50% { transform: scale(1.04); opacity: 1; }
         }
 
-        /* 有人答對後顯現注音的彈跳動畫 */
-        .reveal-pop {
-            display: inline-flex;
-            animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        @keyframes popIn {
-            0% { transform: scale(0.3); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        /* 集滿三個自動換題的慶祝橫幅 */
-        #auto-next-banner {
-            display: none;
-            position: fixed;
-            top: 165px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: linear-gradient(90deg, #f39c12, #e74c3c);
-            color: white;
-            font-size: 1.8rem;
-            font-weight: 900;
-            padding: 14px 36px;
-            border-radius: 40px;
-            border: 4px solid #fff;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            z-index: 100;
-            white-space: nowrap;
-        }
-
+        /* 動態支援 1人、2隊、3隊 的網格容器 */
         .battlefield {
             flex-grow: 1;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             width: 100%;
-            height: calc(100vh - 150px);
+            height: calc(100vh - 125px);
             position: relative;
             overflow: hidden;
         }
+
+        .battlefield.lanes-1 { grid-template-columns: 1fr; }
+        .battlefield.lanes-2 { grid-template-columns: repeat(2, 1fr); }
+        .battlefield.lanes-3 { grid-template-columns: repeat(3, 1fr); }
 
         .team-lane {
             position: relative;
@@ -475,7 +494,7 @@
         .lane-c { background: var(--team-c-bg); }
 
         .lane-header {
-            padding: 10px 14px;
+            padding: 8px 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -488,10 +507,10 @@
         }
 
         .team-name-badge {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 900;
-            padding: 5px 14px;
-            border-radius: 12px;
+            padding: 4px 12px;
+            border-radius: 10px;
             color: white;
             display: flex;
             align-items: center;
@@ -503,33 +522,31 @@
         .lane-c .team-name-badge { background: #d68910; }
 
         .family-tag {
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             background: rgba(0, 0, 0, 0.35);
-            padding: 3px 8px;
-            border-radius: 8px;
+            padding: 2px 8px;
+            border-radius: 6px;
         }
 
-        /* 本題集滿 3 個的進度球 */
         .hit-progress-box {
             display: flex;
             align-items: center;
             gap: 4px;
             background: rgba(255, 255, 255, 0.1);
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-size: 1.05rem;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 1rem;
             font-weight: 900;
             color: #d0ece7;
         }
 
         .team-score-box {
-            font-size: 1.7rem;
+            font-size: 1.6rem;
             font-weight: 900;
             color: #f1c40f;
             display: flex;
             align-items: center;
             gap: 5px;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.6);
         }
 
         .lane-sky {
@@ -555,7 +572,6 @@
             font-size: 1.75rem;
             z-index: 10;
             transform: translateX(-50%);
-            transition: transform 0.1s;
         }
 
         .meteor.hit-correct {
@@ -567,23 +583,235 @@
             pointer-events: none;
         }
 
+        .pot-lane-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 10px 14px 14px 14px;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* 上方：語詞接力進度與魔法大釜預覽區 */
+        .cauldron-display-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at center, rgba(142, 68, 173, 0.32), rgba(11, 19, 43, 0.75));
+            border: 3px solid rgba(155, 89, 182, 0.6);
+            border-radius: 22px;
+            padding: 10px;
+            min-height: 36%;
+            position: relative;
+            box-shadow: inset 0 0 25px rgba(155, 89, 182, 0.35);
+        }
+
+        .word-relay-slots {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+
+        .relay-char-badge {
+            padding: 4px 12px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 900;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            color: #bdc3c7;
+        }
+
+        .relay-char-badge.active-step {
+            background: #f39c12;
+            color: #0b132b;
+            border-color: #ffffff;
+            transform: scale(1.06);
+        }
+
+        .relay-char-badge.done-step {
+            background: #27ae60;
+            color: #ffffff;
+            border-color: #a9dfbf;
+        }
+
+        .cauldron-pot-circle {
+            min-width: 145px;
+            min-height: 145px;
+            padding: 12px 22px;
+            border-radius: 32px;
+            background: #0b132b;
+            border: 4px dashed #f1c40f;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.1rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .cauldron-empty-hint {
+            font-size: 1.15rem;
+            color: #a9cce3;
+            font-weight: 700;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        /* 下方：符合一年級身高的人體工學魔法材料架（固定於下半部） */
+        .ergonomic-shelf {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: rgba(11, 19, 43, 0.9);
+            border: 3px solid #5dade2;
+            border-radius: 22px;
+            padding: 12px;
+            margin-top: auto;
+        }
+
+        .shelf-label-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.98rem;
+            font-weight: 900;
+            color: #f1c40f;
+            padding: 0 4px;
+        }
+
+        /* 五聲調選擇列（一聲不顯示按鈕，僅提示免點） */
+        .tone-shelf-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .tone-ing-btn {
+            height: 58px;
+            border-radius: 14px;
+            border: 3px solid #e67e22;
+            background: #2c3e50;
+            color: #f1c40f;
+            font-size: 1.65rem;
+            font-weight: 900;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        .tone-ing-btn small {
+            font-size: 0.85rem;
+            color: #ecf0f1;
+        }
+
+        .tone-ing-btn.selected {
+            background: #f39c12;
+            color: #0b132b;
+            border-color: #ffffff;
+            transform: scale(1.04);
+        }
+
+        .tone-ing-btn.selected small {
+            color: #0b132b;
+        }
+
+        /* 6~12個單一注音符號按鈕網格 */
+        .bpmf-shelf-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .bpmf-shelf-grid.cols-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .bpmf-ing-btn {
+            height: 68px;
+            border-radius: 16px;
+            border: 3px solid #3498db;
+            background: linear-gradient(145deg, #1f3a60, #152642);
+            color: #ffffff;
+            font-size: 2.1rem;
+            font-weight: 900;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: "Bopomofo", "Noto Sans TC", sans-serif;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.35);
+        }
+
+        .bpmf-ing-btn.selected {
+            background: #2ecc71;
+            color: #0b132b;
+            border-color: #ffffff;
+            transform: scale(1.04);
+        }
+
+        /* 最底部：清除重選 與 確認送出 大按鈕 */
+        .pot-action-row {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 10px;
+            margin-top: 2px;
+        }
+
+        .pot-clear-btn {
+            height: 64px;
+            border-radius: 16px;
+            border: 2px solid #95a5a6;
+            background: #34495e;
+            color: #ecf0f1;
+            font-size: 1.3rem;
+            font-weight: 900;
+            cursor: pointer;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+
+        .pot-submit-btn {
+            height: 64px;
+            border-radius: 16px;
+            border: 3px solid #ffffff;
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            color: #ffffff;
+            font-size: 1.55rem;
+            font-weight: 900;
+            cursor: pointer;
+            font-family: 'Noto Sans TC', sans-serif;
+            box-shadow: 0 6px 16px rgba(46, 204, 113, 0.45);
+        }
+
+        .pot-submit-btn:active, .pot-clear-btn:active {
+            transform: scale(0.96);
+        }
+
         .freeze-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(44, 62, 80, 0.88);
+            background: rgba(44, 62, 80, 0.9);
             z-index: 30;
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             color: #ff7675;
-            font-size: 2.4rem;
+            font-size: 2.2rem;
             font-weight: 900;
             text-align: center;
             backdrop-filter: blur(4px);
+            padding: 20px;
         }
 
         .freeze-overlay.active {
@@ -612,9 +840,95 @@
             100% { opacity: 0; transform: translate(-50%, -90px) scale(1.4); }
         }
 
-        /* =========================================================
-           ⚙️ 老師專屬後台設定頁面
-           ========================================================= */
+        /* 🌟 答對瞬間：全螢幕正確答案直式注音特寫 ＋ 5秒倒數換位視窗 🌟 */
+        #showcase-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(11, 19, 43, 0.94);
+            z-index: 1500;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            backdrop-filter: blur(8px);
+            padding: 25px;
+        }
+
+        #showcase-overlay.active {
+            display: flex;
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .showcase-winner-banner {
+            font-size: 2.4rem;
+            font-weight: 900;
+            color: #2ecc71;
+            background: rgba(46, 204, 113, 0.15);
+            border: 3px solid #2ecc71;
+            padding: 10px 36px;
+            border-radius: 30px;
+        }
+
+        .showcase-bpmf-stage {
+            font-size: 4.2rem;
+            padding: 25px 45px;
+            background: #16203a;
+            border: 5px solid #f1c40f;
+            border-radius: 32px;
+            box-shadow: 0 0 45px rgba(241, 196, 15, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .showcase-bpmf-stage .bpmf-word-box {
+            flex-direction: row;
+            gap: 28px;
+        }
+
+        .showcase-word-meaning {
+            font-size: 2rem;
+            color: #a9cce3;
+            font-weight: 900;
+            letter-spacing: 4px;
+        }
+
+        .showcase-countdown-box {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            background: linear-gradient(90deg, #d35400, #e67e22);
+            padding: 14px 36px;
+            border-radius: 40px;
+            border: 3px solid #ffffff;
+            font-size: 1.9rem;
+            font-weight: 900;
+            color: #ffffff;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .countdown-number-circle {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: #ffffff;
+            color: #d35400;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            font-weight: 900;
+        }
+
         #settings-screen {
             background: #f4f6f7;
             color: #2c3e50;
@@ -841,99 +1155,141 @@
 </head>
 <body>
 
-    <!-- =========================================================
-         🏠 畫面一：遊戲主選單與四大難度選擇
-         ========================================================= -->
     <div id="home-screen" class="screen active">
         <div class="title-banner">
-            <h1>🌠 一年級注音流星雨保衛戰 🌠</h1>
-            <p>南一首冊一至九課 ‧ 班級三隊多點觸控爭霸賽</p>
+            <h1>🌟 一年級注音雙遊戲爭霸戰 🌟</h1>
         </div>
 
-        <div class="scope-summary-bar">
-            <span class="scope-summary-text" id="home-scope-text">📚 目前出題範圍：第一課 至 第九課（全範圍）</span>
-            <button class="small-btn" style="background:#2980b9; color:white; font-size:1.05rem; padding:8px 16px;" onclick="openSettingsScreen()">✏️ 修改課別與語詞題庫</button>
+        <!-- 全域挑戰人數、換位倒數與課別設定列 -->
+        <div class="global-config-bar">
+            <div class="config-group">
+                <span style="font-weight:900; color:#f1c40f; font-size:1.15rem;">👥 挑戰人數：</span>
+                <button class="mode-pill-btn" id="team-cnt-1" onclick="setTeamCount(1)">👤 單人挑戰</button>
+                <button class="mode-pill-btn" id="team-cnt-2" onclick="setTeamCount(2)">👥 雙隊對抗</button>
+                <button class="mode-pill-btn active" id="team-cnt-3" onclick="setTeamCount(3)">👨‍👩‍👧 三隊爭霸</button>
+            </div>
+
+            <div class="config-group">
+                <button class="mode-pill-btn active" id="swap-countdown-btn" onclick="toggleSwapMode()">⏱️ 換位五秒倒數：開啟</button>
+                <span id="home-scope-text" style="font-weight:700; color:#5dade2; font-size:1.1rem;">📚 範圍：第一課至第九課</span>
+                <button class="small-btn" style="background:#8e44ad; color:white; font-size:1.05rem; padding:8px 14px;" onclick="openSettingsScreen()">⚙️ 課別與語詞題庫</button>
+            </div>
         </div>
 
-        <div class="difficulty-grid">
-            <!-- 難度一 -->
-            <div class="diff-card" onclick="startGame(1)">
-                <span class="diff-badge">第一關</span>
-                <div class="diff-title">單一注音</div>
-                <div class="diff-desc">認讀單一聲母、介音與韻母，建立直覺字形印象</div>
-                <div class="diff-preview" id="preview-1"></div>
+        <div class="games-showcase-wrapper">
+            <!-- 遊戲一：流星雨保衛戰 -->
+            <div class="game-section-box">
+                <div class="section-header-row">
+                    <div class="section-title">🌠 遊戲一：注音流星雨保衛戰（聽音辨字 ‧ 競速拍擊）</div>
+                    <button class="mode-pill-btn" id="speed-toggle-btn" onclick="cycleSpeed()">🐢 隕石速度：慢速</button>
+                </div>
+                <div class="difficulty-grid-4">
+                    <div class="diff-card" onclick="startMeteorGame(1)">
+                        <div class="diff-info-col">
+                            <span class="diff-badge">第一關</span>
+                            <div class="diff-title">單一注音</div>
+                            <div class="diff-desc">聽單音拍擊聲母或韻母</div>
+                        </div>
+                        <div class="diff-preview" id="preview-m1"></div>
+                    </div>
+                    <div class="diff-card" onclick="startMeteorGame(2)">
+                        <div class="diff-info-col">
+                            <span class="diff-badge">第二關</span>
+                            <div class="diff-title">雙拼練習</div>
+                            <div class="diff-desc">聲母加韻母與聲調組合</div>
+                        </div>
+                        <div class="diff-preview" id="preview-m2"></div>
+                    </div>
+                    <div class="diff-card" onclick="startMeteorGame(3)">
+                        <div class="diff-info-col">
+                            <span class="diff-badge">第三關</span>
+                            <div class="diff-title">三拼與聲調</div>
+                            <div class="diff-desc">聲＋介＋韻＋聲調挑戰</div>
+                        </div>
+                        <div class="diff-preview" id="preview-m3"></div>
+                    </div>
+                    <div class="diff-card" onclick="startMeteorGame(4)">
+                        <div class="diff-info-col">
+                            <span class="diff-badge">第四關</span>
+                            <div class="diff-title">首冊語詞</div>
+                            <div class="diff-desc">南一首冊一至九課語詞</div>
+                        </div>
+                        <div class="diff-preview" id="preview-m4"></div>
+                    </div>
+                </div>
             </div>
 
-            <!-- 難度二 -->
-            <div class="diff-card" onclick="startGame(2)">
-                <span class="diff-badge">第二關</span>
-                <div class="diff-title">雙拼練習</div>
-                <div class="diff-desc">挑戰「聲母加韻母」或「結合韻」與聲調組合</div>
-                <div class="diff-preview" id="preview-2"></div>
-            </div>
-
-            <!-- 難度三 -->
-            <div class="diff-card" onclick="startGame(3)">
-                <span class="diff-badge">第三關</span>
-                <div class="diff-title">三拼與聲調</div>
-                <div class="diff-desc">完整「聲母＋介音＋韻母＋聲調」拼讀大挑戰</div>
-                <div class="diff-preview" id="preview-3"></div>
-            </div>
-
-            <!-- 難度四 -->
-            <div class="diff-card" onclick="startGame(4)">
-                <span class="diff-badge">第四關</span>
-                <div class="diff-title">首冊語詞</div>
-                <div class="diff-desc">南一首冊一至九課精選語詞與老師自訂純注音語詞</div>
-                <div class="diff-preview" id="preview-4"></div>
+            <!-- 遊戲二：魔法鍋接力賽 -->
+            <div class="game-section-box pot-theme">
+                <div class="section-header-row">
+                    <div class="section-title">🧪 遊戲二：魔法鍋接力賽（下方材料架 ‧ 相似音辨析拆解）</div>
+                    <button class="mode-pill-btn" id="shelf-size-btn" onclick="cycleShelfSize()">🧪 魔法材料數：9 個注音</button>
+                </div>
+                <div class="difficulty-grid-3">
+                    <div class="diff-card" onclick="startPotGame(1)">
+                        <div class="diff-info-col">
+                            <span class="diff-badge">雙拼鍋</span>
+                            <div class="diff-title">雙拼魔法鍋</div>
+                            <div class="diff-desc">聽「魔法的魔，請拼音」，從下方挑選聲韻與聲調送出（一聲免點聲調）</div>
+                        </div>
+                        <div class="diff-preview" id="preview-p1"></div>
+                    </div>
+                    <div class="diff-card" onclick="startPotGame(2)">
+                        <div class="diff-info-col">
+                            <span class="diff-badge">三拼鍋</span>
+                            <div class="diff-title">三拼魔法鍋</div>
+                            <div class="diff-desc">聽「漂亮的漂，請拼音」，挑戰聲母＋介音＋韻母與聲調完整拆解</div>
+                        </div>
+                        <div class="diff-preview" id="preview-p2"></div>
+                    </div>
+                    <div class="diff-card" onclick="startPotGame(3)">
+                        <div class="diff-info-col">
+                            <span class="diff-badge">語詞鍋</span>
+                            <div class="diff-title">語詞接力鍋</div>
+                            <div class="diff-desc">聽「魔術，請拼音」，逐字完成拼音並點送出，全對即可獲得星星</div>
+                        </div>
+                        <div class="diff-preview" id="preview-p3"></div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="home-footer">
-            <button class="big-btn btn-settings" onclick="openSettingsScreen()">⚙️ 題庫與課別設定</button>
-            <button class="big-btn btn-speed" id="speed-toggle-btn" onclick="cycleSpeed()">🐢 隕石速度：慢速（適合初學）</button>
-            <button class="big-btn btn-fullscreen" onclick="toggleFullScreen()">⛶ 切換全螢幕</button>
+            <button class="big-btn" style="background:#8e44ad; color:white;" onclick="openSettingsScreen()">⚙️ 題庫與自訂注音設定</button>
+            <button class="big-btn" style="background:#27ae60; color:white;" onclick="showVictoryModal()">🏆 查看目前戰績</button>
+            <button class="big-btn" style="background:#34495e; color:white; border:2px solid #5dade2;" onclick="toggleFullScreen()">⛶ 切換全螢幕</button>
         </div>
     </div>
 
-    <!-- =========================================================
-         🎮 畫面二：三隊多點觸控對抗戰場
-         ========================================================= -->
     <div id="game-screen" class="screen">
-        <!-- 頂部指揮艙 -->
         <div class="game-top-bar">
             <div class="top-left-controls">
                 <button class="ctrl-btn" onclick="stopGameAndReturn()">🏠 返回選單</button>
-                <button class="ctrl-btn" id="family-round-btn" onclick="toggleFamilyRound()">🚩 目前上場：1、3、5家</button>
+                <button class="ctrl-btn" id="meteor-family-btn" onclick="toggleFamilyRound()">🚩 上場：1、3、5家</button>
             </div>
 
-            <!-- 中央語音題目提示框（初始隱藏注音，第一組答對後顯現注音；點擊可重聽） -->
-            <div class="target-command-box" onclick="speakCurrentTarget()">
+            <div class="target-command-box" onclick="speakCurrentTargetOnce()">
                 <div class="speaker-icon">🔊</div>
                 <div class="target-label-group">
-                    <span class="target-hint-title" id="game-mode-label">請找出這個讀音：</span>
-                    <span class="target-sub-hint" id="target-sub-hint">（先聽聲音找！第一組答對後顯現注音 ‧ 點喇叭重聽）</span>
+                    <span class="target-hint-title" id="game-mode-label">請聽音找出：</span>
+                    <span class="target-sub-hint" id="target-sub-hint">（自動朗讀 3 次 ‧ 第一組答對後顯現注音）</span>
                 </div>
                 <div id="target-bpmf-display"></div>
             </div>
 
             <div class="top-right-controls">
-                <button class="ctrl-btn" style="background:#d35400;" onclick="nextTargetQuestion()">⏭️ 換下一題</button>
+                <button class="ctrl-btn" style="background:#d35400;" onclick="manualNextQuestion()">⏭️ 換下一題</button>
                 <button class="ctrl-btn" style="background:#27ae60;" onclick="showVictoryModal()">🏆 結算成績</button>
             </div>
         </div>
 
-        <!-- 單隊集滿3個時的自動換題提示橫幅 -->
-        <div id="auto-next-banner">🎉 集滿 3 個！自動換下一題！</div>
-
-        <!-- A、B、C 三隊專屬獨立軌道 -->
-        <div class="battlefield">
+        <div class="battlefield lanes-3" id="meteor-battlefield">
             <!-- A隊軌道 -->
-            <div class="team-lane lane-a" id="lane-A">
+            <div class="team-lane lane-a" id="meteor-lane-A">
                 <div class="lane-header">
                     <div class="team-name-badge">
                         <span>A隊</span>
-                        <span class="family-tag" id="family-label-A">1家、2家</span>
+                        <span class="family-tag family-label-A">第 1 家上場</span>
                     </div>
                     <div class="hit-progress-box">
                         <span>本題：</span>
@@ -941,22 +1297,22 @@
                     </div>
                     <div class="team-score-box">
                         <span>⭐</span>
-                        <span id="score-A">0</span>
+                        <span class="score-val-A">0</span>
                     </div>
                 </div>
                 <div class="lane-sky" id="sky-A"></div>
                 <div class="freeze-overlay" id="freeze-A">
                     <div>❄️ 點錯囉！</div>
-                    <div style="font-size:1.4rem; margin-top:10px; color:#ecf0f1;">請看清楚再拍擊</div>
+                    <div style="font-size:1.3rem; margin-top:8px; color:#ecf0f1;">請看清楚再拍擊</div>
                 </div>
             </div>
 
             <!-- B隊軌道 -->
-            <div class="team-lane lane-b" id="lane-B">
+            <div class="team-lane lane-b" id="meteor-lane-B">
                 <div class="lane-header">
                     <div class="team-name-badge">
                         <span>B隊</span>
-                        <span class="family-tag" id="family-label-B">3家、4家</span>
+                        <span class="family-tag family-label-B">第 3 家上場</span>
                     </div>
                     <div class="hit-progress-box">
                         <span>本題：</span>
@@ -964,22 +1320,22 @@
                     </div>
                     <div class="team-score-box">
                         <span>⭐</span>
-                        <span id="score-B">0</span>
+                        <span class="score-val-B">0</span>
                     </div>
                 </div>
                 <div class="lane-sky" id="sky-B"></div>
                 <div class="freeze-overlay" id="freeze-B">
                     <div>❄️ 點錯囉！</div>
-                    <div style="font-size:1.4rem; margin-top:10px; color:#ecf0f1;">請看清楚再拍擊</div>
+                    <div style="font-size:1.3rem; margin-top:8px; color:#ecf0f1;">請看清楚再拍擊</div>
                 </div>
             </div>
 
             <!-- C隊軌道 -->
-            <div class="team-lane lane-c" id="lane-C">
+            <div class="team-lane lane-c" id="meteor-lane-C">
                 <div class="lane-header">
                     <div class="team-name-badge">
                         <span>C隊</span>
-                        <span class="family-tag" id="family-label-C">5家、6家</span>
+                        <span class="family-tag family-label-C">第 5 家上場</span>
                     </div>
                     <div class="hit-progress-box">
                         <span>本題：</span>
@@ -987,21 +1343,160 @@
                     </div>
                     <div class="team-score-box">
                         <span>⭐</span>
-                        <span id="score-C">0</span>
+                        <span class="score-val-C">0</span>
                     </div>
                 </div>
                 <div class="lane-sky" id="sky-C"></div>
                 <div class="freeze-overlay" id="freeze-C">
                     <div>❄️ 點錯囉！</div>
-                    <div style="font-size:1.4rem; margin-top:10px; color:#ecf0f1;">請看清楚再拍擊</div>
+                    <div style="font-size:1.3rem; margin-top:8px; color:#ecf0f1;">請看清楚再拍擊</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- =========================================================
-         ⚙️ 畫面三：老師題庫與課別設定台
-         ========================================================= -->
+    <div id="pot-screen" class="screen">
+        <div class="game-top-bar">
+            <div class="top-left-controls">
+                <button class="ctrl-btn" onclick="stopGameAndReturn()">🏠 返回選單</button>
+                <button class="ctrl-btn" id="pot-family-btn" onclick="toggleFamilyRound()">🚩 上場：1、3、5家</button>
+            </div>
+
+            <div class="target-command-box" onclick="speakCurrentTargetOnce()">
+                <div class="speaker-icon">🔊</div>
+                <div class="target-label-group">
+                    <span class="target-hint-title" id="pot-mode-label">魔法鍋拼音挑戰：</span>
+                    <span class="target-sub-hint" id="pot-sub-hint">（自動朗讀 3 次 ‧ 點下方注音與聲調後按送出）</span>
+                </div>
+                <div id="pot-target-display"></div>
+            </div>
+
+            <div class="top-right-controls">
+                <button class="ctrl-btn" style="background:#d35400;" onclick="manualNextQuestion()">⏭️ 換下一題</button>
+                <button class="ctrl-btn" style="background:#27ae60;" onclick="showVictoryModal()">🏆 結算成績</button>
+            </div>
+        </div>
+
+        <div class="battlefield lanes-3" id="pot-battlefield">
+            <!-- A隊煉金台 -->
+            <div class="team-lane lane-a" id="pot-lane-A">
+                <div class="lane-header">
+                    <div class="team-name-badge">
+                        <span>A隊</span>
+                        <span class="family-tag family-label-A">第 1 家上場</span>
+                    </div>
+                    <div class="team-score-box">
+                        <span>⭐</span>
+                        <span class="score-val-A">0</span>
+                    </div>
+                </div>
+                <div class="pot-lane-body">
+                    <div class="cauldron-display-area">
+                        <div class="word-relay-slots" id="relay-slots-A"></div>
+                        <div class="cauldron-pot-circle" id="cauldron-box-A"></div>
+                    </div>
+                    <div class="ergonomic-shelf">
+                        <div class="shelf-label-bar">
+                            <span>🎵 聲調架（一聲不用點聲調，直接按送出）</span>
+                        </div>
+                        <div class="tone-shelf-row" id="tone-row-A"></div>
+                        <div class="bpmf-shelf-grid" id="bpmf-grid-A"></div>
+                        <div class="pot-action-row">
+                            <button class="pot-clear-btn" onmousedown="clearPotInput('A', event)" ontouchstart="clearPotInput('A', event)">🔄 重選</button>
+                            <button class="pot-submit-btn" onmousedown="submitPotInput('A', event)" ontouchstart="submitPotInput('A', event)">✨ 送出拼音</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="freeze-overlay" id="pot-freeze-A">
+                    <div>💨 魔法鍋冒黑煙囉！</div>
+                    <div style="font-size:1.3rem; margin-top:8px; color:#ecf0f1;">拼音或聲調不對，請再聽一次</div>
+                </div>
+            </div>
+
+            <!-- B隊煉金台 -->
+            <div class="team-lane lane-b" id="pot-lane-B">
+                <div class="lane-header">
+                    <div class="team-name-badge">
+                        <span>B隊</span>
+                        <span class="family-tag family-label-B">第 3 家上場</span>
+                    </div>
+                    <div class="team-score-box">
+                        <span>⭐</span>
+                        <span class="score-val-B">0</span>
+                    </div>
+                </div>
+                <div class="pot-lane-body">
+                    <div class="cauldron-display-area">
+                        <div class="word-relay-slots" id="relay-slots-B"></div>
+                        <div class="cauldron-pot-circle" id="cauldron-box-B"></div>
+                    </div>
+                    <div class="ergonomic-shelf">
+                        <div class="shelf-label-bar">
+                            <span>🎵 聲調架（一聲不用點聲調，直接按送出）</span>
+                        </div>
+                        <div class="tone-shelf-row" id="tone-row-B"></div>
+                        <div class="bpmf-shelf-grid" id="bpmf-grid-B"></div>
+                        <div class="pot-action-row">
+                            <button class="pot-clear-btn" onmousedown="clearPotInput('B', event)" ontouchstart="clearPotInput('B', event)">🔄 重選</button>
+                            <button class="pot-submit-btn" onmousedown="submitPotInput('B', event)" ontouchstart="submitPotInput('B', event)">✨ 送出拼音</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="freeze-overlay" id="pot-freeze-B">
+                    <div>💨 魔法鍋冒黑煙囉！</div>
+                    <div style="font-size:1.3rem; margin-top:8px; color:#ecf0f1;">拼音或聲調不對，請再聽一次</div>
+                </div>
+            </div>
+
+            <!-- C隊煉金台 -->
+            <div class="team-lane lane-c" id="pot-lane-C">
+                <div class="lane-header">
+                    <div class="team-name-badge">
+                        <span>C隊</span>
+                        <span class="family-tag family-label-C">第 5 家上場</span>
+                    </div>
+                    <div class="team-score-box">
+                        <span>⭐</span>
+                        <span class="score-val-C">0</span>
+                    </div>
+                </div>
+                <div class="pot-lane-body">
+                    <div class="cauldron-display-area">
+                        <div class="word-relay-slots" id="relay-slots-C"></div>
+                        <div class="cauldron-pot-circle" id="cauldron-box-C"></div>
+                    </div>
+                    <div class="ergonomic-shelf">
+                        <div class="shelf-label-bar">
+                            <span>🎵 聲調架（一聲不用點聲調，直接按送出）</span>
+                        </div>
+                        <div class="tone-shelf-row" id="tone-row-C"></div>
+                        <div class="bpmf-shelf-grid" id="bpmf-grid-C"></div>
+                        <div class="pot-action-row">
+                            <button class="pot-clear-btn" onmousedown="clearPotInput('C', event)" ontouchstart="clearPotInput('C', event)">🔄 重選</button>
+                            <button class="pot-submit-btn" onmousedown="submitPotInput('C', event)" ontouchstart="submitPotInput('C', event)">✨ 送出拼音</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="freeze-overlay" id="pot-freeze-C">
+                    <div>💨 魔法鍋冒黑煙囉！</div>
+                    <div style="font-size:1.3rem; margin-top:8px; color:#ecf0f1;">拼音或聲調不對，請再聽一次</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="showcase-overlay">
+        <div class="showcase-winner-banner" id="showcase-winner-text">🎉 答對得分！ ⭐+1</div>
+        <div style="font-size:1.4rem; color:#f1c40f; font-weight:900;">✨ 正確注音解答（大家一起認一認） ✨</div>
+        <div class="showcase-bpmf-stage" id="showcase-bpmf-box"></div>
+        <div class="showcase-word-meaning" id="showcase-word-text"></div>
+        <div class="showcase-countdown-box">
+            <span id="showcase-swap-label">🏃‍♂️ 請換下一位小朋友上台準備！</span>
+            <div class="countdown-number-circle" id="showcase-timer-num">5</div>
+        </div>
+        <button class="ctrl-btn" style="margin-top:8px; background:rgba(255,255,255,0.2);" onclick="skipShowcaseCountdown()">⏭️ 立即開始下一題</button>
+    </div>
+
     <div id="settings-screen" class="screen">
         <div class="settings-container">
             <div class="settings-header">
@@ -1009,10 +1504,9 @@
                 <button class="big-btn" style="background:#27ae60; color:white; padding:12px 24px; font-size:1.2rem;" onclick="closeSettingsScreen()">✓ 完成並返回首頁</button>
             </div>
 
-            <!-- 區塊一：1~9課範圍勾選 -->
             <div class="setting-section">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                    <h3>📖 勾選本次遊戲出題課別（影響所有難度的注音與語詞範圍）</h3>
+                    <h3>📖 勾選本次遊戲出題課別（同時套用至流星雨與魔法鍋）</h3>
                     <div style="display:flex; gap:10px;">
                         <button class="small-btn" style="background:#2980b9; color:white;" onclick="selectAllLessons(true)">全選一至九課</button>
                         <button class="small-btn" style="background:#7f8c8d; color:white;" onclick="selectAllLessons(false)">只選第一課</button>
@@ -1021,31 +1515,24 @@
                 <div class="lesson-check-grid" id="lesson-checkbox-container"></div>
             </div>
 
-            <!-- 區塊二：難度四語詞管理與自訂注音 -->
             <div class="setting-section">
                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
-                    <h3>📝 難度四語詞庫管理（點擊「ㄅㄆㄇ 注音」可手動修正破音字或輕聲）</h3>
+                    <h3>📝 首冊語詞庫管理（點擊「ㄅㄆㄇ 注音」可手動修正破音字或輕聲）</h3>
                     <button class="small-btn btn-word-del" onclick="resetDefaultVocab()">🔄 還原南一首冊預設語詞庫</button>
                 </div>
 
-                <!-- 課別篩選頁籤 -->
                 <div class="word-filter-tabs" id="word-filter-tabs"></div>
 
-                <!-- 新增語詞輸入框 -->
                 <div class="add-word-row">
                     <input type="text" id="new-word-input" placeholder="請輸入要新增至目前分類的語詞（例如：溜滑梯）" onkeypress="handleAddWordEnter(event)">
                     <button class="small-btn" style="background:#27ae60; color:white; font-size:1.15rem; padding:0 24px;" onclick="addNewCustomWord()">＋ 新增語詞</button>
                 </div>
 
-                <!-- 語詞卡片列表 -->
                 <div class="word-list-grid" id="vocab-manager-list"></div>
             </div>
         </div>
     </div>
 
-    <!-- =========================================================
-         🎯 彈出視窗一：聯絡簿同款「進階中文注音自訂」編輯器
-         ========================================================= -->
     <div id="bpmf-modal" class="modal-overlay">
         <div class="modal-content">
             <h3 style="margin-top:0; font-size:1.8rem; border-bottom:2px solid #eee; padding-bottom:12px;">🎯 進階中文注音自訂（輕聲請在最前面輸入 ˙）</h3>
@@ -1057,9 +1544,6 @@
         </div>
     </div>
 
-    <!-- =========================================================
-         🏆 彈出視窗二：三隊成績結算頒獎台
-         ========================================================= -->
     <div id="victory-modal" class="modal-overlay">
         <div class="modal-content" style="text-align:center; background:#1c2541; color:white; border:4px solid #f1c40f;">
             <h2 style="font-size:2.4rem; color:#f1c40f; margin-top:0;">🏆 班級對抗戰績排行榜 🏆</h2>
@@ -1072,16 +1556,55 @@
     </div>
 
     <script>
-        /* =========================================================
-           1. 拼音轉注音對照表 (與聯絡簿完全一致)
-           ========================================================= */
         const py2bpmf = {"a":"ㄚ","ai":"ㄞ","an":"ㄢ","ang":"ㄤ","ao":"ㄠ","ba":"ㄅㄚ","bai":"ㄅㄞ","ban":"ㄅㄢ","bang":"ㄅㄤ","bao":"ㄅㄠ","bei":"ㄅㄟ","ben":"ㄅㄣ","beng":"ㄅㄥ","bi":"ㄅㄧ","bian":"ㄅㄧㄢ","biao":"ㄅㄧㄠ","bie":"ㄅㄧㄝ","bin":"ㄅㄧㄣ","bing":"ㄅㄧㄥ","bo":"ㄅㄛ","bu":"ㄅㄨ","ca":"ㄘㄚ","cai":"ㄘㄞ","can":"ㄘㄢ","cang":"ㄘㄤ","cao":"ㄘㄠ","ce":"ㄘㄜ","cen":"ㄘㄣ","ceng":"ㄘㄥ","cha":"ㄔㄚ","chai":"ㄔㄞ","chan":"ㄔㄢ","chang":"ㄔㄤ","chao":"ㄔㄠ","che":"ㄔㄜ","chen":"ㄔㄣ","cheng":"ㄔㄥ","chi":"ㄔ","chong":"ㄔㄨㄥ","chou":"ㄔㄡ","chu":"ㄔㄨ","chua":"ㄔㄨㄚ","chuai":"ㄔㄨㄞ","chuan":"ㄔㄨㄢ","chuang":"ㄔㄨㄤ","chui":"ㄔㄨㄟ","chun":"ㄔㄨㄣ","chuo":"ㄔㄨㄛ","ci":"ㄘ","cong":"ㄘㄨㄥ","cou":"ㄘㄡ","cu":"ㄘㄨ","cuan":"ㄘㄨㄢ","cui":"ㄘㄨㄟ","cun":"ㄘㄨㄣ","cuo":"ㄘㄨㄛ","da":"ㄉㄚ","dai":"ㄉㄞ","dan":"ㄉㄢ","dang":"ㄉㄤ","dao":"ㄉㄠ","de":"ㄉㄜ","dei":"ㄉㄟ","den":"ㄉㄣ","deng":"ㄉㄥ","di":"ㄉㄧ","dian":"ㄉㄧㄢ","diao":"ㄉㄧㄠ","die":"ㄉㄧㄝ","ding":"ㄉㄧㄥ","diu":"ㄉㄧㄡ","dong":"ㄉㄨㄥ","dou":"ㄉㄡ","du":"ㄉㄨ","duan":"ㄉㄨㄢ","dui":"ㄉㄨㄟ","dun":"ㄉㄨㄣ","duo":"ㄉㄨㄛ","e":"ㄜ","ei":"ㄟ","en":"ㄣ","eng":"ㄥ","er":"ㄦ","fa":"ㄈㄚ","fan":"ㄈㄢ","fang":"ㄈㄤ","fei":"ㄈㄟ","fen":"ㄈㄣ","feng":"ㄈㄥ","fo":"ㄈㄛ","fou":"ㄈㄡ","fu":"ㄈㄨ","ga":"ㄍㄚ","gai":"ㄍㄞ","gan":"ㄍㄢ","gang":"ㄍㄤ","gao":"ㄍㄠ","ge":"ㄍㄜ","gei":"ㄍㄟ","gen":"ㄍㄣ","geng":"ㄍㄥ","gong":"ㄍㄨㄥ","gou":"ㄍㄡ","gu":"ㄍㄨ","gua":"ㄍㄨㄚ","guai":"ㄍㄨㄞ","guan":"ㄍㄨㄢ","guang":"ㄍㄨㄤ","gui":"ㄍㄨㄟ","gun":"ㄍㄨㄣ","guo":"ㄍㄨㄛ","ha":"ㄏㄚ","hai":"ㄏㄞ","han":"ㄏㄢ","hang":"ㄏㄤ","hao":"ㄏㄠ","he":"ㄏㄜ","hei":"ㄏㄟ","hen":"ㄏㄣ","heng":"ㄏㄥ","hong":"ㄏㄨㄥ","hou":"ㄏㄡ","hu":"ㄏㄨ","hua":"ㄏㄨㄚ","huai":"ㄏㄨㄞ","huan":"ㄏㄨㄢ","huang":"ㄏㄨㄤ","hui":"ㄏㄨㄟ","hun":"ㄏㄨㄣ","huo":"ㄏㄨㄛ","ji":"ㄐㄧ","jia":"ㄐㄧㄚ","jian":"ㄐㄧㄢ","jiang":"ㄐㄧㄤ","jiao":"ㄐㄧㄠ","jie":"ㄐㄧㄝ","jin":"ㄐㄧㄣ","jing":"ㄐㄧㄥ","jiong":"ㄐㄩㄥ","jiu":"ㄐㄧㄡ","ju":"ㄐㄩ","juan":"ㄐㄩㄢ","jue":"ㄐㄩㄝ","jun":"ㄐㄩㄣ","ka":"ㄎㄚ","kai":"ㄎㄞ","kan":"ㄎㄢ","kang":"ㄎㄤ","kao":"ㄎㄠ","ke":"ㄎㄜ","kei":"ㄎㄟ","ken":"ㄎㄣ","keng":"ㄎㄥ","kong":"ㄎㄨㄥ","kou":"ㄎㄡ","ku":"ㄎㄨ","kua":"ㄎㄨㄚ","kuai":"ㄎㄨㄞ","kuan":"ㄎㄨㄢ","kuang":"ㄎㄨㄤ","kui":"ㄎㄨㄟ","kun":"ㄎㄨㄣ","kuo":"ㄎㄨㄛ","la":"ㄌㄚ","lai":"ㄌㄞ","lan":"ㄌㄢ","lang":"ㄌㄤ","lao":"ㄌㄠ","le":"ㄌㄜ","lei":"ㄌㄟ","leng":"ㄌㄥ","li":"ㄌㄧ","lia":"ㄌㄧㄚ","lian":"ㄌㄧㄢ","liang":"ㄌㄧㄤ","liao":"ㄌㄧㄠ","lie":"ㄌㄧㄝ","lin":"ㄌㄧㄣ","ling":"ㄌㄧㄥ","liu":"ㄌㄧㄡ","lo":"ㄌㄛ","long":"ㄌㄨㄥ","lou":"ㄌㄡ","lu":"ㄌㄨ","luan":"ㄌㄨㄢ","lun":"ㄌㄨㄣ","luo":"ㄌㄨㄛ","lv":"ㄌㄩ","lve":"ㄌㄩㄝ","ma":"ㄇㄚ","mai":"ㄇㄞ","man":"ㄇㄢ","mang":"ㄇㄤ","mao":"ㄇㄠ","me":"ㄇㄜ","mei":"ㄇㄟ","men":"ㄇㄣ","meng":"ㄇㄥ","mi":"ㄇㄧ","mian":"ㄇㄧㄢ","miao":"ㄇㄧㄠ","mie":"ㄇㄧㄝ","min":"ㄇㄧㄣ","ming":"ㄇㄧㄥ","miu":"ㄇㄧㄡ","mo":"ㄇㄛ","mou":"ㄇㄡ","mu":"ㄇㄨ","na":"ㄋㄚ","nai":"ㄋㄞ","nan":"ㄋㄢ","nang":"ㄋㄤ","nao":"ㄋㄠ","ne":"ㄋㄜ","nei":"ㄋㄟ","nen":"ㄋㄣ","neng":"ㄋㄥ","ni":"ㄋㄧ","nian":"ㄋㄧㄢ","niang":"ㄋㄧㄤ","niao":"ㄋㄧㄠ","nie":"ㄋㄧㄝ","nin":"ㄋㄧㄣ","ning":"ㄋㄧㄥ","niu":"ㄋㄧㄡ","nong":"ㄋㄨㄥ","nou":"ㄋㄡ","nu":"ㄋㄨ","nuan":"ㄋㄨㄢ","nun":"ㄋㄨㄣ","nuo":"ㄋㄨㄛ","nv":"ㄋㄩ","nve":"ㄋㄩㄝ","o":"ㄛ","ou":"ㄡ","pa":"ㄆㄚ","pai":"ㄆㄞ","pan":"ㄆㄢ","pang":"ㄆㄤ","pao":"ㄆㄠ","pei":"ㄆㄟ","pen":"ㄆㄣ","peng":"ㄆㄥ","pi":"ㄆㄧ","pian":"ㄆㄧㄢ","piao":"ㄆㄧㄠ","pie":"ㄆㄧㄝ","pin":"ㄆㄧㄣ","ping":"ㄆㄧㄥ","po":"ㄆㄛ","pou":"ㄆㄡ","pu":"ㄆㄨ","qi":"ㄑㄧ","qia":"ㄑㄧㄚ","qian":"ㄑㄧㄢ","qiang":"ㄑㄧㄤ","qiao":"ㄑㄧㄠ","qie":"ㄑㄧㄝ","qin":"ㄑㄧㄣ","qing":"ㄑㄧㄥ","qiong":"ㄑㄩㄥ","qiu":"ㄑㄧㄡ","qu":"ㄑㄩ","quan":"ㄑㄩㄢ","que":"ㄑㄩㄝ","qun":"ㄑㄩㄣ","ran":"ㄖㄢ","rang":"ㄖㄤ","rao":"ㄖㄠ","re":"ㄖㄜ","ren":"ㄖㄣ","reng":"ㄖㄥ","ri":"ㄖ","rong":"ㄖㄨㄥ","rou":"ㄖㄡ","ru":"ㄖㄨ","ruan":"ㄖㄨㄢ","rui":"ㄖㄨㄟ","run":"ㄖㄨㄣ","ruo":"ㄖㄨㄛ","sa":"ㄙㄚ","sai":"ㄙㄞ","san":"ㄙㄢ","sang":"ㄙㄤ","sao":"ㄙㄠ","se":"ㄙㄜ","sen":"ㄙㄣ","seng":"ㄙㄥ","sha":"ㄕㄚ","shai":"ㄕㄞ","shan":"ㄕㄢ","shang":"ㄕㄤ","shao":"ㄕㄠ","she":"ㄕㄜ","shei":"ㄕㄟ","shen":"ㄕㄣ","sheng":"ㄕㄥ","shi":"ㄕ","shou":"ㄕㄡ","shu":"ㄕㄨ","shua":"ㄕㄨㄚ","shuai":"ㄕㄨㄞ","shuan":"ㄕㄨㄢ","shuang":"ㄕㄨㄤ","shui":"ㄕㄨㄟ","shun":"ㄕㄨㄣ","shuo":"ㄕㄨㄛ","si":"ㄙ","song":"ㄙㄨㄥ","sou":"ㄙㄡ","su":"ㄙㄨ","suan":"ㄙㄨㄢ","sui":"ㄙㄨㄟ","sun":"ㄙㄨㄣ","suo":"ㄙㄨㄛ","ta":"ㄊㄚ","tai":"ㄊㄞ","tan":"ㄊㄢ","tang":"ㄊㄤ","tao":"ㄊㄠ","te":"ㄊㄜ","teng":"ㄊㄥ","ti":"ㄊㄧ","tian":"ㄊㄧㄢ","tiao":"ㄊㄧㄠ","tie":"ㄊㄧㄝ","ting":"ㄊㄧㄥ","tong":"ㄊㄨㄥ","tou":"ㄊㄡ","tu":"ㄊㄨ","tuan":"ㄊㄨㄢ","tui":"ㄊㄨㄟ","tun":"ㄊㄨㄣ","tuo":"ㄊㄨㄛ","wa":"ㄨㄚ","wai":"ㄨㄞ","wan":"ㄨㄢ","wang":"ㄨㄤ","wei":"ㄨㄟ","wen":"ㄨㄣ","weng":"ㄨㄥ","wo":"ㄨㄛ","wu":"ㄨ","xi":"ㄒㄧ","xia":"ㄒㄧㄚ","xian":"ㄒㄧㄢ","xiang":"ㄒㄧㄤ","xiao":"ㄒㄧㄠ","xie":"ㄒㄧㄝ","xin":"ㄒㄧㄣ","xing":"ㄒㄧㄥ","xiong":"ㄒㄩㄥ","xiu":"ㄒㄧㄡ","xu":"ㄒㄩ","xuan":"ㄒㄩㄢ","xue":"ㄒㄩㄝ","xun":"ㄒㄩㄣ","ya":"ㄧㄚ","yan":"ㄧㄢ","yang":"ㄧㄤ","yao":"ㄧㄠ","ye":"ㄧㄝ","yi":"ㄧ","yin":"ㄧㄣ","ying":"ㄧㄥ","yo":"ㄧㄛ","yong":"ㄩㄥ","you":"ㄧㄡ","yu":"ㄩ","yuan":"ㄩㄢ","yue":"ㄩㄝ","yun":"ㄩㄣ","za":"ㄗㄚ","zai":"ㄗㄞ","zan":"ㄗㄢ","zang":"ㄗㄤ","zao":"ㄗㄠ","ze":"ㄗㄜ","zei":"ㄗㄟ","zen":"ㄗㄣ","zeng":"ㄗㄥ","zha":"ㄓㄚ","zhai":"ㄓㄞ","zhan":"ㄓㄢ","zhang":"ㄓㄤ","zhao":"ㄓㄠ","zhe":"ㄓㄜ","zhei":"ㄓㄟ","zhen":"ㄓㄣ","zheng":"ㄓㄥ","zhi":"ㄓ","zhong":"ㄓㄨㄥ","zhou":"ㄓㄡ","zhu":"ㄓㄨ","zhua":"ㄓㄨㄚ","zhuai":"ㄓㄨㄞ","zhuan":"ㄓㄨㄢ","zhuang":"ㄓㄨㄤ","zhui":"ㄓㄨㄟ","zhun":"ㄓㄨㄣ","zhuo":"ㄓㄨㄛ","zi":"ㄗ","zong":"ㄗㄨㄥ","zou":"ㄗㄡ","zu":"ㄗㄨ","zuan":"ㄗㄨㄢ","zui":"ㄗㄨㄟ","zun":"ㄗㄨㄣ","zuo":"ㄗㄨㄛ"};
 
-        /* =========================================================
-           2. 115學年度南一首冊一至九課：結構化課程題庫
-           - 第一關（level1）：直接讀出注音符號原本聲音
-           - 第二、三關（level2, level3）：配對無破音字之標準國字，確保聲調清晰
-           ========================================================= */
+        /* 容易混淆的相似發音注音對照表（供魔法鍋與流星雨優先抽取干擾項） */
+        const CONFUSING_BPMF_MAP = {
+            "ㄅ": ["ㄆ", "ㄇ", "ㄉ"],
+            "ㄆ": ["ㄅ", "ㄈ", "ㄊ"],
+            "ㄇ": ["ㄋ", "ㄈ", "ㄅ"],
+            "ㄈ": ["ㄏ", "ㄆ", "ㄇ"],
+            "ㄉ": ["ㄊ", "ㄅ", "ㄍ"],
+            "ㄊ": ["ㄉ", "ㄆ", "ㄎ"],
+            "ㄋ": ["ㄌ", "ㄇ", "ㄖ"],
+            "ㄌ": ["ㄋ", "ㄖ", "ㄉ"],
+            "ㄍ": ["ㄎ", "ㄏ", "ㄉ"],
+            "ㄎ": ["ㄍ", "ㄏ", "ㄊ"],
+            "ㄏ": ["ㄈ", "ㄎ", "ㄍ"],
+            "ㄐ": ["ㄑ", "ㄒ", "ㄓ", "ㄗ"],
+            "ㄑ": ["ㄐ", "ㄒ", "ㄔ", "ㄘ"],
+            "ㄒ": ["ㄐ", "ㄑ", "ㄕ", "ㄙ"],
+            "ㄓ": ["ㄗ", "ㄔ", "ㄕ", "ㄐ"],
+            "ㄔ": ["ㄘ", "ㄓ", "ㄕ", "ㄑ"],
+            "ㄕ": ["ㄙ", "ㄓ", "ㄔ", "ㄒ"],
+            "ㄖ": ["ㄌ", "ㄋ", "ㄓ"],
+            "ㄗ": ["ㄓ", "ㄘ", "ㄙ", "ㄐ"],
+            "ㄘ": ["ㄔ", "ㄗ", "ㄙ", "ㄑ"],
+            "ㄙ": ["ㄕ", "ㄗ", "ㄘ", "ㄒ"],
+            "ㄧ": ["ㄩ", "ㄨ", "ㄝ"],
+            "ㄨ": ["ㄩ", "ㄛ", "ㄡ"],
+            "ㄩ": ["ㄧ", "ㄨ", "ㄦ"],
+            "ㄚ": ["ㄛ", "ㄜ", "ㄞ", "ㄢ"],
+            "ㄛ": ["ㄡ", "ㄜ", "ㄨ", "ㄠ"],
+            "ㄜ": ["ㄛ", "ㄝ", "ㄦ", "ㄜ"],
+            "ㄝ": ["ㄟ", "ㄜ", "ㄧ", "ㄞ"],
+            "ㄞ": ["ㄟ", "ㄢ", "ㄚ", "ㄠ"],
+            "ㄟ": ["ㄝ", "ㄞ", "ㄣ", "ㄡ"],
+            "ㄠ": ["ㄡ", "ㄛ", "ㄤ", "ㄞ"],
+            "ㄡ": ["ㄛ", "ㄠ", "ㄨ", "ㄟ"],
+            "ㄢ": ["ㄤ", "ㄣ", "ㄞ", "ㄚ"],
+            "ㄣ": ["ㄥ", "ㄢ", "ㄟ", "ㄤ"],
+            "ㄤ": ["ㄢ", "ㄥ", "ㄠ", "ㄚ"],
+            "ㄥ": ["ㄣ", "ㄤ", "ㄢ", "ㄛ"],
+            "ㄦ": ["ㄜ", "ㄩ", "ㄦ"]
+        };
+
+        const ALL_37_BPMF = [
+            "ㄅ","ㄆ","ㄇ","ㄈ","ㄉ","ㄊ","ㄋ","ㄌ","ㄍ","ㄎ","ㄏ",
+            "ㄐ","ㄑ","ㄒ","ㄓ","ㄔ","ㄕ","ㄖ","ㄗ","ㄘ","ㄙ",
+            "ㄧ","ㄨ","ㄩ","ㄚ","ㄛ","ㄜ","ㄝ","ㄞ","ㄟ","ㄠ","ㄡ","ㄢ","ㄣ","ㄤ","ㄥ","ㄦ"
+        ];
+
         const LESSON_CONFIG = [
             {
                 id: 1,
@@ -1225,9 +1748,6 @@
             }
         ];
 
-        /* =========================================================
-           老師最新指定的南一首冊一至九課預設語詞庫 (共 239 個語詞)
-           ========================================================= */
         const DEFAULT_VOCAB_LIST = [
             // 第一課（12個）
             { lesson: 1, rawText: "背包", rubyData: [{char:"背",bpmf:"ㄅㄟ"},{char:"包",bpmf:"ㄅㄠ"}] },
@@ -1451,7 +1971,7 @@
             { lesson: 8, rawText: "課本", rubyData: [{char:"課",bpmf:"ㄎㄜˋ"},{char:"本",bpmf:"ㄅㄣˇ"}] },
             { lesson: 8, rawText: "色紙", rubyData: [{char:"色",bpmf:"ㄙㄜˋ"},{char:"紙",bpmf:"ㄓˇ"}] },
 
-            // 第九課（33個，已去除重複的「雲朵」與「印章」）
+            // 第九課（33個）
             { lesson: 9, rawText: "雄赳赳", rubyData: [{char:"雄",bpmf:"ㄒㄩㄥˊ"},{char:"赳",bpmf:"ㄐㄧㄡ"},{char:"赳",bpmf:"ㄐㄧㄡ"}] },
             { lesson: 9, rawText: "山崖", rubyData: [{char:"山",bpmf:"ㄕㄢ"},{char:"崖",bpmf:"ㄧㄚˊ"}] },
             { lesson: 9, rawText: "聲音", rubyData: [{char:"聲",bpmf:"ㄕㄥ"},{char:"音",bpmf:"ㄧㄣ"}] },
@@ -1487,17 +2007,22 @@
             { lesson: 9, rawText: "軍人", rubyData: [{char:"軍",bpmf:"ㄐㄩㄣ"},{char:"人",bpmf:"ㄖㄣˊ"}] }
         ];
 
-        /* =========================================================
-           3. 全域狀態與本機儲存管理 (升級為 v5 確保載入最新 239 語詞庫)
-           ========================================================= */
-        const STORAGE_VOCAB_KEY = "nanyi_bopomofo_vocab_115_v5";
-        const STORAGE_LESSONS_KEY = "nanyi_bopomofo_lessons_115_v5";
+        const STORAGE_VOCAB_KEY = "nanyi_bopomofo_vocab_115_v6";
+        const STORAGE_LESSONS_KEY = "nanyi_bopomofo_lessons_115_v6";
 
         let vocabList = [];
         let selectedLessons = [1, 2, 3, 4, 5, 6, 7, 8, 9];
         let currentFilterLesson = 1;
         let editingVocabIndex = -1;
 
+        // 全域挑戰模式設定（1~3隊、全班換位5秒倒數、魔法鍋材料數量）
+        let activeTeamCount = 3;
+        let enableSwapCountdown = true;
+        const SHELF_SIZES = [6, 9, 12];
+        let shelfSizeIdx = 1; // 預設 9 個注音符號
+
+        // 目前進行的遊戲類型 ("meteor" 或 "pot")
+        let activeGameType = "meteor";
         let isGameRunning = false;
         let isTransitioningQuestion = false;
         let isTargetRevealed = false;
@@ -1506,65 +2031,89 @@
         let currentTarget = null;
         let familyRound = 1;
 
+        // 語音連續朗讀3次控制計時器
+        let repeatTimerIds = [];
+        let showcaseIntervalId = null;
+
         const SPEED_MODES = [
-            { label: "🐢 隕石速度：慢速（適合初學）", minSpeed: 1.1, maxSpeed: 1.7, spawnInterval: 2000 },
-            { label: "🚀 隕石速度：標準（一般對抗）", minSpeed: 1.8, maxSpeed: 2.6, spawnInterval: 1600 },
-            { label: "⚡ 隕石速度：極速（高手挑戰）", minSpeed: 2.7, maxSpeed: 3.7, spawnInterval: 1200 }
+            { label: "🐢 隕石速度：慢速", minSpeed: 1.1, maxSpeed: 1.7, spawnInterval: 2000 },
+            { label: "🚀 隕石速度：標準", minSpeed: 1.8, maxSpeed: 2.6, spawnInterval: 1600 },
+            { label: "⚡ 隕石速度：極速", minSpeed: 2.7, maxSpeed: 3.7, spawnInterval: 1200 }
         ];
         let speedIndex = 0;
 
-        // 三隊獨立狀態（包含 targetHits 單題命中計數器）
+        // A、B、C 三隊共用積分與獨立狀態
         const teams = {
-            A: { score: 0, targetHits: 0, frozen: false, meteors: [], lastSpawn: 0, sinceLastTarget: 0 },
-            B: { score: 0, targetHits: 0, frozen: false, meteors: [], lastSpawn: 0, sinceLastTarget: 0 },
-            C: { score: 0, targetHits: 0, frozen: false, meteors: [], lastSpawn: 0, sinceLastTarget: 0 }
+            A: {
+                score: 0, targetHits: 0, frozen: false, meteors: [], lastSpawn: 0, sinceLastTarget: 0,
+                potCharIdx: 0, selectedBpmf: [], selectedTone: "", shelfOptions: []
+            },
+            B: {
+                score: 0, targetHits: 0, frozen: false, meteors: [], lastSpawn: 0, sinceLastTarget: 0,
+                potCharIdx: 0, selectedBpmf: [], selectedTone: "", shelfOptions: []
+            },
+            C: {
+                score: 0, targetHits: 0, frozen: false, meteors: [], lastSpawn: 0, sinceLastTarget: 0,
+                potCharIdx: 0, selectedBpmf: [], selectedTone: "", shelfOptions: []
+            }
         };
 
         let animFrameId = null;
         let audioCtx = null;
         let preferredVoice = null;
 
-        /* =========================================================
-           4. 核心直式注音渲染函式 (100% 採用聯絡簿結構)
-           ========================================================= */
-        function buildSingleBpmfBoxHTML(bpmfStr) {
-            let sym = bpmfStr.trim();
+        function parseBpmfComponents(bpmfStr) {
+            let s = (bpmfStr || "").trim();
             let tone = "";
             let isLight = false;
-
-            if (sym.indexOf("˙") === 0) {
+            if (s.indexOf("˙") === 0) {
                 isLight = true;
-                sym = sym.substring(1);
                 tone = "˙";
+                s = s.substring(1);
             } else {
-                const lastChar = sym.slice(-1);
-                if (lastChar === "ˊ" || lastChar === "ˇ" || lastChar === "ˋ") {
-                    tone = lastChar;
-                    sym = sym.slice(0, -1);
+                const last = s.slice(-1);
+                if (last === "ˊ" || last === "ˇ" || last === "ˋ") {
+                    tone = last;
+                    s = s.slice(0, -1);
                 }
             }
+            const symbols = s.split("");
+            return { symbols: symbols, tone: tone, isLight: isLight, pureBpmf: s };
+        }
 
+        function composeBpmfString(symbolsArr, toneStr) {
+            const symJoin = symbolsArr.join("");
+            if (!symJoin && !toneStr) return "";
+            if (toneStr === "˙") return "˙" + symJoin;
+            return symJoin + toneStr;
+        }
+
+        function buildSingleBpmfBoxHTML(bpmfStr) {
+            const parsed = parseBpmfComponents(bpmfStr);
             let symSpans = "";
-            for (let i = 0; i < sym.length; i++) {
-                symSpans += "<span>" + sym.charAt(i) + "</span>";
+            for (let i = 0; i < parsed.symbols.length; i++) {
+                symSpans += "<span>" + parsed.symbols[i] + "</span>";
+            }
+            if (parsed.symbols.length === 0) {
+                symSpans = "<span>　</span>";
             }
 
             let boxClass = "moe-char-vert";
-            if (isLight) {
+            if (parsed.isLight) {
                 boxClass += " has-light-tone";
-            } else if (!tone) {
+            } else if (!parsed.tone) {
                 boxClass += " no-tone-box";
             }
 
             let html = '<span class="' + boxClass + '">';
             html += '<span class="moe-rt">';
             html += '<span class="bopo-wrapper">';
-            if (isLight) {
+            if (parsed.isLight) {
                 html += '<span class="tone-light">˙</span>';
             }
             html += '<span class="sym">' + symSpans + '</span>';
-            if (tone && !isLight) {
-                html += '<span class="tone">' + tone + '</span>';
+            if (parsed.tone && !parsed.isLight) {
+                html += '<span class="tone">' + parsed.tone + '</span>';
             }
             html += '</span></span></span>';
             return html;
@@ -1580,41 +2129,6 @@
             return html;
         }
 
-        function generateRubyDataForWord(text) {
-            let result = [];
-            for (let i = 0; i < text.length; i++) {
-                const ch = text.charAt(i);
-                if (!ch.trim()) continue;
-                let bpmf = "";
-                try {
-                    if (window.pinyinPro) {
-                        let pyArr = window.pinyinPro.pinyin(ch, { type: "array", toneType: "num" });
-                        if (pyArr && pyArr.length > 0) {
-                            let m = pyArr[0].toLowerCase().match(/([a-zü]+)(\d)?/);
-                            if (m) {
-                                let pyKey = m[1].replace("ü", "v");
-                                let toneNum = m[2] || "1";
-                                bpmf = py2bpmf[pyKey] || "";
-                                if (bpmf) {
-                                    if (toneNum === "2") bpmf += "ˊ";
-                                    else if (toneNum === "3") bpmf += "ˇ";
-                                    else if (toneNum === "4") bpmf += "ˋ";
-                                    else if (toneNum === "0") bpmf = "˙" + bpmf;
-                                }
-                            }
-                        }
-                    }
-                } catch (e) {
-                    bpmf = ch;
-                }
-                result.push({ char: ch, bpmf: bpmf || ch });
-            }
-            return result;
-        }
-
-        /* =========================================================
-           5. 高清晰台灣國語語音引擎 (僅在出題與點擊喇叭時朗讀)
-           ========================================================= */
         function initSpeechVoices() {
             if (!("speechSynthesis" in window)) return;
             const pickVoice = function() {
@@ -1639,27 +2153,63 @@
             const u = new SpeechSynthesisUtterance(text);
             u.lang = "zh-TW";
             if (preferredVoice) u.voice = preferredVoice;
-            u.rate = rate || 0.7;
+            u.rate = rate || 0.72;
             u.pitch = pitch || 1.05;
             u.volume = 1.0;
             return u;
         }
 
-        /* 出題或點擊大喇叭時：分段獨立發音，慢速重複兩次目標音讓聲調清晰 */
-        function speakCurrentTarget() {
+        function clearRepeatTimers() {
+            for (let i = 0; i < repeatTimerIds.length; i++) {
+                clearTimeout(repeatTimerIds[i]);
+            }
+            repeatTimerIds = [];
+        }
+
+        function stopAllSpeech() {
+            clearRepeatTimers();
+            if ("speechSynthesis" in window) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        /* 單次發音（根據目前是流星雨或魔法鍋唸出對應指令） */
+        function speakPromptUnit() {
             if (!currentTarget || !("speechSynthesis" in window)) return;
             window.speechSynthesis.cancel();
 
-            // 第一段：提示語
-            const introUtter = createUtterance("請找出", 0.9, 1.0);
-            // 第二段：目標音第一次慢速飽滿發音
-            const targetUtter1 = createUtterance(currentTarget.speakText, 0.65, 1.08);
-            // 第三段：目標音第二次慢速強化發音
-            const targetUtter2 = createUtterance(currentTarget.speakText, 0.62, 1.08);
+            if (activeGameType === "meteor") {
+                const intro = createUtterance("請找出", 0.9, 1.0);
+                const t1 = createUtterance(currentTarget.speakText, 0.65, 1.08);
+                window.speechSynthesis.speak(intro);
+                window.speechSynthesis.speak(t1);
+            } else {
+                // 魔法鍋接力賽語音指令（雙拼與三拼唸「○○的○，請拼音」；語詞鍋唸「○○，請拼音」）
+                const promptUtter = createUtterance(currentTarget.promptSpeech, 0.76, 1.05);
+                window.speechSynthesis.speak(promptUtter);
+            }
+        }
 
-            window.speechSynthesis.speak(introUtter);
-            window.speechSynthesis.speak(targetUtter1);
-            window.speechSynthesis.speak(targetUtter2);
+        /* 題目開始時自動連續朗讀 3 次（除非有孩子已經答出） */
+        function startThreeTimesSpeechLoop() {
+            stopAllSpeech();
+            speakPromptUnit();
+
+            const tId2 = setTimeout(function() {
+                if (!isGameRunning || isTransitioningQuestion) return;
+                speakPromptUnit();
+            }, 3600);
+
+            const tId3 = setTimeout(function() {
+                if (!isGameRunning || isTransitioningQuestion) return;
+                speakPromptUnit();
+            }, 7200);
+
+            repeatTimerIds.push(tId2, tId3);
+        }
+
+        function speakCurrentTargetOnce() {
+            speakPromptUnit();
         }
 
         function initAudioContext() {
@@ -1672,7 +2222,6 @@
             }
         }
 
-        /* 拍中正確隕石時的清脆合成音效（支援多點同時觸發，不干擾語音） */
         function playHitSound() {
             initAudioContext();
             if (!audioCtx) return;
@@ -1690,7 +2239,6 @@
             osc.stop(now + 0.22);
         }
 
-        /* 點錯時的低沉凍結音效 */
         function playWrongSound() {
             initAudioContext();
             if (!audioCtx) return;
@@ -1708,14 +2256,72 @@
             osc.stop(now + 0.32);
         }
 
-        /* =========================================================
-           6. 遊戲初始化與首頁預覽渲染
-           ========================================================= */
+        /* 觸發全螢幕 5 秒正確注音特寫 ＋ 換位倒數 */
+        function triggerAnswerShowcase(winningTeamKey) {
+            isTransitioningQuestion = true;
+            stopAllSpeech();
+
+            const overlay = document.getElementById("showcase-overlay");
+            const winnerBanner = document.getElementById("showcase-winner-text");
+            const bpmfBox = document.getElementById("showcase-bpmf-box");
+            const wordText = document.getElementById("showcase-word-text");
+            const swapLabel = document.getElementById("showcase-swap-label");
+            const timerNum = document.getElementById("showcase-timer-num");
+
+            const teamTitle = (activeTeamCount === 1) ? "挑戰成功" : (winningTeamKey + "隊 率先完成");
+            winnerBanner.textContent = "🎉 " + teamTitle + "！獲得 ⭐+1";
+            bpmfBox.innerHTML = renderQuestionBpmfHTML(currentTarget);
+            wordText.textContent = currentTarget.displaySubText || "";
+
+            if (enableSwapCountdown) {
+                swapLabel.textContent = "🏃‍♂️ 請換下一位小朋友上台準備！";
+            } else {
+                swapLabel.textContent = "👀 大家一起認一認正確注音！";
+            }
+
+            // 清晰朗讀一次正確答案讓全班加深印象
+            if ("speechSynthesis" in window && currentTarget) {
+                const ansUtter = createUtterance(currentTarget.speakText, 0.68, 1.08);
+                window.speechSynthesis.speak(ansUtter);
+            }
+
+            let secondsLeft = 5;
+            timerNum.textContent = secondsLeft;
+            overlay.classList.add("active");
+
+            if (showcaseIntervalId) clearInterval(showcaseIntervalId);
+            showcaseIntervalId = setInterval(function() {
+                secondsLeft -= 1;
+                if (secondsLeft > 0) {
+                    timerNum.textContent = secondsLeft;
+                } else {
+                    skipShowcaseCountdown();
+                }
+            }, 1000);
+        }
+
+        function skipShowcaseCountdown() {
+            if (showcaseIntervalId) {
+                clearInterval(showcaseIntervalId);
+                showcaseIntervalId = null;
+            }
+            document.getElementById("showcase-overlay").classList.remove("active");
+            if (!isGameRunning) return;
+
+            if (activeGameType === "meteor") {
+                clearAllMeteors();
+                pickRandomMeteorTarget();
+            } else {
+                pickRandomPotTarget();
+            }
+        }
+
         window.onload = function() {
             initSpeechVoices();
             loadSavedData();
             renderHomePreviews();
             updateHomeScopeSummary();
+            applyTeamCountLayout();
         };
 
         function loadSavedData() {
@@ -1750,29 +2356,69 @@
         }
 
         function renderHomePreviews() {
-            document.getElementById("preview-1").innerHTML = buildSingleBpmfBoxHTML("ㄅ");
-            document.getElementById("preview-2").innerHTML = buildSingleBpmfBoxHTML("ㄇㄚˇ");
-            document.getElementById("preview-3").innerHTML = buildSingleBpmfBoxHTML("ㄆㄧㄠˋ");
-            document.getElementById("preview-4").innerHTML =
-                '<div style="display:flex; gap:8px;">' +
+            document.getElementById("preview-m1").innerHTML = buildSingleBpmfBoxHTML("ㄅ");
+            document.getElementById("preview-m2").innerHTML = buildSingleBpmfBoxHTML("ㄇㄚˇ");
+            document.getElementById("preview-m3").innerHTML = buildSingleBpmfBoxHTML("ㄆㄧㄠˋ");
+            document.getElementById("preview-m4").innerHTML =
+                '<div style="display:flex; gap:6px;">' +
                 buildSingleBpmfBoxHTML("ㄊㄞˋ") +
                 buildSingleBpmfBoxHTML("ㄧㄤˊ") +
                 '</div>';
+
+            document.getElementById("preview-p1").innerHTML = buildSingleBpmfBoxHTML("ㄇㄛˊ");
+            document.getElementById("preview-p2").innerHTML = buildSingleBpmfBoxHTML("ㄆㄧㄠˋ");
+            document.getElementById("preview-p3").innerHTML =
+                '<div style="display:flex; gap:6px;">' +
+                buildSingleBpmfBoxHTML("ㄇㄛˊ") +
+                buildSingleBpmfBoxHTML("ㄕㄨˋ") +
+                '</div>';
         }
 
-        function updateHomeScopeSummary() {
-            const el = document.getElementById("home-scope-text");
-            if (selectedLessons.length === 9) {
-                el.textContent = "📚 目前出題範圍：南一首冊 第一課 至 第九課（全範圍）";
-            } else {
-                const sorted = selectedLessons.slice().sort(function(a, b) { return a - b; });
-                el.textContent = "📚 目前出題範圍：第 " + sorted.join("、") + " 課";
-            }
+        function setTeamCount(cnt) {
+            activeTeamCount = cnt;
+            document.getElementById("team-cnt-1").classList.toggle("active", cnt === 1);
+            document.getElementById("team-cnt-2").classList.toggle("active", cnt === 2);
+            document.getElementById("team-cnt-3").classList.toggle("active", cnt === 3);
+            applyTeamCountLayout();
+        }
+
+        function applyTeamCountLayout() {
+            const mField = document.getElementById("meteor-battlefield");
+            const pField = document.getElementById("pot-battlefield");
+            mField.className = "battlefield lanes-" + activeTeamCount;
+            pField.className = "battlefield lanes-" + activeTeamCount;
+
+            document.getElementById("meteor-lane-B").style.display = (activeTeamCount >= 2) ? "flex" : "none";
+            document.getElementById("meteor-lane-C").style.display = (activeTeamCount >= 3) ? "flex" : "none";
+            document.getElementById("pot-lane-B").style.display = (activeTeamCount >= 2) ? "flex" : "none";
+            document.getElementById("pot-lane-C").style.display = (activeTeamCount >= 3) ? "flex" : "none";
+        }
+
+        function toggleSwapMode() {
+            enableSwapCountdown = !enableSwapCountdown;
+            const btn = document.getElementById("swap-countdown-btn");
+            btn.classList.toggle("active", enableSwapCountdown);
+            btn.textContent = enableSwapCountdown ? "⏱️ 換位五秒倒數：開啟" : "⏱️ 換位五秒倒數：關閉";
+        }
+
+        function cycleShelfSize() {
+            shelfSizeIdx = (shelfSizeIdx + 1) % SHELF_SIZES.length;
+            document.getElementById("shelf-size-btn").textContent = "🧪 魔法材料數：" + SHELF_SIZES[shelfSizeIdx] + " 個注音";
         }
 
         function cycleSpeed() {
             speedIndex = (speedIndex + 1) % SPEED_MODES.length;
             document.getElementById("speed-toggle-btn").textContent = SPEED_MODES[speedIndex].label;
+        }
+
+        function updateHomeScopeSummary() {
+            const el = document.getElementById("home-scope-text");
+            if (selectedLessons.length === 9) {
+                el.textContent = "📚 範圍：第一課至第九課（全）";
+            } else {
+                const sorted = selectedLessons.slice().sort(function(a, b) { return a - b; });
+                el.textContent = "📚 範圍：第 " + sorted.join("、") + " 課";
+            }
         }
 
         function toggleFullScreen() {
@@ -1783,10 +2429,33 @@
             }
         }
 
-        /* =========================================================
-           7. 依難度與勾選課別建立題庫池
-           ========================================================= */
-        function buildQuestionPool(difficulty) {
+        function updateAllScoreDisplays() {
+            const keys = ["A", "B", "C"];
+            for (let i = 0; i < keys.length; i++) {
+                const k = keys[i];
+                const els = document.querySelectorAll(".score-val-" + k);
+                for (let j = 0; j < els.length; j++) {
+                    els[j].textContent = teams[k].score;
+                }
+            }
+        }
+
+        function toggleFamilyRound() {
+            familyRound = (familyRound === 1) ? 2 : 1;
+            const label = (familyRound === 1) ? "🚩 上場：1、3、5家" : "🚩 上場：2、4、6家";
+            document.getElementById("meteor-family-btn").textContent = label;
+            document.getElementById("pot-family-btn").textContent = label;
+
+            const famA = (familyRound === 1) ? "第 1 家上場" : "第 2 家上場";
+            const famB = (familyRound === 1) ? "第 3 家上場" : "第 4 家上場";
+            const famC = (familyRound === 1) ? "第 5 家上場" : "第 6 家上場";
+
+            document.querySelectorAll(".family-label-A").forEach(function(el) { el.textContent = famA; });
+            document.querySelectorAll(".family-label-B").forEach(function(el) { el.textContent = famB; });
+            document.querySelectorAll(".family-label-C").forEach(function(el) { el.textContent = famC; });
+        }
+
+        function buildMeteorQuestionPool(difficulty) {
             let pool = [];
             if (difficulty === 1 || difficulty === 2 || difficulty === 3) {
                 const key = "level" + difficulty;
@@ -1798,6 +2467,7 @@
                             pool.push({
                                 id: arr[j].bpmf,
                                 speakText: arr[j].speak,
+                                displaySubText: (difficulty === 1) ? "單一注音符號" : ("讀音示範：" + arr[j].speak),
                                 rubyData: [{ char: arr[j].speak, bpmf: arr[j].bpmf }]
                             });
                         }
@@ -1814,6 +2484,7 @@
                         pool.push({
                             id: idStr,
                             speakText: item.rawText,
+                            displaySubText: "語詞：" + item.rawText,
                             rubyData: item.rubyData
                         });
                     }
@@ -1823,29 +2494,28 @@
             if (pool.length < 4) {
                 selectedLessons = [1, 2, 3, 4, 5, 6, 7, 8, 9];
                 saveLessonsToStorage();
-                return buildQuestionPool(difficulty);
+                return buildMeteorQuestionPool(difficulty);
             }
             return pool;
         }
 
-        /* =========================================================
-           8. 啟動對抗遊戲與多點觸控隕石引擎
-           ========================================================= */
-        function startGame(difficulty) {
+        function startMeteorGame(difficulty) {
             initAudioContext();
+            activeGameType = "meteor";
             currentDifficulty = difficulty;
-            currentQuestionPool = buildQuestionPool(difficulty);
+            currentQuestionPool = buildMeteorQuestionPool(difficulty);
 
             const modeTitles = ["", "第一關：單一注音", "第二關：雙拼練習", "第三關：三拼與聲調", "第四關：首冊語詞"];
             document.getElementById("game-mode-label").textContent = modeTitles[difficulty] + " ‧ 請聽音找出：";
 
+            applyTeamCountLayout();
             document.getElementById("home-screen").classList.remove("active");
             document.getElementById("game-screen").classList.add("active");
 
             clearAllMeteors();
             isGameRunning = true;
             isTransitioningQuestion = false;
-            pickRandomTarget(true);
+            pickRandomMeteorTarget();
 
             const now = performance.now();
             teams.A.lastSpawn = now;
@@ -1853,18 +2523,7 @@
             teams.C.lastSpawn = now;
 
             if (animFrameId) cancelAnimationFrame(animFrameId);
-            animFrameId = requestAnimationFrame(gameLoop);
-        }
-
-        function stopGameAndReturn() {
-            isGameRunning = false;
-            isTransitioningQuestion = false;
-            if (animFrameId) cancelAnimationFrame(animFrameId);
-            if ("speechSynthesis" in window) window.speechSynthesis.cancel();
-            clearAllMeteors();
-            document.getElementById("auto-next-banner").style.display = "none";
-            document.getElementById("game-screen").classList.remove("active");
-            document.getElementById("home-screen").classList.add("active");
+            animFrameId = requestAnimationFrame(meteorGameLoop);
         }
 
         function clearAllMeteors() {
@@ -1878,8 +2537,7 @@
             }
         }
 
-        /* 更新各隊「本題集滿 3 個」的燈號顯示 */
-        function updateTeamProgressUI() {
+        function updateMeteorProgressUI() {
             const keys = ["A", "B", "C"];
             for (let i = 0; i < keys.length; i++) {
                 const k = keys[i];
@@ -1892,18 +2550,15 @@
             }
         }
 
-        /* 抽選新題目：一開始先隱藏題目注音，只用念的 */
-        function pickRandomTarget(shouldSpeak) {
+        function pickRandomMeteorTarget() {
             if (currentQuestionPool.length === 0) return;
             isTransitioningQuestion = false;
             isTargetRevealed = false;
-            document.getElementById("auto-next-banner").style.display = "none";
 
-            // 重置三隊針對本題的命中計數器
             teams.A.targetHits = 0;
             teams.B.targetHits = 0;
             teams.C.targetHits = 0;
-            updateTeamProgressUI();
+            updateMeteorProgressUI();
 
             let nextItem = currentQuestionPool[Math.floor(Math.random() * currentQuestionPool.length)];
             if (currentQuestionPool.length > 1 && currentTarget && nextItem.id === currentTarget.id) {
@@ -1911,17 +2566,13 @@
             }
             currentTarget = nextItem;
 
-            // 初始狀態：不顯示注音，顯示「👂 仔細聽音」提示框
             document.getElementById("target-bpmf-display").innerHTML = '<div class="mystery-target-box">👂 仔細聽音</div>';
-            document.getElementById("target-sub-hint").textContent = "（先聽聲音找！第一組答對後顯現注音 ‧ 點喇叭重聽）";
+            document.getElementById("target-sub-hint").textContent = "（自動朗讀 3 次 ‧ 第一組答對後顯現注音）";
 
-            if (shouldSpeak) {
-                speakCurrentTarget();
-            }
+            startThreeTimesSpeechLoop();
         }
 
-        /* 當有任一組答對第一顆時，揭曉題目注音，讓其他組沒聽懂的孩子也能看注音找答案 */
-        function revealTargetBpmf() {
+        function revealMeteorTargetBpmf() {
             if (isTargetRevealed || !currentTarget) return;
             isTargetRevealed = true;
             const displayEl = document.getElementById("target-bpmf-display");
@@ -1929,26 +2580,24 @@
             document.getElementById("target-sub-hint").textContent = "（已顯現注音提示！任一隊找滿 3 個自動換題）";
         }
 
-        /* 老師手動點擊「換下一題」按鈕 */
-        function nextTargetQuestion() {
-            clearAllMeteors();
-            pickRandomTarget(true);
-        }
-
-        function toggleFamilyRound() {
-            familyRound = (familyRound === 1) ? 2 : 1;
-            const btn = document.getElementById("family-round-btn");
-            if (familyRound === 1) {
-                btn.textContent = "🚩 目前上場：1、3、5家";
-                document.getElementById("family-label-A").textContent = "第 1 家上場";
-                document.getElementById("family-label-B").textContent = "第 3 家上場";
-                document.getElementById("family-label-C").textContent = "第 5 家上場";
-            } else {
-                btn.textContent = "🚩 目前上場：2、4、6家";
-                document.getElementById("family-label-A").textContent = "第 2 家上場";
-                document.getElementById("family-label-B").textContent = "第 4 家上場";
-                document.getElementById("family-label-C").textContent = "第 6 家上場";
+        /* 挑選流星雨干擾題目時，優先挑選含有相似注音的題目 */
+        function pickConfusingMeteorDistractor() {
+            if (!currentTarget || currentQuestionPool.length <= 1) {
+                return currentQuestionPool[0];
             }
+            const targetSym = parseBpmfComponents(currentTarget.rubyData[0].bpmf).symbols[0];
+            const confusingList = CONFUSING_BPMF_MAP[targetSym] || [];
+
+            const similarPool = currentQuestionPool.filter(function(q) {
+                if (q.id === currentTarget.id) return false;
+                const firstSym = parseBpmfComponents(q.rubyData[0].bpmf).symbols[0];
+                return firstSym === targetSym || confusingList.indexOf(firstSym) !== -1;
+            });
+
+            if (similarPool.length > 0 && Math.random() < 0.65) {
+                return similarPool[Math.floor(Math.random() * similarPool.length)];
+            }
+            return currentQuestionPool[Math.floor(Math.random() * currentQuestionPool.length)];
         }
 
         function spawnMeteorForTeam(teamKey) {
@@ -1961,7 +2610,7 @@
                 chosenQuestion = currentTarget;
                 teamObj.sinceLastTarget = 0;
             } else {
-                chosenQuestion = currentQuestionPool[Math.floor(Math.random() * currentQuestionPool.length)];
+                chosenQuestion = pickConfusingMeteorDistractor();
                 if (chosenQuestion.id === currentTarget.id) {
                     teamObj.sinceLastTarget = 0;
                 } else {
@@ -2006,10 +2655,6 @@
             teamObj.meteors.push(meteorData);
         }
 
-        /* 學生拍擊隕石判定：
-           1. 第一組答對時立刻顯現頂部題目注音（revealTargetBpmf）
-           2. 拍對僅播放清脆得分音效（不重複唸語音避免吵雜）
-           3. 單一隊伍找滿 3 個自動換下一題 */
         function onMeteorTapped(teamKey, meteorData) {
             if (!isGameRunning || isTransitioningQuestion || meteorData.hit) return;
             const teamObj = teams[teamKey];
@@ -2020,15 +2665,14 @@
                 meteorData.el.classList.add("hit-correct");
                 playHitSound();
 
-                // 只要有一組答對，立刻顯現題目注音，讓其他組也能看注音找答案
-                revealTargetBpmf();
+                revealMeteorTargetBpmf();
 
                 teamObj.score += 1;
                 teamObj.targetHits += 1;
-                document.getElementById("score-" + teamKey).textContent = teamObj.score;
-                updateTeamProgressUI();
+                updateAllScoreDisplays();
+                updateMeteorProgressUI();
 
-                showFloatingStar(teamKey, meteorData.x, meteorData.y);
+                showFloatingStar("sky-" + teamKey, meteorData.x, meteorData.y);
 
                 setTimeout(function() {
                     if (meteorData.el && meteorData.el.parentNode) {
@@ -2036,18 +2680,8 @@
                     }
                 }, 250);
 
-                // 檢查該隊是否已找滿同一題的 3 個目標
                 if (teamObj.targetHits >= 3) {
-                    isTransitioningQuestion = true;
-                    const banner = document.getElementById("auto-next-banner");
-                    banner.textContent = "🎉 " + teamKey + "隊找滿 3 個！自動換下一題！";
-                    banner.style.display = "block";
-
-                    setTimeout(function() {
-                        if (!isGameRunning) return;
-                        clearAllMeteors();
-                        pickRandomTarget(true);
-                    }, 900);
+                    triggerAnswerShowcase(teamKey);
                 }
             } else {
                 playWrongSound();
@@ -2061,24 +2695,11 @@
             }
         }
 
-        function showFloatingStar(teamKey, x, y) {
-            const skyEl = document.getElementById("sky-" + teamKey);
-            const starEl = document.createElement("div");
-            starEl.className = "floating-star";
-            starEl.textContent = "⭐+1";
-            starEl.style.left = x + "px";
-            starEl.style.top = Math.max(40, y) + "px";
-            skyEl.appendChild(starEl);
-            setTimeout(function() {
-                if (starEl.parentNode) starEl.parentNode.removeChild(starEl);
-            }, 800);
-        }
-
-        function gameLoop(timestamp) {
-            if (!isGameRunning) return;
+        function meteorGameLoop(timestamp) {
+            if (!isGameRunning || activeGameType !== "meteor") return;
 
             const speedCfg = SPEED_MODES[speedIndex];
-            const keys = ["A", "B", "C"];
+            const keys = ["A", "B", "C"].slice(0, activeTeamCount);
 
             for (let i = 0; i < keys.length; i++) {
                 const k = keys[i];
@@ -2107,18 +2728,369 @@
                 }
             }
 
-            animFrameId = requestAnimationFrame(gameLoop);
+            animFrameId = requestAnimationFrame(meteorGameLoop);
         }
 
-        /* =========================================================
-           9. 戰績結算視窗
-           ========================================================= */
+        function buildPotQuestionPool(potLevel) {
+            let pool = [];
+            for (let i = 0; i < vocabList.length; i++) {
+                const item = vocabList[i];
+                if (selectedLessons.indexOf(item.lesson) === -1) continue;
+
+                if (potLevel === 1 || potLevel === 2) {
+                    const targetSymbolCount = (potLevel === 1) ? 2 : 3;
+                    for (let c = 0; c < item.rubyData.length; c++) {
+                        // 避免在「媽媽、爸爸」等疊字中挑到第二個輕聲字造成混淆
+                        if (c > 0 && item.rubyData[c].char === item.rubyData[0].char) continue;
+
+                        const rObj = item.rubyData[c];
+                        const parsed = parseBpmfComponents(rObj.bpmf);
+                        if (parsed.symbols.length === targetSymbolCount) {
+                            pool.push({
+                                id: item.rawText + "_" + c + "_" + rObj.bpmf,
+                                promptSpeech: item.rawText + "的" + rObj.char + "，請拼音",
+                                speakText: item.rawText + "的" + rObj.char,
+                                displaySubText: "題目：「" + item.rawText + "」的「" + rObj.char + "」",
+                                rubyData: [{ char: rObj.char, bpmf: rObj.bpmf }]
+                            });
+                        }
+                    }
+                } else if (potLevel === 3) {
+                    // 語詞接力鍋：直接唸「○○，請拼音」，逐字送出
+                    let idStr = item.rawText + "_";
+                    for (let k = 0; k < item.rubyData.length; k++) {
+                        idStr += item.rubyData[k].bpmf + "_";
+                    }
+                    pool.push({
+                        id: idStr,
+                        promptSpeech: item.rawText + "，請拼音",
+                        speakText: item.rawText,
+                        displaySubText: "語詞：「" + item.rawText + "」",
+                        rubyData: item.rubyData
+                    });
+                }
+            }
+
+            if (pool.length === 0) {
+                selectedLessons = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+                saveLessonsToStorage();
+                return buildPotQuestionPool(potLevel);
+            }
+            return pool;
+        }
+
+        /* 為魔法鍋單字生成 6~12 個包含「相似音干擾項」的注音材料按鈕 */
+        function generateConfusingShelfSymbols(correctSymbols, totalCount) {
+            let result = [];
+            for (let i = 0; i < correctSymbols.length; i++) {
+                if (result.indexOf(correctSymbols[i]) === -1) {
+                    result.push(correctSymbols[i]);
+                }
+            }
+
+            // 優先加入與正確答案發音相近的混淆注音（例如 ㄓ配ㄗ、ㄛ配ㄡ、ㄣ配ㄥ）
+            let candidateDistractors = [];
+            for (let i = 0; i < correctSymbols.length; i++) {
+                const sym = correctSymbols[i];
+                const confArr = CONFUSING_BPMF_MAP[sym] || [];
+                for (let j = 0; j < confArr.length; j++) {
+                    if (result.indexOf(confArr[j]) === -1 && candidateDistractors.indexOf(confArr[j]) === -1) {
+                        candidateDistractors.push(confArr[j]);
+                    }
+                }
+            }
+
+            // 打亂相似音候選池並依序填入
+            candidateDistractors.sort(function() { return Math.random() - 0.5; });
+            for (let i = 0; i < candidateDistractors.length && result.length < totalCount; i++) {
+                result.push(candidateDistractors[i]);
+            }
+
+            // 若還不滿指定數量（6、9 或 12），再從 37 個注音隨機補足
+            const shuffledAll = ALL_37_BPMF.slice().sort(function() { return Math.random() - 0.5; });
+            for (let i = 0; i < shuffledAll.length && result.length < totalCount; i++) {
+                if (result.indexOf(shuffledAll[i]) === -1) {
+                    result.push(shuffledAll[i]);
+                }
+            }
+
+            // 最終洗牌
+            return result.sort(function() { return Math.random() - 0.5; });
+        }
+
+        function startPotGame(potLevel) {
+            initAudioContext();
+            activeGameType = "pot";
+            currentDifficulty = potLevel;
+            currentQuestionPool = buildPotQuestionPool(potLevel);
+
+            const titles = ["", "雙拼魔法鍋 ‧ 請聽音拆解：", "三拼魔法鍋 ‧ 請聽音拆解：", "語詞接力鍋 ‧ 請逐字拼音："];
+            document.getElementById("pot-mode-label").textContent = titles[potLevel];
+
+            applyTeamCountLayout();
+            document.getElementById("home-screen").classList.remove("active");
+            document.getElementById("pot-screen").classList.add("active");
+
+            isGameRunning = true;
+            isTransitioningQuestion = false;
+            pickRandomPotTarget();
+        }
+
+        function pickRandomPotTarget() {
+            if (currentQuestionPool.length === 0) return;
+            isTransitioningQuestion = false;
+            isTargetRevealed = false;
+
+            let nextItem = currentQuestionPool[Math.floor(Math.random() * currentQuestionPool.length)];
+            if (currentQuestionPool.length > 1 && currentTarget && nextItem.id === currentTarget.id) {
+                nextItem = currentQuestionPool[(currentQuestionPool.indexOf(nextItem) + 1) % currentQuestionPool.length];
+            }
+            currentTarget = nextItem;
+
+            document.getElementById("pot-target-display").innerHTML = '<div class="mystery-target-box">👂 仔細聽音</div>';
+            document.getElementById("pot-sub-hint").textContent = "（自動朗讀 3 次 ‧ 點選下方注音與聲調後按送出）";
+
+            const keys = ["A", "B", "C"];
+            for (let i = 0; i < keys.length; i++) {
+                const k = keys[i];
+                teams[k].frozen = false;
+                document.getElementById("pot-freeze-" + k).classList.remove("active");
+                setupTeamPotForCharacter(k, 0);
+            }
+
+            startThreeTimesSpeechLoop();
+        }
+
+        function setupTeamPotForCharacter(teamKey, charIndex) {
+            const teamObj = teams[teamKey];
+            teamObj.potCharIdx = charIndex;
+            teamObj.selectedBpmf = [];
+            teamObj.selectedTone = "";
+
+            const targetCharObj = currentTarget.rubyData[charIndex];
+            const parsed = parseBpmfComponents(targetCharObj.bpmf);
+            const shelfCount = SHELF_SIZES[shelfSizeIdx];
+
+            teamObj.shelfOptions = generateConfusingShelfSymbols(parsed.symbols, shelfCount);
+            renderTeamPotUI(teamKey);
+        }
+
+        function renderTeamPotUI(teamKey) {
+            const teamObj = teams[teamKey];
+            if (!currentTarget) return;
+
+            // 1. 渲染語詞接力進度條
+            const slotsEl = document.getElementById("relay-slots-" + teamKey);
+            slotsEl.innerHTML = "";
+            const totalChars = currentTarget.rubyData.length;
+            for (let i = 0; i < totalChars; i++) {
+                const badge = document.createElement("div");
+                if (i < teamObj.potCharIdx) {
+                    badge.className = "relay-char-badge done-step";
+                    badge.textContent = "✓ 第 " + (i + 1) + " 字完成（" + currentTarget.rubyData[i].bpmf + "）";
+                } else if (i === teamObj.potCharIdx) {
+                    badge.className = "relay-char-badge active-step";
+                    badge.textContent = (totalChars > 1) ? ("🔥 正在拼：第 " + (i + 1) + " 個字") : "🔥 請挑選下方材料拼音";
+                } else {
+                    badge.className = "relay-char-badge";
+                    badge.textContent = "第 " + (i + 1) + " 個字待解鎖";
+                }
+                slotsEl.appendChild(badge);
+            }
+
+            // 2. 渲染魔法大釜中央的直式注音即時預覽
+            const cauldronEl = document.getElementById("cauldron-box-" + teamKey);
+            const composed = composeBpmfString(teamObj.selectedBpmf, teamObj.selectedTone);
+            if (!composed) {
+                cauldronEl.innerHTML = '<div class="cauldron-empty-hint">請點擊下方<br>注音與聲調</div>';
+            } else {
+                cauldronEl.innerHTML = buildSingleBpmfBoxHTML(composed);
+            }
+
+            // 3. 渲染四個可見聲調按鈕（一聲不顯示，直接送出即代表一聲）
+            const toneRowEl = document.getElementById("tone-row-" + teamKey);
+            toneRowEl.innerHTML = "";
+            const toneConfigs = [
+                { mark: "ˊ", label: "二聲" },
+                { mark: "ˇ", label: "三聲" },
+                { mark: "ˋ", label: "四聲" },
+                { mark: "˙", label: "輕聲" }
+            ];
+            for (let t = 0; t < toneConfigs.length; t++) {
+                const tc = toneConfigs[t];
+                const btn = document.createElement("button");
+                btn.className = "tone-ing-btn" + (teamObj.selectedTone === tc.mark ? " selected" : "");
+                btn.innerHTML = '<span>' + tc.mark + '</span><small>' + tc.label + '</small>';
+                const handleToneTap = function(evt) {
+                    evt.preventDefault();
+                    evt.stopPropagation();
+                    onToneIngredientTap(teamKey, tc.mark);
+                };
+                btn.addEventListener("touchstart", handleToneTap, { passive: false });
+                btn.addEventListener("mousedown", handleToneTap);
+                toneRowEl.appendChild(btn);
+            }
+
+            // 4. 渲染 6~12 個單一注音符號按鈕
+            const gridEl = document.getElementById("bpmf-grid-" + teamKey);
+            const shelfCount = SHELF_SIZES[shelfSizeIdx];
+            gridEl.className = "bpmf-shelf-grid" + (shelfCount === 12 ? " cols-4" : "");
+            gridEl.innerHTML = "";
+
+            for (let i = 0; i < teamObj.shelfOptions.length; i++) {
+                const sym = teamObj.shelfOptions[i];
+                const isSelected = teamObj.selectedBpmf.indexOf(sym) !== -1;
+                const btn = document.createElement("button");
+                btn.className = "bpmf-ing-btn" + (isSelected ? " selected" : "");
+                btn.textContent = sym;
+
+                const handleSymTap = function(evt) {
+                    evt.preventDefault();
+                    evt.stopPropagation();
+                    onBpmfIngredientTap(teamKey, sym);
+                };
+                btn.addEventListener("touchstart", handleSymTap, { passive: false });
+                btn.addEventListener("mousedown", handleSymTap);
+                gridEl.appendChild(btn);
+            }
+        }
+
+        function onBpmfIngredientTap(teamKey, sym) {
+            if (!isGameRunning || isTransitioningQuestion) return;
+            const teamObj = teams[teamKey];
+            if (teamObj.frozen) return;
+
+            const idx = teamObj.selectedBpmf.indexOf(sym);
+            if (idx !== -1) {
+                teamObj.selectedBpmf.splice(idx, 1);
+            } else {
+                if (teamObj.selectedBpmf.length < 3) {
+                    teamObj.selectedBpmf.push(sym);
+                }
+            }
+            renderTeamPotUI(teamKey);
+        }
+
+        function onToneIngredientTap(teamKey, mark) {
+            if (!isGameRunning || isTransitioningQuestion) return;
+            const teamObj = teams[teamKey];
+            if (teamObj.frozen) return;
+
+            // 再點一次相同聲調可取消（方便孩子改回「一聲不選聲調」狀態）
+            if (teamObj.selectedTone === mark) {
+                teamObj.selectedTone = "";
+            } else {
+                teamObj.selectedTone = mark;
+            }
+            renderTeamPotUI(teamKey);
+        }
+
+        function clearPotInput(teamKey, evt) {
+            if (evt) {
+                evt.preventDefault();
+                evt.stopPropagation();
+            }
+            const teamObj = teams[teamKey];
+            if (teamObj.frozen) return;
+            teamObj.selectedBpmf = [];
+            teamObj.selectedTone = "";
+            renderTeamPotUI(teamKey);
+        }
+
+        function submitPotInput(teamKey, evt) {
+            if (evt) {
+                evt.preventDefault();
+                evt.stopPropagation();
+            }
+            if (!isGameRunning || isTransitioningQuestion || !currentTarget) return;
+            const teamObj = teams[teamKey];
+            if (teamObj.frozen || teamObj.selectedBpmf.length === 0) return;
+
+            const targetCharObj = currentTarget.rubyData[teamObj.potCharIdx];
+            const userComposed = composeBpmfString(teamObj.selectedBpmf, teamObj.selectedTone);
+
+            if (userComposed === targetCharObj.bpmf) {
+                playHitSound();
+                const nextIdx = teamObj.potCharIdx + 1;
+
+                if (nextIdx < currentTarget.rubyData.length) {
+                    // 語詞接力鍋：完成當前字，解鎖下一個字！
+                    setupTeamPotForCharacter(teamKey, nextIdx);
+                } else {
+                    // 全部字皆完成！該隊獲得星星，並彈出全螢幕5秒正確答案特寫！
+                    teamObj.score += 1;
+                    updateAllScoreDisplays();
+                    triggerAnswerShowcase(teamKey);
+                }
+            } else {
+                // 拼音或聲調錯誤，魔法鍋冒黑煙凍結 1.5 秒並清空重選
+                playWrongSound();
+                teamObj.frozen = true;
+                teamObj.selectedBpmf = [];
+                teamObj.selectedTone = "";
+                renderTeamPotUI(teamKey);
+
+                const freezeEl = document.getElementById("pot-freeze-" + teamKey);
+                freezeEl.classList.add("active");
+                setTimeout(function() {
+                    teamObj.frozen = false;
+                    freezeEl.classList.remove("active");
+                }, 1500);
+            }
+        }
+
+        function manualNextQuestion() {
+            if (showcaseIntervalId) {
+                clearInterval(showcaseIntervalId);
+                showcaseIntervalId = null;
+            }
+            document.getElementById("showcase-overlay").classList.remove("active");
+
+            if (activeGameType === "meteor") {
+                clearAllMeteors();
+                pickRandomMeteorTarget();
+            } else {
+                pickRandomPotTarget();
+            }
+        }
+
+        function stopGameAndReturn() {
+            isGameRunning = false;
+            isTransitioningQuestion = false;
+            if (animFrameId) cancelAnimationFrame(animFrameId);
+            if (showcaseIntervalId) clearInterval(showcaseIntervalId);
+            stopAllSpeech();
+            clearAllMeteors();
+            document.getElementById("showcase-overlay").classList.remove("active");
+            document.getElementById("game-screen").classList.remove("active");
+            document.getElementById("pot-screen").classList.remove("active");
+            document.getElementById("home-screen").classList.add("active");
+        }
+
+        function showFloatingStar(containerId, x, y) {
+            const skyEl = document.getElementById(containerId);
+            if (!skyEl) return;
+            const starEl = document.createElement("div");
+            starEl.className = "floating-star";
+            starEl.textContent = "⭐+1";
+            starEl.style.left = x + "px";
+            starEl.style.top = Math.max(40, y) + "px";
+            skyEl.appendChild(starEl);
+            setTimeout(function() {
+                if (starEl.parentNode) starEl.parentNode.removeChild(starEl);
+            }, 800);
+        }
+
         function showVictoryModal() {
             const board = document.getElementById("victory-board");
-            board.innerHTML =
-                '<div style="background:rgba(231,76,60,0.25); padding:15px; border-radius:14px; border:2px solid #e74c3c;">A隊（1、2家）：⭐ ' + teams.A.score + ' 顆星</div>' +
-                '<div style="background:rgba(52,152,219,0.25); padding:15px; border-radius:14px; border:2px solid #3498db;">B隊（3、4家）：⭐ ' + teams.B.score + ' 顆星</div>' +
-                '<div style="background:rgba(241,196,15,0.25); padding:15px; border-radius:14px; border:2px solid #f1c40f;">C隊（5、6家）：⭐ ' + teams.C.score + ' 顆星</div>';
+            let html = '<div style="background:rgba(231,76,60,0.25); padding:15px; border-radius:14px; border:2px solid #e74c3c;">A隊（1、2家）：⭐ ' + teams.A.score + ' 顆星</div>';
+            if (activeTeamCount >= 2) {
+                html += '<div style="background:rgba(52,152,219,0.25); padding:15px; border-radius:14px; border:2px solid #3498db;">B隊（3、4家）：⭐ ' + teams.B.score + ' 顆星</div>';
+            }
+            if (activeTeamCount >= 3) {
+                html += '<div style="background:rgba(241,196,15,0.25); padding:15px; border-radius:14px; border:2px solid #f1c40f;">C隊（5、6家）：⭐ ' + teams.C.score + ' 顆星</div>';
+            }
+            board.innerHTML = html;
             document.getElementById("victory-modal").style.display = "flex";
         }
 
@@ -2133,16 +3105,43 @@
             teams.A.targetHits = 0;
             teams.B.targetHits = 0;
             teams.C.targetHits = 0;
-            document.getElementById("score-A").textContent = "0";
-            document.getElementById("score-B").textContent = "0";
-            document.getElementById("score-C").textContent = "0";
-            updateTeamProgressUI();
+            updateAllScoreDisplays();
+            updateMeteorProgressUI();
             closeVictoryModal();
         }
 
-        /* =========================================================
-           10. 老師後台設定：課別範圍勾選與自訂注音編輯器
-           ========================================================= */
+        function generateRubyDataForWord(text) {
+            let result = [];
+            for (let i = 0; i < text.length; i++) {
+                const ch = text.charAt(i);
+                if (!ch.trim()) continue;
+                let bpmf = "";
+                try {
+                    if (window.pinyinPro) {
+                        let pyArr = window.pinyinPro.pinyin(ch, { type: "array", toneType: "num" });
+                        if (pyArr && pyArr.length > 0) {
+                            let m = pyArr[0].toLowerCase().match(/([a-zü]+)(\d)?/);
+                            if (m) {
+                                let pyKey = m[1].replace("ü", "v");
+                                let toneNum = m[2] || "1";
+                                bpmf = py2bpmf[pyKey] || "";
+                                if (bpmf) {
+                                    if (toneNum === "2") bpmf += "ˊ";
+                                    else if (toneNum === "3") bpmf += "ˇ";
+                                    else if (toneNum === "4") bpmf += "ˋ";
+                                    else if (toneNum === "0") bpmf = "˙" + bpmf;
+                                }
+                            }
+                        }
+                    }
+                } catch (e) {
+                    bpmf = ch;
+                }
+                result.push({ char: ch, bpmf: bpmf || ch });
+            }
+            return result;
+        }
+
         function openSettingsScreen() {
             renderLessonCheckboxes();
             renderFilterTabs();
