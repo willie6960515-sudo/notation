@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>一年級注音雙遊戲爭霸戰（流星雨 ＆ 魔法鍋）</title>
+    <title>一年級注音三合一爭霸戰（流星雨 ＆ 魔法鍋 ＆ 精靈聽力戰）</title>
     <!-- 載入中文轉拼音工具，供老師新增自訂語詞時自動產生注音 -->
     <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.24.2/dist/index.js"></script>
     <style>
@@ -48,6 +48,7 @@
             position: absolute;
             top: 0;
             left: 0;
+            overflow: hidden;
         }
         .screen.active {
             display: flex;
@@ -142,22 +143,34 @@
             line-height: 1;
         }
 
+        /* 精靈聽力戰專用：尚未解鎖聲調時的閃爍問號標記 */
+        .bopo-wrapper .tone-mystery {
+            position: absolute;
+            right: -0.78em;
+            bottom: -0.05em;
+            font-size: 0.9em;
+            font-weight: 900;
+            color: #f1c40f;
+            animation: pulseMystery 1.1s infinite;
+        }
+
         #home-screen {
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            padding: 18px 30px;
+            justify-content: space-between;
+            padding: 16px 28px;
             background: radial-gradient(circle at center, #1c2541 0%, #0b132b 100%);
-            overflow-y: auto;
-            gap: 14px;
+            overflow: hidden;
+            height: 100vh;
         }
 
         .title-banner {
             text-align: center;
+            flex-shrink: 0;
         }
 
         .title-banner h1 {
-            font-size: clamp(1.9rem, 3.2vw, 2.8rem);
+            font-size: clamp(1.8rem, 3vw, 2.6rem);
             margin: 0;
             color: #f1c40f;
             text-shadow: 0 4px 15px rgba(241, 196, 15, 0.4);
@@ -174,9 +187,10 @@
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 10px;
             width: 100%;
-            max-width: 1320px;
+            max-width: 1360px;
+            flex-shrink: 0;
         }
 
         .config-group {
@@ -192,7 +206,7 @@
             border: 2px solid #5dade2;
             padding: 8px 16px;
             border-radius: 12px;
-            font-size: 1.1rem;
+            font-size: 1.08rem;
             font-weight: 900;
             cursor: pointer;
             transition: 0.15s;
@@ -206,26 +220,146 @@
             box-shadow: 0 0 12px rgba(241, 196, 15, 0.6);
         }
 
-        /* 雙遊戲大區塊容器 */
-        .games-showcase-wrapper {
+        /* 首頁主舞台：第一層「三大遊戲入口」與第二層「各遊戲難度選擇」零捲動切換 */
+        .home-stage-container {
+            flex-grow: 1;
+            width: 100%;
+            max-width: 1360px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .lobby-view {
+            display: none;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lobby-view.active {
+            display: flex;
+            animation: popIn 0.22s ease-out;
+        }
+
+        /* 第一層：三大遊戲巨型入口卡片 */
+        .three-games-portal {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            width: 100%;
+            height: 92%;
+            max-height: 470px;
+        }
+
+        .portal-card {
+            border-radius: 26px;
+            padding: 24px 22px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+        }
+
+        .portal-card:hover, .portal-card:active {
+            transform: translateY(-6px);
+            border-color: #f1c40f !important;
+            box-shadow: 0 16px 35px rgba(241, 196, 15, 0.35);
+        }
+
+        .portal-meteor {
+            background: linear-gradient(145deg, #1f3a60, #11223d);
+            border: 4px solid #3498db;
+        }
+
+        .portal-pot {
+            background: linear-gradient(145deg, #3b2063, #1e1336);
+            border: 4px solid #9b59b6;
+        }
+
+        .portal-elf {
+            background: linear-gradient(145deg, #145a43, #0b3326);
+            border: 4px solid #2ecc71;
+        }
+
+        .portal-icon-badge {
+            font-size: 3.4rem;
+            line-height: 1;
+            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4));
+        }
+
+        .portal-title {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #ffffff;
+            margin: 6px 0 4px 0;
+        }
+
+        .portal-subtitle {
+            font-size: 1.15rem;
+            color: #f1c40f;
+            font-weight: 900;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 4px 16px;
+            border-radius: 20px;
+        }
+
+        .portal-desc {
+            font-size: 1.08rem;
+            color: #d6eaf8;
+            line-height: 1.45;
+            max-width: 92%;
+        }
+
+        .portal-preview-box {
+            font-size: 1.55rem;
+            margin: 6px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .portal-enter-btn {
             width: 100%;
-            max-width: 1320px;
+            padding: 12px;
+            border-radius: 16px;
+            background: rgba(241, 196, 15, 0.92);
+            color: #0b132b;
+            font-size: 1.35rem;
+            font-weight: 900;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
         .game-section-box {
-            background: rgba(28, 37, 65, 0.75);
-            border: 3px solid #3a506b;
-            border-radius: 22px;
-            padding: 16px 22px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+            background: rgba(28, 37, 65, 0.88);
+            border: 4px solid #3a506b;
+            border-radius: 26px;
+            padding: 24px 28px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+            width: 100%;
+            height: 92%;
+            max-height: 460px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .game-section-box.pot-theme {
-            border-color: #8e44ad;
-            background: linear-gradient(145deg, rgba(44, 26, 77, 0.8), rgba(22, 32, 58, 0.85));
+            border-color: #9b59b6;
+            background: linear-gradient(145deg, rgba(59, 32, 99, 0.9), rgba(22, 32, 58, 0.92));
+        }
+
+        .game-section-box.elf-theme {
+            border-color: #2ecc71;
+            background: linear-gradient(145deg, rgba(20, 90, 67, 0.9), rgba(15, 38, 48, 0.92));
         }
 
         .section-header-row {
@@ -233,71 +367,99 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 12px;
-            border-bottom: 2px dashed rgba(255, 255, 255, 0.2);
-            padding-bottom: 8px;
+            gap: 12px;
+            border-bottom: 2px dashed rgba(255, 255, 255, 0.25);
+            padding-bottom: 14px;
         }
 
         .section-title {
-            font-size: 1.55rem;
+            font-size: 1.85rem;
             font-weight: 900;
             color: #f1c40f;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+        }
+
+        .back-lobby-btn {
+            background: #e67e22;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            padding: 10px 20px;
+            border-radius: 14px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            cursor: pointer;
+            font-family: 'Noto Sans TC', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-lobby-btn:active {
+            transform: scale(0.95);
         }
 
         .difficulty-grid-4 {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
+            gap: 18px;
+            flex-grow: 1;
+            align-items: stretch;
+            margin-top: 16px;
         }
 
         .difficulty-grid-3 {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 18px;
+            gap: 22px;
+            flex-grow: 1;
+            align-items: stretch;
+            margin-top: 16px;
         }
 
         .diff-card {
             background: linear-gradient(145deg, #24345a, #16203a);
-            border: 3px solid #4a6984;
-            border-radius: 18px;
-            padding: 14px 16px;
+            border: 3px solid #5dade2;
+            border-radius: 22px;
+            padding: 20px 22px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             cursor: pointer;
             transition: transform 0.18s, border-color 0.18s;
-            min-height: 135px;
-            gap: 12px;
+            gap: 14px;
         }
 
         .pot-theme .diff-card {
             background: linear-gradient(145deg, #3b2063, #1f1638);
-            border-color: #9b59b6;
+            border-color: #bb8fce;
+        }
+
+        .elf-theme .diff-card {
+            background: linear-gradient(145deg, #17694f, #0e382b);
+            border-color: #58d68d;
         }
 
         .diff-card:hover, .diff-card:active {
-            transform: translateY(-4px);
+            transform: translateY(-5px);
             border-color: #f1c40f;
-            box-shadow: 0 10px 22px rgba(241, 196, 15, 0.28);
+            box-shadow: 0 12px 24px rgba(241, 196, 15, 0.32);
         }
 
         .diff-info-col {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            gap: 6px;
+            gap: 10px;
         }
 
         .diff-badge {
             background: #f39c12;
             color: #0b132b;
-            font-size: 0.95rem;
+            font-size: 1.05rem;
             font-weight: 900;
-            padding: 3px 12px;
+            padding: 4px 14px;
             border-radius: 14px;
         }
 
@@ -306,20 +468,25 @@
             color: #ffffff;
         }
 
+        .elf-theme .diff-badge {
+            background: #2ecc71;
+            color: #0b132b;
+        }
+
         .diff-title {
-            font-size: 1.5rem;
+            font-size: 1.75rem;
             font-weight: 900;
             color: #ffffff;
         }
 
         .diff-desc {
-            font-size: 0.98rem;
-            color: #bdc3c7;
-            line-height: 1.35;
+            font-size: 1.08rem;
+            color: #d6eaf8;
+            line-height: 1.45;
         }
 
         .diff-preview {
-            font-size: 1.45rem;
+            font-size: 1.75rem;
             flex-shrink: 0;
         }
 
@@ -328,13 +495,13 @@
             gap: 16px;
             flex-wrap: wrap;
             justify-content: center;
-            margin-top: 4px;
+            flex-shrink: 0;
         }
 
         .big-btn {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 900;
-            padding: 12px 24px;
+            padding: 10px 24px;
             border-radius: 14px;
             border: none;
             cursor: pointer;
@@ -349,7 +516,7 @@
             transform: scale(0.96);
         }
 
-        #game-screen, #pot-screen {
+        #game-screen, #pot-screen, #elf-screen {
             flex-direction: column;
             background: var(--space-bg);
         }
@@ -794,6 +961,168 @@
             transform: scale(0.96);
         }
 
+        .elf-lane-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 12px 14px 14px 14px;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* 上方：各組獨立的精靈音箱與語詞聲調解鎖框 */
+        .elf-Lock-stage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at center, rgba(46, 204, 113, 0.25), rgba(11, 19, 43, 0.82));
+            border: 3px solid rgba(88, 214, 141, 0.65);
+            border-radius: 22px;
+            padding: 12px;
+            min-height: 40%;
+            box-shadow: inset 0 0 25px rgba(46, 204, 113, 0.25);
+            gap: 10px;
+        }
+
+        .elf-stage-hint {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: #a9dfbf;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 4px 14px;
+            border-radius: 12px;
+        }
+
+        .elf-word-boxes-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .elf-char-slot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 14px;
+            border-radius: 18px;
+            border: 3px dashed rgba(255, 255, 255, 0.25);
+            background: rgba(11, 19, 43, 0.6);
+            font-size: 2.1rem;
+            transition: 0.2s;
+        }
+
+        .elf-char-slot.active-slot {
+            border: 4px solid #f1c40f;
+            background: rgba(241, 196, 15, 0.14);
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.4);
+            transform: scale(1.06);
+        }
+
+        .elf-char-slot.done-slot {
+            border: 4px solid #2ecc71;
+            background: rgba(46, 204, 113, 0.22);
+        }
+
+        .elf-slot-label {
+            font-size: 0.9rem;
+            font-weight: 900;
+            color: #f1c40f;
+        }
+
+        .elf-char-slot.done-slot .elf-slot-label {
+            color: #2ecc71;
+        }
+
+        /* 下方：精靈傳送門操作台（五扇聲調傳送門 ＆ 順風耳四選一巨型注音卡） */
+        .elf-Controls-shelf {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: rgba(11, 19, 43, 0.92);
+            border: 3px solid #2ecc71;
+            border-radius: 22px;
+            padding: 14px;
+            margin-top: auto;
+        }
+
+        .elf-doors-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+        }
+
+        .elf-door-btn {
+            height: 62px;
+            border-radius: 16px;
+            border: 3px solid #58d68d;
+            background: linear-gradient(90deg, #1e3c40, #142834);
+            color: #ffffff;
+            font-size: 1.45rem;
+            font-weight: 900;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            font-family: 'Noto Sans TC', sans-serif;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+            transition: transform 0.1s, background 0.15s;
+        }
+
+        .elf-door-btn:active {
+            transform: scale(0.96);
+            background: #2ecc71;
+            color: #0b132b;
+        }
+
+        .door-tone-symbol {
+            font-size: 1.85rem;
+            color: #f1c40f;
+            min-width: 48px;
+            text-align: center;
+            font-weight: 900;
+        }
+
+        .door-mnemonic-tag {
+            background: rgba(241, 196, 15, 0.2);
+            border: 2px solid #f1c40f;
+            color: #f1c40f;
+            padding: 3px 12px;
+            border-radius: 12px;
+            font-size: 1.15rem;
+        }
+
+        /* 第三關：順風耳四選一巨型直式注音卡網格 */
+        .elf-4cards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .elf-card-choice {
+            min-height: 155px;
+            border-radius: 20px;
+            border: 4px solid #5dade2;
+            background: linear-gradient(145deg, #1f3a60, #11223d);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.95rem;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.45);
+            transition: transform 0.12s, border-color 0.12s;
+        }
+
+        .elf-card-choice:active {
+            transform: scale(0.95);
+            border-color: #f1c40f;
+        }
+
         .freeze-overlay {
             position: absolute;
             top: 0;
@@ -1157,13 +1486,13 @@
 
     <div id="home-screen" class="screen active">
         <div class="title-banner">
-            <h1>🌟 一年級注音雙遊戲爭霸戰 🌟</h1>
+            <h1>🌟 一年級注音三合一爭霸戰 🌟</h1>
         </div>
 
         <!-- 全域挑戰人數、換位倒數與課別設定列 -->
         <div class="global-config-bar">
             <div class="config-group">
-                <span style="font-weight:900; color:#f1c40f; font-size:1.15rem;">👥 挑戰人數：</span>
+                <span style="font-weight:900; color:#f1c40f; font-size:1.1rem;">👥 挑戰人數：</span>
                 <button class="mode-pill-btn" id="team-cnt-1" onclick="setTeamCount(1)">👤 單人挑戰</button>
                 <button class="mode-pill-btn" id="team-cnt-2" onclick="setTeamCount(2)">👥 雙隊對抗</button>
                 <button class="mode-pill-btn active" id="team-cnt-3" onclick="setTeamCount(3)">👨‍👩‍👧 三隊爭霸</button>
@@ -1171,87 +1500,177 @@
 
             <div class="config-group">
                 <button class="mode-pill-btn active" id="swap-countdown-btn" onclick="toggleSwapMode()">⏱️ 換位五秒倒數：開啟</button>
-                <span id="home-scope-text" style="font-weight:700; color:#5dade2; font-size:1.1rem;">📚 範圍：第一課至第九課</span>
+                <span id="home-scope-text" style="font-weight:700; color:#5dade2; font-size:1.05rem;">📚 範圍：第一課至第九課</span>
                 <button class="small-btn" style="background:#8e44ad; color:white; font-size:1.05rem; padding:8px 14px;" onclick="openSettingsScreen()">⚙️ 課別與語詞題庫</button>
             </div>
         </div>
 
-        <div class="games-showcase-wrapper">
-            <!-- 遊戲一：流星雨保衛戰 -->
-            <div class="game-section-box">
-                <div class="section-header-row">
-                    <div class="section-title">🌠 遊戲一：注音流星雨保衛戰（聽音辨字 ‧ 競速拍擊）</div>
-                    <button class="mode-pill-btn" id="speed-toggle-btn" onclick="cycleSpeed()">🐢 隕石速度：慢速</button>
-                </div>
-                <div class="difficulty-grid-4">
-                    <div class="diff-card" onclick="startMeteorGame(1)">
-                        <div class="diff-info-col">
-                            <span class="diff-badge">第一關</span>
-                            <div class="diff-title">單一注音</div>
-                            <div class="diff-desc">聽單音拍擊聲母或韻母</div>
+        <!-- 零捲動主舞台：第一層「三大遊戲選擇大廳」與第二層「各遊戲關卡選擇」 -->
+        <div class="home-stage-container">
+
+            <!-- 大廳主視圖：三大遊戲入口卡片 -->
+            <div class="lobby-view active" id="lobby-main">
+                <div class="three-games-portal">
+                    <!-- 遊戲一入口 -->
+                    <div class="portal-card portal-meteor" onclick="openGameSubmenu('meteor')">
+                        <div class="portal-icon-badge">🌠</div>
+                        <div>
+                            <div class="portal-subtitle">第一部曲 ‧ 視覺快篩</div>
+                            <div class="portal-title">注音流星雨保衛戰</div>
                         </div>
-                        <div class="diff-preview" id="preview-m1"></div>
+                        <div class="portal-preview-box" id="portal-prev-meteor"></div>
+                        <div class="portal-desc">聽讀音拍擊掉落的注音隕石！第一組答對後解鎖注音提示，找滿三個自動換題。</div>
+                        <div class="portal-enter-btn">進入選擇關卡 ▶</div>
                     </div>
-                    <div class="diff-card" onclick="startMeteorGame(2)">
-                        <div class="diff-info-col">
-                            <span class="diff-badge">第二關</span>
-                            <div class="diff-title">雙拼練習</div>
-                            <div class="diff-desc">聲母加韻母與聲調組合</div>
+
+                    <!-- 遊戲二入口 -->
+                    <div class="portal-card portal-pot" onclick="openGameSubmenu('pot')">
+                        <div class="portal-icon-badge">🧪</div>
+                        <div>
+                            <div class="portal-subtitle">第二部曲 ‧ 拼音拆解</div>
+                            <div class="portal-title">魔法鍋接力賽</div>
                         </div>
-                        <div class="diff-preview" id="preview-m2"></div>
+                        <div class="portal-preview-box" id="portal-prev-pot"></div>
+                        <div class="portal-desc">在下方材料架挑選聲母、韻母與聲調（一聲免點聲調直接送出），挑戰相似音辨析！</div>
+                        <div class="portal-enter-btn">進入選擇關卡 ▶</div>
                     </div>
-                    <div class="diff-card" onclick="startMeteorGame(3)">
-                        <div class="diff-info-col">
-                            <span class="diff-badge">第三關</span>
-                            <div class="diff-title">三拼與聲調</div>
-                            <div class="diff-desc">聲＋介＋韻＋聲調挑戰</div>
+
+                    <!-- 遊戲三入口 -->
+                    <div class="portal-card portal-elf" onclick="openGameSubmenu('elf')">
+                        <div class="portal-icon-badge">🧝</div>
+                        <div>
+                            <div class="portal-subtitle">第三部曲 ‧ 聲調與聽力</div>
+                            <div class="portal-title">精靈聽力戰</div>
                         </div>
-                        <div class="diff-preview" id="preview-m3"></div>
-                    </div>
-                    <div class="diff-card" onclick="startMeteorGame(4)">
-                        <div class="diff-info-col">
-                            <span class="diff-badge">第四關</span>
-                            <div class="diff-title">首冊語詞</div>
-                            <div class="diff-desc">南一首冊一至九課語詞</div>
-                        </div>
-                        <div class="diff-preview" id="preview-m4"></div>
+                        <div class="portal-preview-box" id="portal-prev-elf"></div>
+                        <div class="portal-desc">專攻五聲調口訣（阿兵哥～石頭王）、各組獨立語詞聲調鎖與順風耳四選一挑戰！</div>
+                        <div class="portal-enter-btn">進入選擇關卡 ▶</div>
                     </div>
                 </div>
             </div>
 
-            <!-- 遊戲二：魔法鍋接力賽 -->
-            <div class="game-section-box pot-theme">
-                <div class="section-header-row">
-                    <div class="section-title">🧪 遊戲二：魔法鍋接力賽（下方材料架 ‧ 相似音辨析拆解）</div>
-                    <button class="mode-pill-btn" id="shelf-size-btn" onclick="cycleShelfSize()">🧪 魔法材料數：9 個注音</button>
-                </div>
-                <div class="difficulty-grid-3">
-                    <div class="diff-card" onclick="startPotGame(1)">
-                        <div class="diff-info-col">
-                            <span class="diff-badge">雙拼鍋</span>
-                            <div class="diff-title">雙拼魔法鍋</div>
-                            <div class="diff-desc">聽「魔法的魔，請拼音」，從下方挑選聲韻與聲調送出（一聲免點聲調）</div>
+            <!-- 遊戲一子選單：注音流星雨保衛戰 -->
+            <div class="lobby-view" id="lobby-meteor">
+                <div class="game-section-box">
+                    <div class="section-header-row">
+                        <div class="section-title">🌠 遊戲一：注音流星雨保衛戰（請選擇挑戰關卡）</div>
+                        <div style="display:flex; gap:12px; align-items:center;">
+                            <button class="mode-pill-btn" id="speed-toggle-btn" onclick="cycleSpeed()">🐢 隕石速度：慢速</button>
+                            <button class="back-lobby-btn" onclick="openGameSubmenu('main')">⬅ 返回三大遊戲大廳</button>
                         </div>
-                        <div class="diff-preview" id="preview-p1"></div>
                     </div>
-                    <div class="diff-card" onclick="startPotGame(2)">
-                        <div class="diff-info-col">
-                            <span class="diff-badge">三拼鍋</span>
-                            <div class="diff-title">三拼魔法鍋</div>
-                            <div class="diff-desc">聽「漂亮的漂，請拼音」，挑戰聲母＋介音＋韻母與聲調完整拆解</div>
+                    <div class="difficulty-grid-4">
+                        <div class="diff-card" onclick="startMeteorGame(1)">
+                            <div class="diff-info-col">
+                                <span class="diff-badge">第一關</span>
+                                <div class="diff-title">單一注音</div>
+                                <div class="diff-desc">聽單音拍擊聲母或韻母</div>
+                            </div>
+                            <div class="diff-preview" id="preview-m1"></div>
                         </div>
-                        <div class="diff-preview" id="preview-p2"></div>
-                    </div>
-                    <div class="diff-card" onclick="startPotGame(3)">
-                        <div class="diff-info-col">
-                            <span class="diff-badge">語詞鍋</span>
-                            <div class="diff-title">語詞接力鍋</div>
-                            <div class="diff-desc">聽「魔術，請拼音」，逐字完成拼音並點送出，全對即可獲得星星</div>
+                        <div class="diff-card" onclick="startMeteorGame(2)">
+                            <div class="diff-info-col">
+                                <span class="diff-badge">第二關</span>
+                                <div class="diff-title">雙拼練習</div>
+                                <div class="diff-desc">聲母加韻母與聲調組合</div>
+                            </div>
+                            <div class="diff-preview" id="preview-m2"></div>
                         </div>
-                        <div class="diff-preview" id="preview-p3"></div>
+                        <div class="diff-card" onclick="startMeteorGame(3)">
+                            <div class="diff-info-col">
+                                <span class="diff-badge">第三關</span>
+                                <div class="diff-title">三拼與聲調</div>
+                                <div class="diff-desc">聲＋介＋韻＋聲調挑戰</div>
+                            </div>
+                            <div class="diff-preview" id="preview-m3"></div>
+                        </div>
+                        <div class="diff-card" onclick="startMeteorGame(4)">
+                            <div class="diff-info-col">
+                                <span class="diff-badge">第四關</span>
+                                <div class="diff-title">首冊語詞</div>
+                                <div class="diff-desc">南一首冊一至九課語詞</div>
+                            </div>
+                            <div class="diff-preview" id="preview-m4"></div>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <!-- 遊戲二子選單：魔法鍋接力賽 -->
+            <div class="lobby-view" id="lobby-pot">
+                <div class="game-section-box pot-theme">
+                    <div class="section-header-row">
+                        <div class="section-title">🧪 遊戲二：魔法鍋接力賽（請選擇挑戰關卡）</div>
+                        <div style="display:flex; gap:12px; align-items:center;">
+                            <button class="mode-pill-btn" id="shelf-size-btn" onclick="cycleShelfSize()">🧪 魔法材料數：9 個注音</button>
+                            <button class="back-lobby-btn" onclick="openGameSubmenu('main')">⬅ 返回三大遊戲大廳</button>
+                        </div>
+                    </div>
+                    <div class="difficulty-grid-3">
+                        <div class="diff-card" onclick="startPotGame(1)">
+                            <div class="diff-info-col">
+                                <span class="diff-badge">雙拼鍋</span>
+                                <div class="diff-title">雙拼魔法鍋</div>
+                                <div class="diff-desc">聽「魔法的魔，請拼音」，從下方挑選聲韻與聲調送出（一聲免點聲調）</div>
+                            </div>
+                            <div class="diff-preview" id="preview-p1"></div>
+                        </div>
+                        <div class="diff-card" onclick="startPotGame(2)">
+                            <div class="diff-info-col">
+                                <span class="diff-badge">三拼鍋</span>
+                                <div class="diff-title">三拼魔法鍋</div>
+                                <div class="diff-desc">聽「漂亮的漂，請拼音」，挑戰聲母＋介音＋韻母與聲調完整拆解</div>
+                            </div>
+                            <div class="diff-preview" id="preview-p2"></div>
+                        </div>
+                        <div class="diff-card" onclick="startPotGame(3)">
+                            <div class="diff-info-col">
+                                <span class="diff-badge">語詞鍋</span>
+                                <div class="diff-title">語詞接力鍋</div>
+                                <div class="diff-desc">聽「魔術，請拼音」，逐字完成拼音並點送出，全對即可獲得星星</div>
+                            </div>
+                            <div class="diff-preview" id="preview-p3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 遊戲三子選單：精靈聽力戰 -->
+            <div class="lobby-view" id="lobby-elf">
+                <div class="game-section-box elf-theme">
+                    <div class="section-header-row">
+                        <div class="section-title">🧝 遊戲三：精靈聽力戰（聲調口訣與順風耳大考驗）</div>
+                        <button class="back-lobby-btn" onclick="openGameSubmenu('main')">⬅ 返回三大遊戲大廳</button>
+                    </div>
+                    <div class="difficulty-grid-3">
+                        <div class="diff-card" onclick="startElfGame(1)">
+                            <div class="diff-info-col">
+                                <span class="diff-badge">第一關</span>
+                                <div class="diff-title">單字聲調門</div>
+                                <div class="diff-desc">聽「木馬的馬，是幾聲馬？」，從下方五扇聲調門（阿兵哥～石頭王）拍擊解答</div>
+                            </div>
+                            <div class="diff-preview" id="preview-e1"></div>
+                        </div>
+                        <div class="diff-card" onclick="startElfGame(2)">
+                            <div class="diff-info-col">
+                                <span class="diff-badge">第二關</span>
+                                <div class="diff-title">語詞聲調鎖</div>
+                                <div class="diff-desc">聽「太陽，請選聲調」，各隊在自己專屬的注音框依序解鎖每個字的聲調</div>
+                            </div>
+                            <div class="diff-preview" id="preview-e2"></div>
+                        </div>
+                        <div class="diff-card" onclick="startElfGame(3)">
+                            <div class="diff-info-col">
+                                <span class="diff-badge">第三關</span>
+                                <div class="diff-title">順風耳四選一</div>
+                                <div class="diff-desc">聽「石頭的石，請找注音」，從下方 4 張極相似的直式注音卡中拍出正確答案</div>
+                            </div>
+                            <div class="diff-preview" id="preview-e3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <div class="home-footer">
@@ -1480,6 +1899,121 @@
                 <div class="freeze-overlay" id="pot-freeze-C">
                     <div>💨 魔法鍋冒黑煙囉！</div>
                     <div style="font-size:1.3rem; margin-top:8px; color:#ecf0f1;">拼音或聲調不對，請再聽一次</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="elf-screen" class="screen">
+        <div class="game-top-bar">
+            <div class="top-left-controls">
+                <button class="ctrl-btn" onclick="stopGameAndReturn()">🏠 返回選單</button>
+                <button class="ctrl-btn" id="elf-family-btn" onclick="toggleFamilyRound()">🚩 上場：1、3、5家</button>
+            </div>
+
+            <div class="target-command-box" onclick="speakCurrentTargetOnce()">
+                <div class="speaker-icon">🔊</div>
+                <div class="target-label-group">
+                    <span class="target-hint-title" id="elf-mode-label">精靈聽力戰：</span>
+                    <span class="target-sub-hint" id="elf-sub-hint">（自動朗讀 3 次 ‧ 點擊大喇叭可重聽題目）</span>
+                </div>
+                <div id="elf-target-display"></div>
+            </div>
+
+            <div class="top-right-controls">
+                <button class="ctrl-btn" style="background:#d35400;" onclick="manualNextQuestion()">⏭️ 換下一題</button>
+                <button class="ctrl-btn" style="background:#27ae60;" onclick="showVictoryModal()">🏆 結算成績</button>
+            </div>
+        </div>
+
+        <div class="battlefield lanes-3" id="elf-battlefield">
+            <!-- A隊精靈門 -->
+            <div class="team-lane lane-a" id="elf-lane-A">
+                <div class="lane-header">
+                    <div class="team-name-badge">
+                        <span>A隊</span>
+                        <span class="family-tag family-label-A">第 1 家上場</span>
+                    </div>
+                    <div class="team-score-box">
+                        <span>⭐</span>
+                        <span class="score-val-A">0</span>
+                    </div>
+                </div>
+                <div class="elf-lane-body">
+                    <div class="elf-Lock-stage">
+                        <div class="elf-stage-hint" id="elf-stage-hint-A">👂 請仔細聽音解鎖</div>
+                        <div class="elf-word-boxes-row" id="elf-boxes-A"></div>
+                    </div>
+                    <div class="elf-Controls-shelf">
+                        <div class="shelf-label-bar">
+                            <span id="elf-shelf-title-A">🚪 請點選下方正確的聲調傳送門：</span>
+                        </div>
+                        <div id="elf-buttons-A"></div>
+                    </div>
+                </div>
+                <div class="freeze-overlay" id="elf-freeze-A">
+                    <div>☁️ 耳朵再聽清楚喔！</div>
+                    <div style="font-size:1.3rem; margin-top:8px; color:#ecf0f1;">聲調或讀音不對，請再試一次</div>
+                </div>
+            </div>
+
+            <!-- B隊精靈門 -->
+            <div class="team-lane lane-b" id="elf-lane-B">
+                <div class="lane-header">
+                    <div class="team-name-badge">
+                        <span>B隊</span>
+                        <span class="family-tag family-label-B">第 3 家上場</span>
+                    </div>
+                    <div class="team-score-box">
+                        <span>⭐</span>
+                        <span class="score-val-B">0</span>
+                    </div>
+                </div>
+                <div class="elf-lane-body">
+                    <div class="elf-Lock-stage">
+                        <div class="elf-stage-hint" id="elf-stage-hint-B">👂 請仔細聽音解鎖</div>
+                        <div class="elf-word-boxes-row" id="elf-boxes-B"></div>
+                    </div>
+                    <div class="elf-Controls-shelf">
+                        <div class="shelf-label-bar">
+                            <span id="elf-shelf-title-B">🚪 請點選下方正確的聲調傳送門：</span>
+                        </div>
+                        <div id="elf-buttons-B"></div>
+                    </div>
+                </div>
+                <div class="freeze-overlay" id="elf-freeze-B">
+                    <div>☁️ 耳朵再聽清楚喔！</div>
+                    <div style="font-size:1.3rem; margin-top:8px; color:#ecf0f1;">聲調或讀音不對，請再試一次</div>
+                </div>
+            </div>
+
+            <!-- C隊精靈門 -->
+            <div class="team-lane lane-c" id="elf-lane-C">
+                <div class="lane-header">
+                    <div class="team-name-badge">
+                        <span>C隊</span>
+                        <span class="family-tag family-label-C">第 5 家上場</span>
+                    </div>
+                    <div class="team-score-box">
+                        <span>⭐</span>
+                        <span class="score-val-C">0</span>
+                    </div>
+                </div>
+                <div class="elf-lane-body">
+                    <div class="elf-Lock-stage">
+                        <div class="elf-stage-hint" id="elf-stage-hint-C">👂 請仔細聽音解鎖</div>
+                        <div class="elf-word-boxes-row" id="elf-boxes-C"></div>
+                    </div>
+                    <div class="elf-Controls-shelf">
+                        <div class="shelf-label-bar">
+                            <span id="elf-shelf-title-C">🚪 請點選下方正確的聲調傳送門：</span>
+                        </div>
+                        <div id="elf-buttons-C"></div>
+                    </div>
+                </div>
+                <div class="freeze-overlay" id="elf-freeze-C">
+                    <div>☁️ 耳朵再聽清楚喔！</div>
+                    <div style="font-size:1.3rem; margin-top:8px; color:#ecf0f1;">聲調或讀音不對，請再試一次</div>
                 </div>
             </div>
         </div>
@@ -2046,17 +2580,29 @@
         const teams = {
             A: {
                 score: 0, targetHits: 0, frozen: false, meteors: [], lastSpawn: 0, sinceLastTarget: 0,
-                potCharIdx: 0, selectedBpmf: [], selectedTone: "", shelfOptions: []
+                potCharIdx: 0, selectedBpmf: [], selectedTone: "", shelfOptions: [],
+                elfCharIdx: 0, elfChoices: []
             },
             B: {
                 score: 0, targetHits: 0, frozen: false, meteors: [], lastSpawn: 0, sinceLastTarget: 0,
-                potCharIdx: 0, selectedBpmf: [], selectedTone: "", shelfOptions: []
+                potCharIdx: 0, selectedBpmf: [], selectedTone: "", shelfOptions: [],
+                elfCharIdx: 0, elfChoices: []
             },
             C: {
                 score: 0, targetHits: 0, frozen: false, meteors: [], lastSpawn: 0, sinceLastTarget: 0,
-                potCharIdx: 0, selectedBpmf: [], selectedTone: "", shelfOptions: []
+                potCharIdx: 0, selectedBpmf: [], selectedTone: "", shelfOptions: [],
+                elfCharIdx: 0, elfChoices: []
             }
         };
+
+        /* 五扇聲調傳送門固定口訣設定 */
+        const ELF_TONE_DOORS = [
+            { tone: "", markDisplay: "ˉ", title: "一聲", mnemonic: "阿兵哥" },
+            { tone: "ˊ", markDisplay: "ˊ", title: "二聲", mnemonic: "新超人" },
+            { tone: "ˇ", markDisplay: "ˇ", title: "三聲", mnemonic: "大力士" },
+            { tone: "ˋ", markDisplay: "ˋ", title: "四聲", mnemonic: "小飛俠" },
+            { tone: "˙", markDisplay: "˙", title: "輕聲", mnemonic: "石頭王" }
+        ];
 
         let animFrameId = null;
         let audioCtx = null;
@@ -2119,6 +2665,22 @@
             return html;
         }
 
+        /* 精靈聽力戰專用：只顯示無聲調的直式注音，並在聲調處顯示閃爍「？」或「🔒」 */
+        function buildTonelessBpmfBoxHTML(bpmfStr, badgeSymbol) {
+            const parsed = parseBpmfComponents(bpmfStr);
+            let symSpans = "";
+            for (let i = 0; i < parsed.symbols.length; i++) {
+                symSpans += "<span>" + parsed.symbols[i] + "</span>";
+            }
+            let html = '<span class="moe-char-vert">';
+            html += '<span class="moe-rt">';
+            html += '<span class="bopo-wrapper">';
+            html += '<span class="sym">' + symSpans + '</span>';
+            html += '<span class="tone-mystery">' + (badgeSymbol || "？") + '</span>';
+            html += '</span></span></span>';
+            return html;
+        }
+
         function renderQuestionBpmfHTML(questionItem) {
             const isLong = questionItem.rubyData && questionItem.rubyData.length >= 3;
             let html = '<div class="bpmf-word-box' + (isLong ? ' long-word' : '') + '">';
@@ -2173,7 +2735,7 @@
             }
         }
 
-        /* 單次發音（根據目前是流星雨或魔法鍋唸出對應指令） */
+        /* 單次發音（根據目前是流星雨、魔法鍋或精靈聽力戰唸出對應指令） */
         function speakPromptUnit() {
             if (!currentTarget || !("speechSynthesis" in window)) return;
             window.speechSynthesis.cancel();
@@ -2184,8 +2746,8 @@
                 window.speechSynthesis.speak(intro);
                 window.speechSynthesis.speak(t1);
             } else {
-                // 魔法鍋接力賽語音指令（雙拼與三拼唸「○○的○，請拼音」；語詞鍋唸「○○，請拼音」）
-                const promptUtter = createUtterance(currentTarget.promptSpeech, 0.76, 1.05);
+                // 魔法鍋接力賽 與 精靈聽力戰 皆使用 currentTarget.promptSpeech
+                const promptUtter = createUtterance(currentTarget.promptSpeech, 0.75, 1.05);
                 window.speechSynthesis.speak(promptUtter);
             }
         }
@@ -2311,8 +2873,10 @@
             if (activeGameType === "meteor") {
                 clearAllMeteors();
                 pickRandomMeteorTarget();
-            } else {
+            } else if (activeGameType === "pot") {
                 pickRandomPotTarget();
+            } else if (activeGameType === "elf") {
+                pickRandomElfTarget();
             }
         }
 
@@ -2323,6 +2887,16 @@
             updateHomeScopeSummary();
             applyTeamCountLayout();
         };
+
+        function openGameSubmenu(viewName) {
+            const views = ["main", "meteor", "pot", "elf"];
+            for (let i = 0; i < views.length; i++) {
+                const el = document.getElementById("lobby-" + views[i]);
+                if (el) {
+                    el.classList.toggle("active", views[i] === viewName);
+                }
+            }
+        }
 
         function loadSavedData() {
             try {
@@ -2356,6 +2930,24 @@
         }
 
         function renderHomePreviews() {
+            // 第一層三大遊戲入口圖示預覽
+            document.getElementById("portal-prev-meteor").innerHTML =
+                '<div style="display:flex; gap:8px;">' +
+                buildSingleBpmfBoxHTML("ㄊㄞˋ") +
+                buildSingleBpmfBoxHTML("ㄧㄤˊ") +
+                '</div>';
+            document.getElementById("portal-prev-pot").innerHTML =
+                '<div style="display:flex; gap:8px;">' +
+                buildSingleBpmfBoxHTML("ㄇㄛˊ") +
+                buildSingleBpmfBoxHTML("ㄕㄨˋ") +
+                '</div>';
+            document.getElementById("portal-prev-elf").innerHTML =
+                '<div style="display:flex; gap:8px;">' +
+                buildTonelessBpmfBoxHTML("ㄇㄚˇ", "？") +
+                buildSingleBpmfBoxHTML("ㄇㄚˇ") +
+                '</div>';
+
+            // 遊戲一預覽
             document.getElementById("preview-m1").innerHTML = buildSingleBpmfBoxHTML("ㄅ");
             document.getElementById("preview-m2").innerHTML = buildSingleBpmfBoxHTML("ㄇㄚˇ");
             document.getElementById("preview-m3").innerHTML = buildSingleBpmfBoxHTML("ㄆㄧㄠˋ");
@@ -2365,6 +2957,7 @@
                 buildSingleBpmfBoxHTML("ㄧㄤˊ") +
                 '</div>';
 
+            // 遊戲二預覽
             document.getElementById("preview-p1").innerHTML = buildSingleBpmfBoxHTML("ㄇㄛˊ");
             document.getElementById("preview-p2").innerHTML = buildSingleBpmfBoxHTML("ㄆㄧㄠˋ");
             document.getElementById("preview-p3").innerHTML =
@@ -2372,6 +2965,15 @@
                 buildSingleBpmfBoxHTML("ㄇㄛˊ") +
                 buildSingleBpmfBoxHTML("ㄕㄨˋ") +
                 '</div>';
+
+            // 遊戲三預覽
+            document.getElementById("preview-e1").innerHTML = buildTonelessBpmfBoxHTML("ㄇㄚˇ", "？");
+            document.getElementById("preview-e2").innerHTML =
+                '<div style="display:flex; gap:6px;">' +
+                buildSingleBpmfBoxHTML("ㄊㄞˋ") +
+                buildTonelessBpmfBoxHTML("ㄧㄤˊ", "？") +
+                '</div>';
+            document.getElementById("preview-e3").innerHTML = buildSingleBpmfBoxHTML("ㄕˊ");
         }
 
         function setTeamCount(cnt) {
@@ -2385,13 +2987,17 @@
         function applyTeamCountLayout() {
             const mField = document.getElementById("meteor-battlefield");
             const pField = document.getElementById("pot-battlefield");
+            const eField = document.getElementById("elf-battlefield");
             mField.className = "battlefield lanes-" + activeTeamCount;
             pField.className = "battlefield lanes-" + activeTeamCount;
+            eField.className = "battlefield lanes-" + activeTeamCount;
 
             document.getElementById("meteor-lane-B").style.display = (activeTeamCount >= 2) ? "flex" : "none";
             document.getElementById("meteor-lane-C").style.display = (activeTeamCount >= 3) ? "flex" : "none";
             document.getElementById("pot-lane-B").style.display = (activeTeamCount >= 2) ? "flex" : "none";
             document.getElementById("pot-lane-C").style.display = (activeTeamCount >= 3) ? "flex" : "none";
+            document.getElementById("elf-lane-B").style.display = (activeTeamCount >= 2) ? "flex" : "none";
+            document.getElementById("elf-lane-C").style.display = (activeTeamCount >= 3) ? "flex" : "none";
         }
 
         function toggleSwapMode() {
@@ -2445,6 +3051,7 @@
             const label = (familyRound === 1) ? "🚩 上場：1、3、5家" : "🚩 上場：2、4、6家";
             document.getElementById("meteor-family-btn").textContent = label;
             document.getElementById("pot-family-btn").textContent = label;
+            document.getElementById("elf-family-btn").textContent = label;
 
             const famA = (familyRound === 1) ? "第 1 家上場" : "第 2 家上場";
             const famB = (familyRound === 1) ? "第 3 家上場" : "第 4 家上場";
@@ -3039,6 +3646,321 @@
             }
         }
 
+        function buildElfQuestionPool(elfLevel) {
+            let pool = [];
+            for (let i = 0; i < vocabList.length; i++) {
+                const item = vocabList[i];
+                if (selectedLessons.indexOf(item.lesson) === -1) continue;
+
+                if (elfLevel === 1) {
+                    // 第一關：單字聲調門（語音：「木馬的馬，是幾聲馬？」）
+                    for (let c = 0; c < item.rubyData.length; c++) {
+                        // 若為疊字（如媽媽、爸爸、寶寶、星星），第一關只取第一個字或有明確輕聲變調的詞（如椅子、石頭）
+                        if (c > 0 && item.rubyData[c].char === item.rubyData[0].char) continue;
+                        const rObj = item.rubyData[c];
+                        pool.push({
+                            id: "elf1_" + item.rawText + "_" + c + "_" + rObj.bpmf,
+                            promptSpeech: item.rawText + "的" + rObj.char + "，是幾聲" + rObj.char + "？",
+                            speakText: item.rawText + "的" + rObj.char,
+                            displaySubText: "題目：「" + item.rawText + "」的「" + rObj.char + "」",
+                            rubyData: [{ char: rObj.char, bpmf: rObj.bpmf }]
+                        });
+                    }
+                } else if (elfLevel === 2) {
+                    // 第二關：語詞聲調鎖（各組在各自獨立框解鎖整詞聲調，語音：「太陽，請選聲調」）
+                    let idStr = "elf2_" + item.rawText + "_";
+                    for (let k = 0; k < item.rubyData.length; k++) {
+                        idStr += item.rubyData[k].bpmf + "_";
+                    }
+                    pool.push({
+                        id: idStr,
+                        promptSpeech: item.rawText + "，請選聲調",
+                        speakText: item.rawText,
+                        displaySubText: "語詞：「" + item.rawText + "」",
+                        rubyData: item.rubyData
+                    });
+                } else if (elfLevel === 3) {
+                    // 第三關：順風耳四選一（語音：「石頭的石，請找注音」）
+                    for (let c = 0; c < item.rubyData.length; c++) {
+                        if (c > 0 && item.rubyData[c].char === item.rubyData[0].char) continue;
+                        const rObj = item.rubyData[c];
+                        pool.push({
+                            id: "elf3_" + item.rawText + "_" + c + "_" + rObj.bpmf,
+                            promptSpeech: item.rawText + "的" + rObj.char + "，請找注音",
+                            speakText: item.rawText + "的" + rObj.char,
+                            displaySubText: "題目：「" + item.rawText + "」的「" + rObj.char + "」",
+                            rubyData: [{ char: rObj.char, bpmf: rObj.bpmf }]
+                        });
+                    }
+                }
+            }
+
+            if (pool.length === 0) {
+                selectedLessons = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+                saveLessonsToStorage();
+                return buildElfQuestionPool(elfLevel);
+            }
+            return pool;
+        }
+
+        /* 為精靈聽力戰第三關（順風耳四選一）自動生成 4 個高度相似的直式注音選項 */
+        function generateElfFourChoices(correctBpmf) {
+            const parsed = parseBpmfComponents(correctBpmf);
+            const choices = [correctBpmf];
+            const candidates = [];
+
+            // 1. 聲調混淆（尤其是二聲 ˊ 與三聲 ˇ、四聲 ˋ 互換）
+            const altTones = ["", "ˊ", "ˇ", "ˋ"].filter(function(t) { return t !== parsed.tone; });
+            for (let i = 0; i < altTones.length; i++) {
+                candidates.push(composeBpmfString(parsed.symbols, altTones[i]));
+            }
+
+            // 2. 聲母或韻母相似音替換（如 ㄓ↔ㄗ、ㄔ↔ㄘ、ㄕ↔ㄙ、ㄛ↔ㄡ、ㄣ↔ㄥ、ㄢ↔ㄤ）
+            for (let sIdx = 0; sIdx < parsed.symbols.length; sIdx++) {
+                const sym = parsed.symbols[sIdx];
+                const confList = CONFUSING_BPMF_MAP[sym] || [];
+                for (let c = 0; c < confList.length; c++) {
+                    const copySyms = parsed.symbols.slice();
+                    copySyms[sIdx] = confList[c];
+                    // 同聲調但相似聲韻
+                    candidates.push(composeBpmfString(copySyms, parsed.tone));
+                    // 相似聲韻＋混淆聲調
+                    if (altTones.length > 0) {
+                        candidates.push(composeBpmfString(copySyms, altTones[0]));
+                    }
+                }
+            }
+
+            // 洗牌候選干擾項並挑滿 4 個不重複選項
+            candidates.sort(function() { return Math.random() - 0.5; });
+            for (let i = 0; i < candidates.length && choices.length < 4; i++) {
+                if (choices.indexOf(candidates[i]) === -1) {
+                    choices.push(candidates[i]);
+                }
+            }
+
+            // 萬一仍不足 4 個，用常見音補足
+            const fallbackPool = ["ㄓˊ", "ㄗˊ", "ㄕˇ", "ㄙˇ", "ㄔˋ", "ㄘˋ", "ㄇㄛˊ", "ㄇㄡˊ"];
+            for (let i = 0; i < fallbackPool.length && choices.length < 4; i++) {
+                if (choices.indexOf(fallbackPool[i]) === -1) {
+                    choices.push(fallbackPool[i]);
+                }
+            }
+
+            return choices.sort(function() { return Math.random() - 0.5; });
+        }
+
+        function startElfGame(elfLevel) {
+            initAudioContext();
+            activeGameType = "elf";
+            currentDifficulty = elfLevel;
+            currentQuestionPool = buildElfQuestionPool(elfLevel);
+
+            const titles = [
+                "",
+                "第一關：單字聲調門 ‧ 聽音選聲調：",
+                "第二關：語詞聲調鎖 ‧ 各組獨立解鎖：",
+                "第三關：順風耳四選一 ‧ 聽音辨別相似注音："
+            ];
+            document.getElementById("elf-mode-label").textContent = titles[elfLevel];
+
+            applyTeamCountLayout();
+            document.getElementById("home-screen").classList.remove("active");
+            document.getElementById("elf-screen").classList.add("active");
+
+            isGameRunning = true;
+            isTransitioningQuestion = false;
+            pickRandomElfTarget();
+        }
+
+        function pickRandomElfTarget() {
+            if (currentQuestionPool.length === 0) return;
+            isTransitioningQuestion = false;
+
+            let nextItem = currentQuestionPool[Math.floor(Math.random() * currentQuestionPool.length)];
+            if (currentQuestionPool.length > 1 && currentTarget && nextItem.id === currentTarget.id) {
+                nextItem = currentQuestionPool[(currentQuestionPool.indexOf(nextItem) + 1) % currentQuestionPool.length];
+            }
+            currentTarget = nextItem;
+
+            document.getElementById("elf-target-display").innerHTML = '<div class="mystery-target-box">👂 仔細聽音</div>';
+
+            const keys = ["A", "B", "C"];
+            for (let i = 0; i < keys.length; i++) {
+                const k = keys[i];
+                teams[k].frozen = false;
+                teams[k].elfCharIdx = 0;
+                document.getElementById("elf-freeze-" + k).classList.remove("active");
+                if (currentDifficulty === 3) {
+                    teams[k].elfChoices = generateElfFourChoices(currentTarget.rubyData[0].bpmf);
+                }
+                renderTeamElfUI(k);
+            }
+
+            startThreeTimesSpeechLoop();
+        }
+
+        function renderTeamElfUI(teamKey) {
+            const teamObj = teams[teamKey];
+            if (!currentTarget) return;
+
+            const hintEl = document.getElementById("elf-stage-hint-" + teamKey);
+            const boxesEl = document.getElementById("elf-boxes-" + teamKey);
+            const shelfTitleEl = document.getElementById("elf-shelf-title-" + teamKey);
+            const buttonsContainer = document.getElementById("elf-buttons-" + teamKey);
+
+            boxesEl.innerHTML = "";
+            buttonsContainer.innerHTML = "";
+
+            if (currentDifficulty === 1 || currentDifficulty === 2) {
+                const totalChars = currentTarget.rubyData.length;
+                if (currentDifficulty === 1) {
+                    hintEl.textContent = "👂 聽一聽，這個字是幾聲？";
+                } else {
+                    hintEl.textContent = "🔓 本組進度：正在解鎖第 " + (teamObj.elfCharIdx + 1) + " 個字（共 " + totalChars + " 字）";
+                }
+                shelfTitleEl.textContent = "🚪 五扇聲調傳送門（請拍擊正確聲調）：";
+
+                // 渲染該組專屬的無聲調直式注音框（已解鎖顯示完整注音，未解鎖隱藏聲調）
+                for (let i = 0; i < totalChars; i++) {
+                    const rObj = currentTarget.rubyData[i];
+                    const slot = document.createElement("div");
+
+                    if (i < teamObj.elfCharIdx) {
+                        slot.className = "elf-char-slot done-slot";
+                        slot.innerHTML =
+                            '<span class="elf-slot-label">✓ 已解鎖</span>' +
+                            buildSingleBpmfBoxHTML(rObj.bpmf);
+                    } else if (i === teamObj.elfCharIdx) {
+                        slot.className = "elf-char-slot active-slot";
+                        slot.innerHTML =
+                            '<span class="elf-slot-label">' + (totalChars > 1 ? ("🔥 第 " + (i + 1) + " 字") : "🔥 請選聲調") + '</span>' +
+                            buildTonelessBpmfBoxHTML(rObj.bpmf, "？");
+                    } else {
+                        slot.className = "elf-char-slot";
+                        slot.innerHTML =
+                            '<span class="elf-slot-label">🔒 待解鎖</span>' +
+                            buildTonelessBpmfBoxHTML(rObj.bpmf, "🔒");
+                    }
+                    boxesEl.appendChild(slot);
+                }
+
+                // 渲染下方 5 扇聲調傳送門大按鈕
+                const doorsGrid = document.createElement("div");
+                doorsGrid.className = "elf-doors-grid";
+
+                for (let d = 0; d < ELF_TONE_DOORS.length; d++) {
+                    const door = ELF_TONE_DOORS[d];
+                    const btn = document.createElement("button");
+                    btn.className = "elf-door-btn";
+                    btn.innerHTML =
+                        '<div style="display:flex; align-items:center; gap:12px;">' +
+                            '<span class="door-tone-symbol">' + door.markDisplay + '</span>' +
+                            '<span>' + door.title + '</span>' +
+                        '</div>' +
+                        '<span class="door-mnemonic-tag">' + door.mnemonic + '</span>';
+
+                    const handleDoorTap = function(evt) {
+                        evt.preventDefault();
+                        evt.stopPropagation();
+                        onElfToneDoorTap(teamKey, door.tone);
+                    };
+                    btn.addEventListener("touchstart", handleDoorTap, { passive: false });
+                    btn.addEventListener("mousedown", handleDoorTap);
+                    doorsGrid.appendChild(btn);
+                }
+                buttonsContainer.appendChild(doorsGrid);
+
+            } else if (currentDifficulty === 3) {
+                // 第三關：順風耳四選一
+                hintEl.textContent = "👂 順風耳大考驗：仔細聽聲母、韻母與聲調！";
+                shelfTitleEl.textContent = "🃏 請從下方 4 張相似注音卡中拍擊正確答案：";
+
+                const mysterySlot = document.createElement("div");
+                mysterySlot.className = "elf-char-slot active-slot";
+                mysterySlot.style.padding = "18px 28px";
+                mysterySlot.innerHTML = '<div style="font-size:1.5rem; font-weight:900; color:#f1c40f;">👂 請聽音辨字</div>';
+                boxesEl.appendChild(mysterySlot);
+
+                const cardsGrid = document.createElement("div");
+                cardsGrid.className = "elf-4cards-grid";
+
+                for (let c = 0; c < teamObj.elfChoices.length; c++) {
+                    const choiceBpmf = teamObj.elfChoices[c];
+                    const cardBtn = document.createElement("button");
+                    cardBtn.className = "elf-card-choice";
+                    cardBtn.innerHTML = buildSingleBpmfBoxHTML(choiceBpmf);
+
+                    const handleCardTap = function(evt) {
+                        evt.preventDefault();
+                        evt.stopPropagation();
+                        onElfFourCardTap(teamKey, choiceBpmf);
+                    };
+                    cardBtn.addEventListener("touchstart", handleCardTap, { passive: false });
+                    cardBtn.addEventListener("mousedown", handleCardTap);
+                    cardsGrid.appendChild(cardBtn);
+                }
+                buttonsContainer.appendChild(cardsGrid);
+            }
+        }
+
+        function onElfToneDoorTap(teamKey, chosenTone) {
+            if (!isGameRunning || isTransitioningQuestion || !currentTarget) return;
+            const teamObj = teams[teamKey];
+            if (teamObj.frozen) return;
+
+            const targetCharObj = currentTarget.rubyData[teamObj.elfCharIdx];
+            const parsed = parseBpmfComponents(targetCharObj.bpmf);
+
+            if (chosenTone === parsed.tone) {
+                playHitSound();
+                const nextIdx = teamObj.elfCharIdx + 1;
+
+                if (nextIdx < currentTarget.rubyData.length) {
+                    // 第二關語詞聲調鎖：該組獨立解鎖下一個字！
+                    teamObj.elfCharIdx = nextIdx;
+                    renderTeamElfUI(teamKey);
+                } else {
+                    // 全數解鎖完成！獲得星星並進入全螢幕 5 秒解答特寫與換位倒數
+                    teamObj.elfCharIdx = nextIdx;
+                    renderTeamElfUI(teamKey);
+                    teamObj.score += 1;
+                    updateAllScoreDisplays();
+                    triggerAnswerShowcase(teamKey);
+                }
+            } else {
+                triggerElfFreeze(teamKey);
+            }
+        }
+
+        function onElfFourCardTap(teamKey, chosenBpmf) {
+            if (!isGameRunning || isTransitioningQuestion || !currentTarget) return;
+            const teamObj = teams[teamKey];
+            if (teamObj.frozen) return;
+
+            const correctBpmf = currentTarget.rubyData[0].bpmf;
+            if (chosenBpmf === correctBpmf) {
+                playHitSound();
+                teamObj.score += 1;
+                updateAllScoreDisplays();
+                triggerAnswerShowcase(teamKey);
+            } else {
+                triggerElfFreeze(teamKey);
+            }
+        }
+
+        function triggerElfFreeze(teamKey) {
+            playWrongSound();
+            const teamObj = teams[teamKey];
+            teamObj.frozen = true;
+            const freezeEl = document.getElementById("elf-freeze-" + teamKey);
+            freezeEl.classList.add("active");
+            setTimeout(function() {
+                teamObj.frozen = false;
+                freezeEl.classList.remove("active");
+            }, 1500);
+        }
+
         function manualNextQuestion() {
             if (showcaseIntervalId) {
                 clearInterval(showcaseIntervalId);
@@ -3049,8 +3971,10 @@
             if (activeGameType === "meteor") {
                 clearAllMeteors();
                 pickRandomMeteorTarget();
-            } else {
+            } else if (activeGameType === "pot") {
                 pickRandomPotTarget();
+            } else if (activeGameType === "elf") {
+                pickRandomElfTarget();
             }
         }
 
@@ -3064,6 +3988,7 @@
             document.getElementById("showcase-overlay").classList.remove("active");
             document.getElementById("game-screen").classList.remove("active");
             document.getElementById("pot-screen").classList.remove("active");
+            document.getElementById("elf-screen").classList.remove("active");
             document.getElementById("home-screen").classList.add("active");
         }
 
