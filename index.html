@@ -2261,6 +2261,9 @@
         // =========================================================
         // 🐾 1. 老師指定的 37 個動物注音字典檔 (斑馬有ㄅ ～ 鳥兒有ㄦ)
         // =========================================================
+        // =========================================================
+        // 🐾 1. 老師指定的 37 個動物注音字典檔 (斑馬有ㄅ ～ 鳥兒有ㄦ)
+        // =========================================================
         const ANIMAL_BPMF_DICTIONARY = [
             // 聲母（21 個）
             { symbol: "ㄅ", animal: "斑馬", lesson: 1, animalRuby: [{ char: "斑", bpmf: "ㄅㄢ" }, { char: "馬", bpmf: "ㄇㄚˇ" }] },
@@ -2308,17 +2311,17 @@
         // 🛡️ 2. 語音底層防呆校正表 (TTS Pronunciation Correction)
         // =========================================================
         const ANIMAL_TTS_CORRECTION_MAP = {
-            "長頸鹿": "常頸鹿", // 防止「長」被讀成 ㄓㄤˇ
-            "企鵝": "氣鵝",     // 防止「企」被讀成三聲 ㄑㄧˇ
-            "犀牛": "西牛",     // 確保「犀」讀為一聲 ㄒㄧ
-            "猩猩": "星惺",     // 確保疊字讀音穩定
-            "烏賊": "烏賊",     // 維持 ㄨ ㄗㄟˊ
-            "刺蝟": "次衛",     // 防止「蝟」讀成二聲 ㄨㄟˊ
-            "鯨魚": "晶魚",     // 防止「鯨」被讀成二聲 ㄐㄧㄥˊ
-            "土撥鼠": "土波鼠", // 確保「撥」讀為 ㄅㄛ
-            "白鷺鷥": "白路絲", // 確保三字讀音清晰
-            "糞金龜": "奮金歸", // 防止「龜」破音讀成 ㄐㄩㄣ
-            "鳥兒": "鳥而"      // 防止「鳥兒」被兒化音連讀成單音節「ㄋㄧㄠˇㄦ」，確保唸出清楚的 ㄦˊ
+            "長頸鹿": "常頸鹿",
+            "企鵝": "氣鵝",
+            "犀牛": "西牛",
+            "猩猩": "星惺",
+            "烏賊": "烏賊",
+            "刺蝟": "次衛",
+            "鯨魚": "晶魚",
+            "土撥鼠": "土波鼠",
+            "白鷺鷥": "白路絲",
+            "糞金龜": "奮金歸",
+            "鳥兒": "鳥而"
         };
 
         function getCorrectedAnimalTtsText(animalName) {
@@ -2333,8 +2336,7 @@
         }
 
         // =========================================================
-        // 🎧 修正後：國語日報標準 37 注音真人音檔正確編號映射表
-        // （22~34 為 ㄚ~ㄦ，35~37 為 ㄧ、ㄨ、ㄩ）
+        // 🎧 國語日報標準 37 注音真人音檔正確編號映射表
         // =========================================================
         const BPMF_AUDIO_URL_MAP = {
             "ㄅ": "https://www.mdnkids.com/BoPoMo/audio/01.mp3",
@@ -2915,23 +2917,23 @@
         }
 
         // 將語詞轉換為發音片段陣列（處理「椰子」、「掃帚」這類首字需校正且詞尾為輕聲的語詞）
-        function buildWordSpeechSegments(item, pauseAfterMs) {
+        function buildWordSpeechSegments(item, pauseAfterMs, prefixText) {
             const finalPause = (typeof pauseAfterMs === "number") ? pauseAfterMs : 0;
+            const prefix = prefixText || "";
             if (!item || !item.rubyData) {
-                return [{ text: getSafeWordSpeech(item), rate: 0.68, pitch: 1.08, pauseAfter: finalPause }];
+                return [{ text: prefix + getSafeWordSpeech(item), rate: 0.78, pitch: 1.06, pauseAfter: finalPause }];
             }
-            // 針對首字破音/兩岸異調且第二字為輕聲的語詞（如：椰子 ㄧㄝˊ ˙ㄗ、掃帚 ㄙㄠˋ ˙ㄓㄡ），拆為「首字本調 ＋ 短促輕聲尾音」
             if (item.rawText === "椰子" || item.rawText === "掃帚") {
                 const firstBpmf = (item.rubyData[0].bpmf || "").trim();
                 const secondBpmf = (item.rubyData[1].bpmf || "").trim();
                 const firstChar = BPMF_TO_SAFE_CHAR_MAP[firstBpmf] || item.rubyData[0].char;
                 const secondChar = BPMF_TO_SAFE_CHAR_MAP[secondBpmf] || item.rubyData[1].char;
                 return [
-                    { text: firstChar, rate: 0.74, pitch: 1.08, pauseAfter: 20 },
+                    { text: prefix + firstChar, rate: 0.78, pitch: 1.06, pauseAfter: 20 },
                     { text: secondChar, rate: 1.5, pitch: 0.78, volume: 0.76, pauseAfter: finalPause }
                 ];
             }
-            return [{ text: getSafeWordSpeech(item), rate: 0.68, pitch: 1.08, pauseAfter: finalPause }];
+            return [{ text: prefix + getSafeWordSpeech(item), rate: 0.78, pitch: 1.06, pauseAfter: finalPause }];
         }
 
         // 單字部件發音：100% 依據該字在題庫中的 bpmf 注音取得單一讀音同音字
@@ -4077,7 +4079,7 @@
                         const singleBpmfSeg = getSingleBpmfSpeechSegment(entry.symbol, 0);
                         const animalPromptSegments = [
                             {
-                                text: "請找出，" + safeAnimalSpeech + "有",
+                                text: "請找出" + safeAnimalSpeech + "有",
                                 rate: 0.84,
                                 pitch: 1.05,
                                 pauseAfter: 350
@@ -4102,7 +4104,6 @@
                 const key = "level" + difficulty;
                 const targetSymbolCount = difficulty;
 
-                // 1. 先納入各課精選雙拼/三拼（皆附有語境詞，唸出「請找出○○的○」）
                 for (let i = 0; i < LESSON_CONFIG.length; i++) {
                     const lessonObj = LESSON_CONFIG[i];
                     if (selectedLessons.indexOf(lessonObj.id) !== -1) {
@@ -4112,10 +4113,8 @@
                             const contextWord = arr[j].word || arr[j].speak;
                             const safeContextWord = getSafeWordSpeech(contextWord);
                             const segs = [
-                                { text: "請找出", rate: 0.88, pitch: 1.02, pauseAfter: 250 },
-                                { text: safeContextWord + "的", rate: 0.82, pitch: 1.04, pauseAfter: 450 },
-                                { text: safeChar, rate: 0.66, pitch: 1.08, pauseAfter: 650 },
-                                { text: safeChar, rate: 0.66, pitch: 1.08, pauseAfter: 0 }
+                                { text: "請找出" + safeContextWord + "的" + safeChar, rate: 0.82, pitch: 1.05, pauseAfter: 500 },
+                                { text: safeChar, rate: 0.68, pitch: 1.08, pauseAfter: 0 }
                             ];
                             seenBpmf[arr[j].bpmf] = true;
                             pool.push({
@@ -4129,12 +4128,12 @@
                     }
                 }
 
-                // 2. 再從已勾選課別的語詞庫補充雙拼/三拼單字，同樣唸出「請找出○○的○」
                 for (let i = 0; i < vocabList.length; i++) {
                     const item = vocabList[i];
                     if (selectedLessons.indexOf(item.lesson) === -1) continue;
                     if (item.rawText.length < 2) continue;
 
+                    const safeWord = getSafeWordSpeech(item);
                     for (let c = 0; c < item.rubyData.length; c++) {
                         const rObj = item.rubyData[c];
                         const parsed = parseBpmfComponents(rObj.bpmf);
@@ -4143,13 +4142,10 @@
                         if (parsed.symbols.length === targetSymbolCount && !seenBpmf[rObj.bpmf]) {
                             seenBpmf[rObj.bpmf] = true;
                             const safeChar = getSafeCharSpeech(rObj.char, rObj.bpmf);
-                            const segs = [{ text: "請找出", rate: 0.88, pitch: 1.02, pauseAfter: 250 }]
-                                .concat(buildWordSpeechSegments(item, 80))
-                                .concat([
-                                    { text: "的", rate: 0.84, pitch: 1.02, pauseAfter: 450 },
-                                    { text: safeChar, rate: 0.66, pitch: 1.08, pauseAfter: 650 },
-                                    { text: safeChar, rate: 0.66, pitch: 1.08, pauseAfter: 0 }
-                                ]);
+                            const segs = [
+                                { text: "請找出" + safeWord + "的" + safeChar, rate: 0.82, pitch: 1.05, pauseAfter: 500 },
+                                { text: safeChar, rate: 0.68, pitch: 1.08, pauseAfter: 0 }
+                            ];
                             pool.push({
                                 id: rObj.bpmf,
                                 speakText: safeChar,
@@ -4168,9 +4164,8 @@
                         for (let k = 0; k < item.rubyData.length; k++) {
                             idStr += item.rubyData[k].bpmf + "_";
                         }
-                        const wordSegs = [{ text: "請找出", rate: 0.88, pitch: 1.02, pauseAfter: 500 }]
-                            .concat(buildWordSpeechSegments(item, 650))
-                            .concat(buildWordSpeechSegments(item, 0));
+                        const wordSegs = buildWordSpeechSegments(item, 550, "請找出")
+                            .concat(buildWordSpeechSegments(item, 0, ""));
                         pool.push({
                             id: idStr,
                             speakText: getSafeWordSpeech(item),
@@ -4435,7 +4430,6 @@
 
                         const rObj = item.rubyData[c];
                         const parsed = parseBpmfComponents(rObj.bpmf);
-                        // 單字雙拼與三拼鍋排除輕聲字尾與變調「不」，避免單字發音與詞尾輕聲不一致
                         if (parsed.isLight) continue;
                         if (item.rawText === "不要" && rObj.char === "不") continue;
 
@@ -4446,25 +4440,20 @@
                                 ? safeChar
                                 : (safeWord + "的" + safeChar);
 
-                            // 分段停頓：先說「請拼出（○○的）」-> 停頓 -> 唸第1次目標字 -> 停頓空一字 -> 唸第2次目標字
                             const segments = isSingleWord
                                 ? [
-                                    { text: "請拼出", rate: 0.86, pitch: 1.02, pauseAfter: 500 },
-                                    { text: safeChar, rate: 0.66, pitch: 1.08, pauseAfter: 650 },
-                                    { text: safeChar, rate: 0.66, pitch: 1.08, pauseAfter: 0 }
+                                    { text: "請拼出" + safeChar, rate: 0.82, pitch: 1.05, pauseAfter: 500 },
+                                    { text: safeChar, rate: 0.68, pitch: 1.08, pauseAfter: 0 }
                                 ]
-                                : [{ text: "請拼出", rate: 0.86, pitch: 1.02, pauseAfter: 250 }]
-                                    .concat(buildWordSpeechSegments(item, 80))
-                                    .concat([
-                                        { text: "的", rate: 0.86, pitch: 1.02, pauseAfter: 450 },
-                                        { text: safeChar, rate: 0.66, pitch: 1.08, pauseAfter: 650 },
-                                        { text: safeChar, rate: 0.66, pitch: 1.08, pauseAfter: 0 }
-                                    ]);
+                                : [
+                                    { text: "請拼出" + safeWord + "的" + safeChar, rate: 0.82, pitch: 1.05, pauseAfter: 500 },
+                                    { text: safeChar, rate: 0.68, pitch: 1.08, pauseAfter: 0 }
+                                ];
 
                             pool.push({
                                 id: item.rawText + "_" + c + "_" + rObj.bpmf,
                                 charPos: c,
-                                promptSpeech: phraseText + "，請拼音",
+                                promptSpeech: "請拼出" + phraseText,
                                 speechSegments: segments,
                                 speakText: safeChar,
                                 displaySubText: isSingleWord
@@ -4479,14 +4468,12 @@
                     for (let k = 0; k < item.rubyData.length; k++) {
                         idStr += item.rubyData[k].bpmf + "_";
                     }
-                    // 語詞接力鍋分段停頓：「請拼出」-> 停頓 -> 唸第1次語詞 -> 停頓空一字 -> 唸第2次語詞
-                    const wordSegments = [{ text: "請拼出", rate: 0.86, pitch: 1.02, pauseAfter: 500 }]
-                        .concat(buildWordSpeechSegments(item, 700))
-                        .concat(buildWordSpeechSegments(item, 0));
+                    const wordSegments = buildWordSpeechSegments(item, 550, "請拼出")
+                        .concat(buildWordSpeechSegments(item, 0, ""));
                     pool.push({
                         id: idStr,
                         charPos: 0,
-                        promptSpeech: safeWord + "，請拼音",
+                        promptSpeech: "請拼出" + safeWord,
                         speechSegments: wordSegments,
                         speakText: safeWord,
                         displaySubText: "語詞：「" + item.rawText + "」",
@@ -4836,35 +4823,29 @@
                         let showcaseSpeakStr = "";
                         let segments = [];
                         if (item.rawText.length === 1) {
-                            promptStr = safeChar + "，是幾聲" + safeChar + "？";
+                            promptStr = safeChar + "是幾聲" + safeChar + "？";
                             speakStr = safeChar;
                             showcaseSpeakStr = safeChar;
                             segments = [
-                                { text: safeChar, rate: 0.66, pitch: 1.08, pauseAfter: 550 },
-                                { text: "是幾聲", rate: 0.84, pitch: 1.04, pauseAfter: 450 },
-                                { text: safeChar, rate: 0.66, pitch: 1.08, pauseAfter: 0 }
+                                { text: safeChar + "是幾聲", rate: 0.82, pitch: 1.05, pauseAfter: 500 },
+                                { text: safeChar, rate: 0.68, pitch: 1.08, pauseAfter: 0 }
                             ];
                         } else if (parsed.isLight) {
-                            // 輕聲部件字（如「刀子的子」）：用一聲平調基底字搭配短促輕巧語音參數（rate:1.5, pitch:0.78），徹底避免被語音引擎讀成三聲「紫」
-                            promptStr = safeWord + "的" + rObj.char + "，是幾聲？";
+                            promptStr = safeWord + "的" + rObj.char + "是幾聲？";
                             speakStr = safeWord;
                             showcaseSpeakStr = safeWord;
-                            segments = buildWordSpeechSegments(item, 80).concat([
-                                { text: "的", rate: 0.88, pitch: 1.0, pauseAfter: 180 },
-                                { text: safeChar, rate: 1.5, pitch: 0.78, volume: 0.75, pauseAfter: 500 },
-                                { text: "是幾聲", rate: 0.84, pitch: 1.04, pauseAfter: 200 },
+                            segments = [
+                                { text: safeWord + "的" + rObj.char + "是幾聲", rate: 0.82, pitch: 1.05, pauseAfter: 500 },
                                 { text: safeChar, rate: 1.5, pitch: 0.78, volume: 0.75, pauseAfter: 0 }
-                            ]);
+                            ];
                         } else {
-                            promptStr = safeWord + "的" + safeChar + "，是幾聲" + safeChar + "？";
+                            promptStr = safeWord + "的" + safeChar + "是幾聲" + safeChar + "？";
                             speakStr = safeChar;
                             showcaseSpeakStr = safeChar;
-                            segments = buildWordSpeechSegments(item, 80).concat([
-                                { text: "的", rate: 0.82, pitch: 1.04, pauseAfter: 450 },
-                                { text: safeChar, rate: 0.66, pitch: 1.08, pauseAfter: 550 },
-                                { text: "是幾聲", rate: 0.84, pitch: 1.04, pauseAfter: 450 },
-                                { text: safeChar, rate: 0.66, pitch: 1.08, pauseAfter: 0 }
-                            ]);
+                            segments = [
+                                { text: safeWord + "的" + safeChar + "是幾聲", rate: 0.82, pitch: 1.05, pauseAfter: 500 },
+                                { text: safeChar, rate: 0.68, pitch: 1.08, pauseAfter: 0 }
+                            ];
                         }
 
                         pool.push({
@@ -4884,12 +4865,11 @@
                     for (let k = 0; k < item.rubyData.length; k++) {
                         idStr += item.rubyData[k].bpmf + "_";
                     }
-                    const wordSegments = [{ text: "請選聲調", rate: 0.86, pitch: 1.02, pauseAfter: 500 }]
-                        .concat(buildWordSpeechSegments(item, 700))
-                        .concat(buildWordSpeechSegments(item, 0));
+                    const wordSegments = buildWordSpeechSegments(item, 550, "請選聲調")
+                        .concat(buildWordSpeechSegments(item, 0, ""));
                     pool.push({
                         id: idStr,
-                        promptSpeech: safeWord + "，請選聲調",
+                        promptSpeech: "請選聲調" + safeWord,
                         speechSegments: wordSegments,
                         speakText: safeWord,
                         displaySubText: "語詞：「" + item.rawText + "」",
@@ -4911,21 +4891,17 @@
 
                         const segments = isSingleWord
                             ? [
-                                { text: "請找注音", rate: 0.86, pitch: 1.02, pauseAfter: 500 },
-                                { text: safeChar, rate: 0.66, pitch: 1.08, pauseAfter: 650 },
-                                { text: safeChar, rate: 0.66, pitch: 1.08, pauseAfter: 0 }
+                                { text: "請找注音" + safeChar, rate: 0.82, pitch: 1.05, pauseAfter: 500 },
+                                { text: safeChar, rate: 0.68, pitch: 1.08, pauseAfter: 0 }
                             ]
-                            : [{ text: "請找注音", rate: 0.86, pitch: 1.02, pauseAfter: 250 }]
-                                .concat(buildWordSpeechSegments(item, 80))
-                                .concat([
-                                    { text: "的", rate: 0.82, pitch: 1.04, pauseAfter: 450 },
-                                    { text: safeChar, rate: 0.66, pitch: 1.08, pauseAfter: 650 },
-                                    { text: safeChar, rate: 0.66, pitch: 1.08, pauseAfter: 0 }
-                                ]);
+                            : [
+                                { text: "請找注音" + safeWord + "的" + safeChar, rate: 0.82, pitch: 1.05, pauseAfter: 500 },
+                                { text: safeChar, rate: 0.68, pitch: 1.08, pauseAfter: 0 }
+                            ];
 
                         pool.push({
                             id: "elf3_" + item.rawText + "_" + c + "_" + rObj.bpmf,
-                            promptSpeech: phraseText + "，請找注音",
+                            promptSpeech: "請找注音" + phraseText,
                             speechSegments: segments,
                             speakText: safeChar,
                             displaySubText: isSingleWord
