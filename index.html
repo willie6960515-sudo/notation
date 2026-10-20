@@ -1265,6 +1265,56 @@
             justify-content: center;
         }
 
+        
+        /* 🐾 動物音韻覺識特寫視窗（[動物名]有 [注音]）專用排版 */
+        .animal-showcase-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(14px, 2vw, 26px);
+            flex-wrap: wrap;
+        }
+        .animal-word-group {
+            display: flex;
+            align-items: center;
+            gap: clamp(8px, 1.2vw, 14px);
+        }
+        .animal-ruby-card {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(11, 19, 43, 0.88);
+            border: 3px solid var(--bpmf-border);
+            border-radius: 16px;
+            padding: 10px 18px 10px 14px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+        .animal-ruby-card.connector-card {
+            border-color: #bb8fce;
+            background: rgba(59, 32, 99, 0.75);
+        }
+        .animal-hanzi {
+            font-size: clamp(2.4rem, 5dvh, 3.6rem);
+            font-weight: 900;
+            color: #ffffff;
+            line-height: 1;
+            font-family: "Bopomofo", "教育部標準楷書", "Noto Sans TC", sans-serif;
+        }
+        .animal-ruby-card .bopo-wrapper {
+            font-size: clamp(1.1rem, 2.3dvh, 1.55rem);
+        }
+        .animal-target-highlight {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(3.2rem, 6.5dvh, 4.5rem);
+            padding: 4px 10px;
+            border-radius: 22px;
+            background: rgba(241, 196, 15, 0.18);
+            border: 4px solid #f1c40f;
+            box-shadow: 0 0 28px rgba(241, 196, 15, 0.55);
+        }
         .showcase-bpmf-stage .bpmf-word-box {
             flex-direction: row;
             gap: 28px;
@@ -1609,8 +1659,8 @@
                         <div class="diff-card" onclick="startMeteorGame(1)">
                             <div class="diff-info-col">
                                 <span class="diff-badge">第一關</span>
-                                <div class="diff-title">單一注音</div>
-                                <div class="diff-desc">聽單音拍擊聲母或韻母</div>
+                                <div class="diff-title">動物找注音</div>
+                                <div class="diff-desc">聽「動物名＋有＋注音」拍擊符號</div>
                             </div>
                             <div class="diff-preview" id="preview-m1"></div>
                         </div>
@@ -1753,7 +1803,7 @@
             <div class="team-lane lane-a" id="meteor-lane-A">
                 <div class="lane-header">
                     <div class="team-name-badge">
-                        <span>A隊</span>
+                        <span>第一隊</span>
                         <span class="family-tag family-label-A">第 1 家上場</span>
                     </div>
                     <div class="hit-progress-box">
@@ -1775,7 +1825,7 @@
             <div class="team-lane lane-b" id="meteor-lane-B">
                 <div class="lane-header">
                     <div class="team-name-badge">
-                        <span>B隊</span>
+                        <span>第二隊</span>
                         <span class="family-tag family-label-B">第 3 家上場</span>
                     </div>
                     <div class="hit-progress-box">
@@ -1797,7 +1847,7 @@
             <div class="team-lane lane-c" id="meteor-lane-C">
                 <div class="lane-header">
                     <div class="team-name-badge">
-                        <span>C隊</span>
+                        <span>第三隊</span>
                         <span class="family-tag family-label-C">第 5 家上場</span>
                     </div>
                     <div class="hit-progress-box">
@@ -1845,7 +1895,7 @@
             <div class="team-lane lane-a" id="pot-lane-A">
                 <div class="lane-header">
                     <div class="team-name-badge">
-                        <span>A隊</span>
+                        <span>第一隊</span>
                         <span class="family-tag family-label-A">第 1 家上場</span>
                     </div>
                     <div class="team-score-box">
@@ -1879,7 +1929,7 @@
             <div class="team-lane lane-b" id="pot-lane-B">
                 <div class="lane-header">
                     <div class="team-name-badge">
-                        <span>B隊</span>
+                        <span>第二隊</span>
                         <span class="family-tag family-label-B">第 3 家上場</span>
                     </div>
                     <div class="team-score-box">
@@ -1913,7 +1963,7 @@
             <div class="team-lane lane-c" id="pot-lane-C">
                 <div class="lane-header">
                     <div class="team-name-badge">
-                        <span>C隊</span>
+                        <span>第三隊</span>
                         <span class="family-tag family-label-C">第 5 家上場</span>
                     </div>
                     <div class="team-score-box">
@@ -1973,7 +2023,7 @@
             <div class="team-lane lane-a" id="elf-lane-A">
                 <div class="lane-header">
                     <div class="team-name-badge">
-                        <span>A隊</span>
+                        <span>第一隊</span>
                         <span class="family-tag family-label-A">第 1 家上場</span>
                     </div>
                     <div class="team-score-box">
@@ -2002,7 +2052,7 @@
             <div class="team-lane lane-b" id="elf-lane-B">
                 <div class="lane-header">
                     <div class="team-name-badge">
-                        <span>B隊</span>
+                        <span>第二隊</span>
                         <span class="family-tag family-label-B">第 3 家上場</span>
                     </div>
                     <div class="team-score-box">
@@ -2031,7 +2081,7 @@
             <div class="team-lane lane-c" id="elf-lane-C">
                 <div class="lane-header">
                     <div class="team-name-badge">
-                        <span>C隊</span>
+                        <span>第三隊</span>
                         <span class="family-tag family-label-C">第 5 家上場</span>
                     </div>
                     <div class="team-score-box">
@@ -2208,6 +2258,84 @@
         // =========================================================
         // 預設採用國語日報標準 37 注音真人音檔（01.mp3 ~ 37.mp3）
         // 若老師將音檔放進 Vercel 專案的 /audio 資料夾，只需將下方網址改為 "./audio/01.mp3" 即可
+        // =========================================================
+        // 🐾 1. 老師指定的 37 個動物注音字典檔 (斑馬有ㄅ ～ 鳥兒有ㄦ)
+        // =========================================================
+        const ANIMAL_BPMF_DICTIONARY = [
+            // 聲母（21 個）
+            { symbol: "ㄅ", animal: "斑馬", lesson: 1, animalRuby: [{ char: "斑", bpmf: "ㄅㄢ" }, { char: "馬", bpmf: "ㄇㄚˇ" }] },
+            { symbol: "ㄆ", animal: "螃蟹", lesson: 4, animalRuby: [{ char: "螃", bpmf: "ㄆㄤˊ" }, { char: "蟹", bpmf: "ㄒㄧㄝˋ" }] },
+            { symbol: "ㄇ", animal: "貓咪", lesson: 1, animalRuby: [{ char: "貓", bpmf: "ㄇㄠ" }, { char: "咪", bpmf: "ㄇㄧ" }] },
+            { symbol: "ㄈ", animal: "飛鼠", lesson: 4, animalRuby: [{ char: "飛", bpmf: "ㄈㄟ" }, { char: "鼠", bpmf: "ㄕㄨˇ" }] },
+            { symbol: "ㄉ", animal: "袋鼠", lesson: 2, animalRuby: [{ char: "袋", bpmf: "ㄉㄞˋ" }, { char: "鼠", bpmf: "ㄕㄨˇ" }] },
+            { symbol: "ㄊ", animal: "兔子", lesson: 1, animalRuby: [{ char: "兔", bpmf: "ㄊㄨˋ" }, { char: "子", bpmf: "˙ㄗ" }] },
+            { symbol: "ㄋ", animal: "犀牛", lesson: 2, animalRuby: [{ char: "犀", bpmf: "ㄒㄧ" }, { char: "牛", bpmf: "ㄋㄧㄡˊ" }] },
+            { symbol: "ㄌ", animal: "老鼠", lesson: 2, animalRuby: [{ char: "老", bpmf: "ㄌㄠˇ" }, { char: "鼠", bpmf: "ㄕㄨˇ" }] },
+            { symbol: "ㄍ", animal: "小狗", lesson: 3, animalRuby: [{ char: "小", bpmf: "ㄒㄧㄠˇ" }, { char: "狗", bpmf: "ㄍㄡˇ" }] },
+            { symbol: "ㄎ", animal: "恐龍", lesson: 3, animalRuby: [{ char: "恐", bpmf: "ㄎㄨㄥˇ" }, { char: "龍", bpmf: "ㄌㄨㄥˊ" }] },
+            { symbol: "ㄏ", animal: "河馬", lesson: 3, animalRuby: [{ char: "河", bpmf: "ㄏㄜˊ" }, { char: "馬", bpmf: "ㄇㄚˇ" }] },
+            { symbol: "ㄐ", animal: "公雞", lesson: 4, animalRuby: [{ char: "公", bpmf: "ㄍㄨㄥ" }, { char: "雞", bpmf: "ㄐㄧ" }] },
+            { symbol: "ㄑ", animal: "企鵝", lesson: 4, animalRuby: [{ char: "企", bpmf: "ㄑㄧˋ" }, { char: "鵝", bpmf: "ㄜˊ" }] },
+            { symbol: "ㄒ", animal: "猩猩", lesson: 5, animalRuby: [{ char: "猩", bpmf: "ㄒㄧㄥ" }, { char: "猩", bpmf: "ㄒㄧㄥ" }] },
+            { symbol: "ㄓ", animal: "蜘蛛", lesson: 4, animalRuby: [{ char: "蜘", bpmf: "ㄓ" }, { char: "蛛", bpmf: "ㄓㄨ" }] },
+            { symbol: "ㄔ", animal: "長頸鹿", lesson: 5, animalRuby: [{ char: "長", bpmf: "ㄔㄤˊ" }, { char: "頸", bpmf: "ㄐㄧㄥˇ" }, { char: "鹿", bpmf: "ㄌㄨˋ" }] },
+            { symbol: "ㄕ", animal: "山豬", lesson: 5, animalRuby: [{ char: "山", bpmf: "ㄕㄢ" }, { char: "豬", bpmf: "ㄓㄨ" }] },
+            { symbol: "ㄖ", animal: "乳牛", lesson: 5, animalRuby: [{ char: "乳", bpmf: "ㄖㄨˇ" }, { char: "牛", bpmf: "ㄋㄧㄡˊ" }] },
+            { symbol: "ㄗ", animal: "烏賊", lesson: 6, animalRuby: [{ char: "烏", bpmf: "ㄨ" }, { char: "賊", bpmf: "ㄗㄟˊ" }] },
+            { symbol: "ㄘ", animal: "刺蝟", lesson: 6, animalRuby: [{ char: "刺", bpmf: "ㄘˋ" }, { char: "蝟", bpmf: "ㄨㄟˋ" }] },
+            { symbol: "ㄙ", animal: "松鼠", lesson: 6, animalRuby: [{ char: "松", bpmf: "ㄙㄨㄥ" }, { char: "鼠", bpmf: "ㄕㄨˇ" }] },
+            // 介音（3 個）
+            { symbol: "ㄧ", animal: "小雞", lesson: 1, animalRuby: [{ char: "小", bpmf: "ㄒㄧㄠˇ" }, { char: "雞", bpmf: "ㄐㄧ" }] },
+            { symbol: "ㄨ", animal: "烏鴉", lesson: 2, animalRuby: [{ char: "烏", bpmf: "ㄨ" }, { char: "鴉", bpmf: "ㄧㄚ" }] },
+            { symbol: "ㄩ", animal: "鯨魚", lesson: 3, animalRuby: [{ char: "鯨", bpmf: "ㄐㄧㄥ" }, { char: "魚", bpmf: "ㄩˊ" }] },
+            // 韻母（13 個）
+            { symbol: "ㄚ", animal: "海馬", lesson: 1, animalRuby: [{ char: "海", bpmf: "ㄏㄞˇ" }, { char: "馬", bpmf: "ㄇㄚˇ" }] },
+            { symbol: "ㄛ", animal: "土撥鼠", lesson: 6, animalRuby: [{ char: "土", bpmf: "ㄊㄨˇ" }, { char: "撥", bpmf: "ㄅㄛ" }, { char: "鼠", bpmf: "ㄕㄨˇ" }] },
+            { symbol: "ㄜ", animal: "天鵝", lesson: 6, animalRuby: [{ char: "天", bpmf: "ㄊㄧㄢ" }, { char: "鵝", bpmf: "ㄜˊ" }] },
+            { symbol: "ㄝ", animal: "野狼", lesson: 9, animalRuby: [{ char: "野", bpmf: "ㄧㄝˇ" }, { char: "狼", bpmf: "ㄌㄤˊ" }] },
+            { symbol: "ㄞ", animal: "白鷺鷥", lesson: 7, animalRuby: [{ char: "白", bpmf: "ㄅㄞˊ" }, { char: "鷺", bpmf: "ㄌㄨˋ" }, { char: "鷥", bpmf: "ㄙ" }] },
+            { symbol: "ㄟ", animal: "黑熊", lesson: 4, animalRuby: [{ char: "黑", bpmf: "ㄏㄟ" }, { char: "熊", bpmf: "ㄒㄩㄥˊ" }] },
+            { symbol: "ㄠ", animal: "海豹", lesson: 2, animalRuby: [{ char: "海", bpmf: "ㄏㄞˇ" }, { char: "豹", bpmf: "ㄅㄠˋ" }] },
+            { symbol: "ㄡ", animal: "猴子", lesson: 6, animalRuby: [{ char: "猴", bpmf: "ㄏㄡˊ" }, { char: "子", bpmf: "˙ㄗ" }] },
+            { symbol: "ㄢ", animal: "山羊", lesson: 3, animalRuby: [{ char: "山", bpmf: "ㄕㄢ" }, { char: "羊", bpmf: "ㄧㄤˊ" }] },
+            { symbol: "ㄣ", animal: "糞金龜", lesson: 7, animalRuby: [{ char: "糞", bpmf: "ㄈㄣˋ" }, { char: "金", bpmf: "ㄐㄧㄣ" }, { char: "龜", bpmf: "ㄍㄨㄟ" }] },
+            { symbol: "ㄤ", animal: "章魚", lesson: 5, animalRuby: [{ char: "章", bpmf: "ㄓㄤ" }, { char: "魚", bpmf: "ㄩˊ" }] },
+            { symbol: "ㄥ", animal: "蜜蜂", lesson: 8, animalRuby: [{ char: "蜜", bpmf: "ㄇㄧˋ" }, { char: "蜂", bpmf: "ㄈㄥ" }] },
+            { symbol: "ㄦ", animal: "鳥兒", lesson: 8, animalRuby: [{ char: "鳥", bpmf: "ㄋㄧㄠˇ" }, { char: "兒", bpmf: "ㄦˊ" }] }
+        ];
+
+        // =========================================================
+        // 🛡️ 2. 語音底層防呆校正表 (TTS Pronunciation Correction)
+        // =========================================================
+        const ANIMAL_TTS_CORRECTION_MAP = {
+            "長頸鹿": "常頸鹿", // 防止「長」被讀成 ㄓㄤˇ
+            "企鵝": "氣鵝",     // 防止「企」被讀成三聲 ㄑㄧˇ
+            "犀牛": "西牛",     // 確保「犀」讀為一聲 ㄒㄧ
+            "猩猩": "星惺",     // 確保疊字讀音穩定
+            "烏賊": "烏賊",     // 維持 ㄨ ㄗㄟˊ
+            "刺蝟": "次衛",     // 防止「蝟」讀成二聲 ㄨㄟˊ
+            "鯨魚": "晶魚",     // 防止「鯨」被讀成二聲 ㄐㄧㄥˊ
+            "土撥鼠": "土波鼠", // 確保「撥」讀為 ㄅㄛ
+            "白鷺鷥": "白路絲", // 確保三字讀音清晰
+            "糞金龜": "奮金歸", // 防止「龜」破音讀成 ㄐㄩㄣ
+            "鳥兒": "鳥而"      // 防止「鳥兒」被兒化音連讀成單音節「ㄋㄧㄠˇㄦ」，確保唸出清楚的 ㄦˊ
+        };
+
+        function getCorrectedAnimalTtsText(animalName) {
+            if (!animalName) return "";
+            if (ANIMAL_TTS_CORRECTION_MAP[animalName]) {
+                return ANIMAL_TTS_CORRECTION_MAP[animalName];
+            }
+            if (typeof SAFE_WORD_SPEECH_MAP !== "undefined" && SAFE_WORD_SPEECH_MAP[animalName]) {
+                return SAFE_WORD_SPEECH_MAP[animalName];
+            }
+            return animalName;
+        }
+
+        // =========================================================
+        // 🎧 修正後：國語日報標準 37 注音真人音檔正確編號映射表
+        // （22~34 為 ㄚ~ㄦ，35~37 為 ㄧ、ㄨ、ㄩ）
+        // =========================================================
         const BPMF_AUDIO_URL_MAP = {
             "ㄅ": "https://www.mdnkids.com/BoPoMo/audio/01.mp3",
             "ㄆ": "https://www.mdnkids.com/BoPoMo/audio/02.mp3",
@@ -2230,22 +2358,22 @@
             "ㄗ": "https://www.mdnkids.com/BoPoMo/audio/19.mp3",
             "ㄘ": "https://www.mdnkids.com/BoPoMo/audio/20.mp3",
             "ㄙ": "https://www.mdnkids.com/BoPoMo/audio/21.mp3",
-            "ㄧ": "https://www.mdnkids.com/BoPoMo/audio/22.mp3",
-            "ㄨ": "https://www.mdnkids.com/BoPoMo/audio/23.mp3",
-            "ㄩ": "https://www.mdnkids.com/BoPoMo/audio/24.mp3",
-            "ㄚ": "https://www.mdnkids.com/BoPoMo/audio/25.mp3",
-            "ㄛ": "https://www.mdnkids.com/BoPoMo/audio/26.mp3",
-            "ㄜ": "https://www.mdnkids.com/BoPoMo/audio/27.mp3",
-            "ㄝ": "https://www.mdnkids.com/BoPoMo/audio/28.mp3",
-            "ㄞ": "https://www.mdnkids.com/BoPoMo/audio/29.mp3",
-            "ㄟ": "https://www.mdnkids.com/BoPoMo/audio/30.mp3",
-            "ㄠ": "https://www.mdnkids.com/BoPoMo/audio/31.mp3",
-            "ㄡ": "https://www.mdnkids.com/BoPoMo/audio/32.mp3",
-            "ㄢ": "https://www.mdnkids.com/BoPoMo/audio/33.mp3",
-            "ㄣ": "https://www.mdnkids.com/BoPoMo/audio/34.mp3",
-            "ㄤ": "https://www.mdnkids.com/BoPoMo/audio/35.mp3",
-            "ㄥ": "https://www.mdnkids.com/BoPoMo/audio/36.mp3",
-            "ㄦ": "https://www.mdnkids.com/BoPoMo/audio/37.mp3"
+            "ㄚ": "https://www.mdnkids.com/BoPoMo/audio/22.mp3",
+            "ㄛ": "https://www.mdnkids.com/BoPoMo/audio/23.mp3",
+            "ㄜ": "https://www.mdnkids.com/BoPoMo/audio/24.mp3",
+            "ㄝ": "https://www.mdnkids.com/BoPoMo/audio/25.mp3",
+            "ㄞ": "https://www.mdnkids.com/BoPoMo/audio/26.mp3",
+            "ㄟ": "https://www.mdnkids.com/BoPoMo/audio/27.mp3",
+            "ㄠ": "https://www.mdnkids.com/BoPoMo/audio/28.mp3",
+            "ㄡ": "https://www.mdnkids.com/BoPoMo/audio/29.mp3",
+            "ㄢ": "https://www.mdnkids.com/BoPoMo/audio/30.mp3",
+            "ㄣ": "https://www.mdnkids.com/BoPoMo/audio/31.mp3",
+            "ㄤ": "https://www.mdnkids.com/BoPoMo/audio/32.mp3",
+            "ㄥ": "https://www.mdnkids.com/BoPoMo/audio/33.mp3",
+            "ㄦ": "https://www.mdnkids.com/BoPoMo/audio/34.mp3",
+            "ㄧ": "https://www.mdnkids.com/BoPoMo/audio/35.mp3",
+            "ㄨ": "https://www.mdnkids.com/BoPoMo/audio/36.mp3",
+            "ㄩ": "https://www.mdnkids.com/BoPoMo/audio/37.mp3"
         };
 
         // 音效快取池與目前播放中的 Audio 實例追蹤
@@ -3635,6 +3763,47 @@
             osc.stop(now + 0.32);
         }
 
+        function buildAnimalShowcaseHTML(targetObj) {
+            let html = '<div class="animal-showcase-container">';
+            html += '<div class="animal-word-group">';
+            const rubyArr = targetObj.animalRuby || [];
+            for (let i = 0; i < rubyArr.length; i++) {
+                const parsed = parseBpmfComponents(rubyArr[i].bpmf);
+                let symSpans = "";
+                for (let s = 0; s < parsed.symbols.length; s++) {
+                    symSpans += "<span>" + parsed.symbols[s] + "</span>";
+                }
+                html += '<div class="animal-ruby-card">';
+                html += '<span class="animal-hanzi">' + rubyArr[i].char + '</span>';
+                html += '<span class="bopo-wrapper">';
+                if (parsed.isLight) {
+                    html += '<span class="tone-light">˙</span>';
+                }
+                html += '<span class="sym">' + symSpans + '</span>';
+                if (parsed.tone && !parsed.isLight) {
+                    html += '<span class="tone">' + parsed.tone + '</span>';
+                }
+                html += '</span></div>';
+            }
+            html += '<div class="animal-ruby-card connector-card">';
+            html += '<span class="animal-hanzi">有</span>';
+            html += '<span class="bopo-wrapper">';
+            html += '<span class="sym"><span>ㄧ</span><span>ㄡ</span></span>';
+            html += '<span class="tone">ˇ</span>';
+            html += '</span></div>';
+            html += '</div>';
+            html += '<div class="animal-target-highlight">';
+            html += buildSingleBpmfBoxHTML(targetObj.targetSymbol);
+            html += '</div>';
+            html += '</div>';
+            return html;
+        }
+
+        function getChineseTeamName(teamKey) {
+            const map = { "A": "第一隊", "B": "第二隊", "C": "第三隊" };
+            return map[teamKey] || "挑戰隊伍";
+        }
+
         function triggerAnswerShowcase(winningTeamKey) {
             isTransitioningQuestion = true;
             stopAllSpeech();
@@ -3646,10 +3815,16 @@
             const swapLabel = document.getElementById("showcase-swap-label");
             const timerNum = document.getElementById("showcase-timer-num");
 
-            const teamTitle = (activeTeamCount === 1) ? "挑戰成功" : (winningTeamKey + "隊 率先完成");
+            const teamTitle = (activeTeamCount === 1) ? "挑戰成功" : (getChineseTeamName(winningTeamKey) + " 率先完成");
             winnerBanner.textContent = "🎉 " + teamTitle + "！獲得 ⭐+1";
-            bpmfBox.innerHTML = renderQuestionBpmfHTML(currentTarget);
-            wordText.textContent = currentTarget.displaySubText || "";
+
+            if (currentTarget && currentTarget.isAnimalBpmfMode) {
+                bpmfBox.innerHTML = buildAnimalShowcaseHTML(currentTarget);
+                wordText.textContent = currentTarget.animalName + "有 " + currentTarget.targetSymbol;
+            } else {
+                bpmfBox.innerHTML = renderQuestionBpmfHTML(currentTarget);
+                wordText.textContent = currentTarget.displaySubText || "";
+            }
 
             if (enableSwapCountdown) {
                 swapLabel.textContent = "🏃‍♂️ 請換下一位小朋友上台準備！";
@@ -3658,16 +3833,18 @@
             }
 
             if (currentTarget) {
-                if (activeGameType === "meteor" && currentDifficulty === 1) {
-                    // 第一關過關特寫：直接播放真實注音 mp3 音檔（若失敗則自動退回 TTS）
-                    playBpmfAudioSymbol(currentTarget.speakText, function(ok) {
-                        if (!ok && "speechSynthesis" in window) {
-                            const singleSeg = getSingleBpmfSpeechSegment(currentTarget.speakText, 0);
-                            const ansUtter = createUtterance(singleSeg.text, singleSeg.rate, singleSeg.pitch);
-                            window._activeUtterance = ansUtter;
-                            window.speechSynthesis.speak(ansUtter);
-                        }
-                    });
+                if (currentTarget.isAnimalBpmfMode) {
+                    const currentSession = ++speechSessionId;
+                    const showcaseSegments = [
+                        {
+                            text: currentTarget.safeAnimalSpeech + "有",
+                            rate: 0.84,
+                            pitch: 1.05,
+                            pauseAfter: 350
+                        },
+                        getSingleBpmfSpeechSegment(currentTarget.targetSymbol, 0)
+                    ];
+                    playSpeechSegments(showcaseSegments, currentSession);
                 } else if ("speechSynthesis" in window) {
                     const ansText = currentTarget.showcaseSpeakText || currentTarget.speakText;
                     const ansUtter = createUtterance(ansText, 0.68, 1.08);
@@ -3893,18 +4070,32 @@
             const seenBpmf = {};
 
             if (difficulty === 1) {
-                for (let i = 0; i < LESSON_CONFIG.length; i++) {
-                    const lessonObj = LESSON_CONFIG[i];
-                    if (selectedLessons.indexOf(lessonObj.id) !== -1) {
-                        const arr = lessonObj.level1 || [];
-                        for (let j = 0; j < arr.length; j++) {
-                            pool.push({
-                                id: arr[j].bpmf,
-                                speakText: arr[j].speak,
-                                displaySubText: "單一注音符號",
-                                rubyData: [{ char: arr[j].speak, bpmf: arr[j].bpmf }]
-                            });
-                        }
+                for (let i = 0; i < ANIMAL_BPMF_DICTIONARY.length; i++) {
+                    const entry = ANIMAL_BPMF_DICTIONARY[i];
+                    if (selectedLessons.indexOf(entry.lesson) !== -1) {
+                        const safeAnimalSpeech = getCorrectedAnimalTtsText(entry.animal);
+                        const singleBpmfSeg = getSingleBpmfSpeechSegment(entry.symbol, 0);
+                        const animalPromptSegments = [
+                            {
+                                text: "請找出，" + safeAnimalSpeech + "有",
+                                rate: 0.84,
+                                pitch: 1.05,
+                                pauseAfter: 350
+                            },
+                            singleBpmfSeg
+                        ];
+                        pool.push({
+                            id: entry.symbol,
+                            isAnimalBpmfMode: true,
+                            targetSymbol: entry.symbol,
+                            animalName: entry.animal,
+                            safeAnimalSpeech: safeAnimalSpeech,
+                            animalRuby: entry.animalRuby,
+                            speakText: entry.symbol,
+                            speechSegments: animalPromptSegments,
+                            displaySubText: entry.animal + "有 " + entry.symbol,
+                            rubyData: [{ char: entry.symbol, bpmf: entry.symbol }]
+                        });
                     }
                 }
             } else if (difficulty === 2 || difficulty === 3) {
@@ -4005,7 +4196,7 @@
             currentDifficulty = difficulty;
             currentQuestionPool = buildMeteorQuestionPool(difficulty);
 
-            const modeTitles = ["", "第一關：單一注音", "第二關：雙拼練習", "第三關：三拼與聲調", "第四關：首冊語詞"];
+            const modeTitles = ["", "第一關：動物找注音", "第二關：雙拼練習", "第三關：三拼與聲調", "第四關：首冊語詞"];
             document.getElementById("game-mode-label").textContent = modeTitles[difficulty] + " ‧ 請聽音找出：";
 
             applyTeamCountLayout();
@@ -5049,12 +5240,12 @@
 
         function showVictoryModal() {
             const board = document.getElementById("victory-board");
-            let html = '<div style="background:rgba(231,76,60,0.25); padding:15px; border-radius:14px; border:2px solid #e74c3c;">A隊（1、2家）：⭐ ' + teams.A.score + ' 顆星</div>';
+            let html = '<div style="background:rgba(231,76,60,0.25); padding:15px; border-radius:14px; border:2px solid #e74c3c;">第一隊（1、2家）：⭐ ' + teams.A.score + ' 顆星</div>';
             if (activeTeamCount >= 2) {
-                html += '<div style="background:rgba(52,152,219,0.25); padding:15px; border-radius:14px; border:2px solid #3498db;">B隊（3、4家）：⭐ ' + teams.B.score + ' 顆星</div>';
+                html += '<div style="background:rgba(52,152,219,0.25); padding:15px; border-radius:14px; border:2px solid #3498db;">第二隊（3、4家）：⭐ ' + teams.B.score + ' 顆星</div>';
             }
             if (activeTeamCount >= 3) {
-                html += '<div style="background:rgba(241,196,15,0.25); padding:15px; border-radius:14px; border:2px solid #f1c40f;">C隊（5、6家）：⭐ ' + teams.C.score + ' 顆星</div>';
+                html += '<div style="background:rgba(241,196,15,0.25); padding:15px; border-radius:14px; border:2px solid #f1c40f;">第三隊（5、6家）：⭐ ' + teams.C.score + ' 顆星</div>';
             }
             board.innerHTML = html;
             document.getElementById("victory-modal").style.display = "flex";
