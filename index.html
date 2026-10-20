@@ -2203,20 +2203,130 @@
             "ㄦ": { text: "ㄦ", rate: 0.72, pitch: 1.08 }
         };
 
+        // =========================================================
+        // 🎧 37 個注音符號真實語音包映射表與預載管理架構
+        // =========================================================
+        // 預設採用國語日報標準 37 注音真人音檔（01.mp3 ~ 37.mp3）
+        // 若老師將音檔放進 Vercel 專案的 /audio 資料夾，只需將下方網址改為 "./audio/01.mp3" 即可
+        const BPMF_AUDIO_URL_MAP = {
+            "ㄅ": "https://www.mdnkids.com/BoPoMo/audio/01.mp3",
+            "ㄆ": "https://www.mdnkids.com/BoPoMo/audio/02.mp3",
+            "ㄇ": "https://www.mdnkids.com/BoPoMo/audio/03.mp3",
+            "ㄈ": "https://www.mdnkids.com/BoPoMo/audio/04.mp3",
+            "ㄉ": "https://www.mdnkids.com/BoPoMo/audio/05.mp3",
+            "ㄊ": "https://www.mdnkids.com/BoPoMo/audio/06.mp3",
+            "ㄋ": "https://www.mdnkids.com/BoPoMo/audio/07.mp3",
+            "ㄌ": "https://www.mdnkids.com/BoPoMo/audio/08.mp3",
+            "ㄍ": "https://www.mdnkids.com/BoPoMo/audio/09.mp3",
+            "ㄎ": "https://www.mdnkids.com/BoPoMo/audio/10.mp3",
+            "ㄏ": "https://www.mdnkids.com/BoPoMo/audio/11.mp3",
+            "ㄐ": "https://www.mdnkids.com/BoPoMo/audio/12.mp3",
+            "ㄑ": "https://www.mdnkids.com/BoPoMo/audio/13.mp3",
+            "ㄒ": "https://www.mdnkids.com/BoPoMo/audio/14.mp3",
+            "ㄓ": "https://www.mdnkids.com/BoPoMo/audio/15.mp3",
+            "ㄔ": "https://www.mdnkids.com/BoPoMo/audio/16.mp3",
+            "ㄕ": "https://www.mdnkids.com/BoPoMo/audio/17.mp3",
+            "ㄖ": "https://www.mdnkids.com/BoPoMo/audio/18.mp3",
+            "ㄗ": "https://www.mdnkids.com/BoPoMo/audio/19.mp3",
+            "ㄘ": "https://www.mdnkids.com/BoPoMo/audio/20.mp3",
+            "ㄙ": "https://www.mdnkids.com/BoPoMo/audio/21.mp3",
+            "ㄧ": "https://www.mdnkids.com/BoPoMo/audio/22.mp3",
+            "ㄨ": "https://www.mdnkids.com/BoPoMo/audio/23.mp3",
+            "ㄩ": "https://www.mdnkids.com/BoPoMo/audio/24.mp3",
+            "ㄚ": "https://www.mdnkids.com/BoPoMo/audio/25.mp3",
+            "ㄛ": "https://www.mdnkids.com/BoPoMo/audio/26.mp3",
+            "ㄜ": "https://www.mdnkids.com/BoPoMo/audio/27.mp3",
+            "ㄝ": "https://www.mdnkids.com/BoPoMo/audio/28.mp3",
+            "ㄞ": "https://www.mdnkids.com/BoPoMo/audio/29.mp3",
+            "ㄟ": "https://www.mdnkids.com/BoPoMo/audio/30.mp3",
+            "ㄠ": "https://www.mdnkids.com/BoPoMo/audio/31.mp3",
+            "ㄡ": "https://www.mdnkids.com/BoPoMo/audio/32.mp3",
+            "ㄢ": "https://www.mdnkids.com/BoPoMo/audio/33.mp3",
+            "ㄣ": "https://www.mdnkids.com/BoPoMo/audio/34.mp3",
+            "ㄤ": "https://www.mdnkids.com/BoPoMo/audio/35.mp3",
+            "ㄥ": "https://www.mdnkids.com/BoPoMo/audio/36.mp3",
+            "ㄦ": "https://www.mdnkids.com/BoPoMo/audio/37.mp3"
+        };
+
+        // 音效快取池與目前播放中的 Audio 實例追蹤
+        const bpmfAudioCache = {};
+        let currentPlayingBpmfAudio = null;
+
+        // 預載所有 37 個注音符號音檔，部署於 Vercel 時可消除首次點擊延遲
+        function preloadBpmfAudioPool() {
+            const symbols = Object.keys(BPMF_AUDIO_URL_MAP);
+            for (let i = 0; i < symbols.length; i++) {
+                const sym = symbols[i];
+                const audio = new Audio();
+                audio.preload = "auto";
+                audio.src = BPMF_AUDIO_URL_MAP[sym];
+                bpmfAudioCache[sym] = audio;
+            }
+        }
+
+        // 立即中斷目前正在播放的外部注音音檔
+        function stopActiveBpmfAudio() {
+            if (currentPlayingBpmfAudio) {
+                try {
+                    currentPlayingBpmfAudio.onended = null;
+                    currentPlayingBpmfAudio.onerror = null;
+                    currentPlayingBpmfAudio.pause();
+                    currentPlayingBpmfAudio.currentTime = 0;
+                } catch (e) {}
+                currentPlayingBpmfAudio = null;
+            }
+        }
+
+        // 非同步播放單一注音真實音檔（支援連續點擊立即切斷前一個聲音，並具備失敗自動備援）
+        function playBpmfAudioSymbol(sym, onFinishCallback) {
+            stopActiveBpmfAudio();
+
+            const audioUrl = BPMF_AUDIO_URL_MAP[sym];
+            if (!audioUrl) {
+                if (onFinishCallback) onFinishCallback(false);
+                return;
+            }
+
+            let audioObj = bpmfAudioCache[sym];
+            if (!audioObj) {
+                audioObj = new Audio(audioUrl);
+                bpmfAudioCache[sym] = audioObj;
+            }
+
+            currentPlayingBpmfAudio = audioObj;
+            audioObj.currentTime = 0;
+
+            let isDone = false;
+            const finishHandler = function(success) {
+                if (isDone) return;
+                isDone = true;
+                audioObj.onended = null;
+                audioObj.onerror = null;
+                if (currentPlayingBpmfAudio === audioObj) {
+                    currentPlayingBpmfAudio = null;
+                }
+                if (onFinishCallback) onFinishCallback(success);
+            };
+
+            audioObj.onended = function() { finishHandler(true); };
+            audioObj.onerror = function() { finishHandler(false); };
+
+            const playPromise = audioObj.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(function() {
+                    // 若因網路或瀏覽器限制無法播放外部音檔，回傳 false 讓系統無縫交由備援語音朗讀
+                    finishHandler(false);
+                });
+            }
+        }
+
         function getSingleBpmfSpeechSegment(rawSym, pauseAfterMs) {
             const cfg = SINGLE_BPMF_SPEECH_MAP[rawSym];
-            if (cfg && typeof cfg === "object") {
-                return {
-                    text: cfg.text,
-                    rate: cfg.rate || 0.72,
-                    pitch: cfg.pitch || 1.08,
-                    pauseAfter: (typeof pauseAfterMs === "number") ? pauseAfterMs : 0
-                };
-            }
             return {
-                text: rawSym,
-                rate: 0.72,
-                pitch: 1.08,
+                bpmfSymbol: rawSym,
+                text: (cfg && cfg.text) ? cfg.text : rawSym,
+                rate: (cfg && cfg.rate) ? cfg.rate : 0.72,
+                pitch: (cfg && cfg.pitch) ? cfg.pitch : 1.08,
                 pauseAfter: (typeof pauseAfterMs === "number") ? pauseAfterMs : 0
             };
         }
@@ -3332,6 +3442,7 @@
         function stopAllSpeech() {
             speechSessionId++;
             clearRepeatTimers();
+            stopActiveBpmfAudio();
             if ("speechSynthesis" in window) {
                 window.speechSynthesis.cancel();
             }
@@ -3341,10 +3452,8 @@
             return getSingleBpmfSpeechSegment(rawSym, 0).text;
         }
 
-        // 依序朗讀語音片段，並在每個片段之間加入明確的「空一個字」停頓秒數，避免連音或變調
+        // 依序朗讀語音片段（若片段帶有 bpmfSymbol，優先播放預載的真實注音 mp3 音檔）
         function playSpeechSegments(segments, session, onComplete) {
-            if (!("speechSynthesis" in window)) return;
-
             function playIndex(idx) {
                 if (session !== speechSessionId || !isGameRunning || isTransitioningQuestion) return;
                 if (idx >= segments.length) {
@@ -3353,11 +3462,8 @@
                 }
 
                 const seg = segments[idx];
-                const u = createUtterance(seg.text, seg.rate || 0.68, seg.pitch || 1.06, seg.volume);
-                // 綁定至全域避免瀏覽器在朗讀途中回收物件導致 onend 失效
-                window._activeUtterance = u;
-
                 let handled = false;
+
                 const advanceNext = function() {
                     if (handled) return;
                     handled = true;
@@ -3372,6 +3478,35 @@
                         playIndex(idx + 1);
                     }
                 };
+
+                // 若為單一注音符號，優先調用預載的真實 mp3 音檔
+                if (seg.bpmfSymbol && BPMF_AUDIO_URL_MAP[seg.bpmfSymbol]) {
+                    playBpmfAudioSymbol(seg.bpmfSymbol, function(playedSuccessfully) {
+                        if (session !== speechSessionId || !isGameRunning || isTransitioningQuestion) return;
+                        if (playedSuccessfully) {
+                            advanceNext();
+                        } else if ("speechSynthesis" in window) {
+                            // 離線或跨網域受阻時，自動無縫退回原本的 TTS 備援
+                            const fallbackUtter = createUtterance(seg.text, seg.rate || 0.72, seg.pitch || 1.08, seg.volume);
+                            window._activeUtterance = fallbackUtter;
+                            fallbackUtter.onend = advanceNext;
+                            fallbackUtter.onerror = advanceNext;
+                            window.speechSynthesis.speak(fallbackUtter);
+                        } else {
+                            advanceNext();
+                        }
+                    });
+                    return;
+                }
+
+                if (!("speechSynthesis" in window)) {
+                    advanceNext();
+                    return;
+                }
+
+                const u = createUtterance(seg.text, seg.rate || 0.68, seg.pitch || 1.06, seg.volume);
+                // 綁定至全域避免瀏覽器在朗讀途中回收物件導致 onend 失效
+                window._activeUtterance = u;
 
                 u.onend = advanceNext;
                 u.onerror = advanceNext;
@@ -3412,10 +3547,13 @@
         }
 
         function speakPromptUnit(onUnitFinished) {
-            if (!currentTarget || !("speechSynthesis" in window)) return;
+            if (!currentTarget) return;
             speechSessionId++;
             clearRepeatTimers();
-            window.speechSynthesis.cancel();
+            stopActiveBpmfAudio();
+            if ("speechSynthesis" in window) {
+                window.speechSynthesis.cancel();
+            }
 
             const currentSession = speechSessionId;
             const segments = buildCurrentPromptSegments();
@@ -3519,13 +3657,18 @@
                 swapLabel.textContent = "👀 大家一起認一認正確注音！";
             }
 
-            if ("speechSynthesis" in window && currentTarget) {
+            if (currentTarget) {
                 if (activeGameType === "meteor" && currentDifficulty === 1) {
-                    const singleSeg = getSingleBpmfSpeechSegment(currentTarget.speakText, 0);
-                    const ansUtter = createUtterance(singleSeg.text, singleSeg.rate, singleSeg.pitch);
-                    window._activeUtterance = ansUtter;
-                    window.speechSynthesis.speak(ansUtter);
-                } else {
+                    // 第一關過關特寫：直接播放真實注音 mp3 音檔（若失敗則自動退回 TTS）
+                    playBpmfAudioSymbol(currentTarget.speakText, function(ok) {
+                        if (!ok && "speechSynthesis" in window) {
+                            const singleSeg = getSingleBpmfSpeechSegment(currentTarget.speakText, 0);
+                            const ansUtter = createUtterance(singleSeg.text, singleSeg.rate, singleSeg.pitch);
+                            window._activeUtterance = ansUtter;
+                            window.speechSynthesis.speak(ansUtter);
+                        }
+                    });
+                } else if ("speechSynthesis" in window) {
                     const ansText = currentTarget.showcaseSpeakText || currentTarget.speakText;
                     const ansUtter = createUtterance(ansText, 0.68, 1.08);
                     window._activeUtterance = ansUtter;
@@ -3568,6 +3711,7 @@
 
         window.onload = function() {
             initSpeechVoices();
+            preloadBpmfAudioPool();
             loadSavedData();
             renderHomePreviews();
             updateHomeScopeSummary();
